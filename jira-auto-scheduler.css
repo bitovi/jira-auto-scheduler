@@ -1,0 +1,83 @@
+body {
+    background-color: #fafafa;
+    font-family: Sans-Serif;
+}
+label {
+    font-size: 10pt;
+    margin: 0px;
+    padding: 0px;
+    display: block;
+}
+jira-team input {
+    width: 50px;
+    position: relative;
+    top: -7px;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+ul {
+    display: inline-block;
+}
+li {
+    display: inline-block;
+    box-sizing: border-box;
+    font-size: 10pt;
+    height: 40pt;
+}
+li.work {
+    border: solid 1px #dddddd;
+    background-color: #f0f0f0;
+    overflow: hidden;
+    white-space: normal;
+    padding: 2px;
+}
+li.work:hover {
+    background-color: #add8e6;
+    cursor: pointer;
+}
+jira-team {
+    white-space: nowrap;
+    padding-top: 5px;
+    display: block;
+}
+div.left {
+    width: 70px;
+    white-space: normal;
+    display: inline-block;
+    line-height: 25pt;
+}
+ul {
+    margin: 0px;
+    padding: 0px;
+}
+#workInfo {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    border: solid 1px green;
+    padding: 5px;
+    width: 300px;
+    background-color: white;
+}
+.work.blocked-0 {
+    background-color: #cf9ca9;
+}
+.work.blocked-1 {
+    background-color: #eec6d0;
+}
+.work.blocked-2 {
+    background-color: #f8e6eb;
+}
+.work.blocking-0 {
+    background-color: #e6d8ad;
+}
+.work.blocking-1 {
+    background-color: #eee4c6;
+}
+.work.blocking-2 {
+    background-color: #f8f3e6;
+}
