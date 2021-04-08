@@ -8,6 +8,10 @@ label {
     padding: 0px;
     display: block;
 }
+jira-auto-scheduler > form label {
+  display: inline-block;
+  margin-left: 30px;
+}
 jira-team input {
     width: 50px;
     position: relative;
@@ -54,13 +58,9 @@ ul {
     margin: 0px;
     padding: 0px;
 }
-#workInfo {
-    position: fixed;
-    bottom: 0px;
-    right: 0px;
+simple-tooltip {
     border: solid 1px green;
     padding: 5px;
-    width: 300px;
     background-color: white;
 }
 .work.blocked-0 {
