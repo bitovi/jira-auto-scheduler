@@ -7,15 +7,17 @@ class JiraTeam extends StacheElement {
     <div class='left'>
       <label>{{team.teamKey}}</label>
       <input
-        value:from='team.velocity'
-        on:change='updateVelocity(scope.element.value)'/>
+        type="number"
+        value:from='this.velocity'
+        valueAsNumber:to='this.velocity'/>
     </div>
     <ul></ul>
   `;
   static props = {
     team: type.maybeConvert(Object),
     dayWidth: Number,
-    tooltip: type.Any
+    tooltip: type.Any,
+    velocity: Number
   };
 
   connected(){
@@ -62,6 +64,7 @@ class JiraTeam extends StacheElement {
       li.onmouseleave = () => {
         unhighlightDependencies(work.issue, "blocks","blocked");
         unhighlightDependencies(work.issue, "blockedBy","blocking");
+
         this.tooltip.leftElement();
       }
       ul.appendChild(li);

@@ -1,4 +1,4 @@
-import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
+import { StacheElement, type, ObservableObject } from "//unpkg.com/can@6/core.mjs";
 import {
   getCSVResultsFromFile,
   makeObjectsFromRows,
@@ -44,7 +44,13 @@ class JiraAutoScheduler extends StacheElement {
 
 
     {{# for(team of this.teams) }}
-      <jira-team team:from="team" dayWidth:from="this.dayWidth" tooltip:from="this.tooltip"></jira-team>
+      <jira-team
+        team:from="team"
+        dayWidth:from="this.dayWidth"
+        tooltip:from="this.tooltip"
+        velocity:from='this.getVelocityForTeam(team.teamKey)'
+        on:velocity='this.updateVelocity(team.teamKey, scope.event.value)'
+        ></jira-team>
     {{/}}
   `;
   static props = {
@@ -59,7 +65,18 @@ class JiraAutoScheduler extends StacheElement {
 
     rawIssues: type.Any,
     workByTeam: type.Any,
-    tooltip: type.Any,
+    tooltip: HTMLElement,
+    velocities: {
+      get default(){
+        return new ObservableObject(
+          JSON.parse( localStorage.getItem("team-velocities") ) || {}
+        );
+      }
+    },
+    get velocitiesJSON(){
+
+      return this.velocities.serialize();
+    },
 
     get teams(){
       const workByTeams = this.workByTeam;
@@ -76,6 +93,11 @@ class JiraAutoScheduler extends StacheElement {
 
     // reschedule when confidence changes
     this.listenTo("uncertaintyWeight", ()=> {
+      this.scheduleIssues();
+    })
+
+    this.listenTo("velocitiesJSON", ({value}) => {
+      localStorage.setItem("team-velocities", JSON.stringify(value) );
       this.scheduleIssues();
     })
   }
@@ -97,12 +119,19 @@ class JiraAutoScheduler extends StacheElement {
       uncertaintyWeight: this.uncertaintyWeight,
       onPlannedIssues: (workByTeam) => {
         this.workByTeam = workByTeam;
-      }
+      },
+      getVelocity: this.getVelocityForTeam.bind(this)
     })
   }
   clearIssues(){
     this.rawIssues = null;
     this.workByTeam = null;
+  }
+  getVelocityForTeam(teamKey) {
+    return this.velocities[teamKey] || 21;
+  }
+  updateVelocity(teamKey, value){
+    this.velocities[teamKey] = value;
   }
 }
 
