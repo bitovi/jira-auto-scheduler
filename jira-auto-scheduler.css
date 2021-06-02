@@ -1,83 +1,229 @@
 body {
-    background-color: #fafafa;
-    font-family: Sans-Serif;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
 }
-label {
-    font-size: 10pt;
-    margin: 0px;
-    padding: 0px;
-    display: block;
+
+jira-auto-scheduler {
+  display: grid;
+  height: 100vh;
 }
-jira-auto-scheduler > form label {
+
+header {
+  border-bottom: 1px solid #DFE1E6;
+  max-height: 76px;
+  overflow: hidden;
+  padding: 20px 32px 24px;
+}
+
+main {
+  overflow: auto;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+  margin: 0 0 20px;
+}
+
+.inline-grid div {
   display: inline-block;
-  margin-left: 30px;
+  margin-right: 32px;
 }
-jira-team input {
-    width: 50px;
-    position: relative;
-    top: -7px;
+
+ul.key li {
+  display: inline-block;
+  margin-right: 16px;
 }
-a {
-    text-decoration: none;
+
+input[type='file'], input[type='number'], input[type='text'] {
+  border: none;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px #C1C7D0;
+  display: inline-block;
+  font-size: 16px;
+  line-height: 24px;
+  padding: 4px 8px;
+  vertical-align: middle;
 }
-a:hover {
-    text-decoration: underline;
+
+input[type='number'] {
+  width: 48px;
 }
-ul {
-    display: inline-block;
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
-li {
-    display: inline-block;
-    box-sizing: border-box;
-    font-size: 10pt;
-    height: 40pt;
+
+button, .file-upload {
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  padding: 4px 16px;
 }
-li.work {
-    border: solid 1px #dddddd;
-    background-color: #f0f0f0;
-    overflow: hidden;
-    white-space: normal;
-    padding: 2px;
+
+.button--primary, .file-upload {
+  background-color: #0052CC;
+  color: #ffffff;
 }
-li.work:hover {
-    background-color: #add8e6;
-    cursor: pointer;
+
+.button--primary:hover, .button--primary:focus, 
+.file-upload:hover, .file-upload:focus {
+  background-color: #0065FF;
 }
+
+.button--secondary {
+  background-color: #ffffff;
+  color: #0052CC;
+}
+
+.button--secondary:hover, .button--secondary:focus {
+  background-color: rgba(9, 30, 66, 0.08); /* #091E42 */
+}
+
+label {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+header label {
+  display: inline-block;
+}
+
+table label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+table {
+  background-color: #FAFBFC;
+  background-size: 20px;
+  background-image: linear-gradient(to right, #DFE1E6 1px, transparent 1px);
+  background-position: 400px 0px;
+  border-collapse: collapse;
+  margin-bottom: 200px;
+}
+
 jira-team {
-    white-space: nowrap;
-    padding-top: 5px;
-    display: block;
+  display: table-row;
 }
-div.left {
-    width: 70px;
-    white-space: normal;
-    display: inline-block;
-    line-height: 25pt;
+
+.sticky-column {
+  background-color: #FFFFFF;
+  box-shadow: 1px 0 0 0 #505F79, inset 0 0 0 1px #DFE1E6;
+  display: inline-block;
+  left: 0;
+  padding: 16px 16px 16px 32px;
+  position: sticky;
+  text-align: left;
+  width: 152px;
+  z-index: 9999;
 }
+
+td {
+  overflow: hidden;
+  padding: 0;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
 ul {
-    margin: 0px;
-    padding: 0px;
+  margin: 0;
+  padding: 0;
 }
-simple-tooltip {
-    border: solid 1px green;
-    padding: 5px;
-    background-color: white;
+
+ul.work-container li {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  height: 72px;
+  line-height: 24px;
+  overflow: hidden;
+  margin-bottom: -3px;
+  padding: 8px 12px;
+  text-overflow: ellipsis; 
+  white-space: nowrap;
 }
-.work.blocked-0 {
-    background-color: #cf9ca9;
+
+li.work {
+  background-color: #FFFFFF;
+  box-shadow: inset 0 0 0 1px #C1C7D0;
+  font-weight: 600;
+  cursor: pointer;
 }
-.work.blocked-1 {
-    background-color: #eec6d0;
+
+li.work:hover, .chip--current {
+  background-color: #FFFAE6;  
+  box-shadow: inset 0 0 0 1px #FFC400;
 }
-.work.blocked-2 {
-    background-color: #f8e6eb;
+
+.chip {
+  border-radius: 3px;
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
 }
-.work.blocking-0 {
-    background-color: #e6d8ad;
+
+.work.blocking-2 {
+  background-color: #79F2C0;
+  box-shadow: inset 0 0 0 1px #00875A;
 }
 .work.blocking-1 {
-    background-color: #eee4c6;
+  background-color: #ABF5D1;
+  box-shadow: inset 0 0 0 1px #36B37E;
 }
-.work.blocking-2 {
-    background-color: #f8f3e6;
+.work.blocking-0, .chip--blocking {
+  background-color: #E3FCEF;
+  box-shadow: inset 0 0 0 1px #57D9A3;
+}
+
+.work.blocked-2 {
+  background-color: #FF8F73;
+  box-shadow: inset 0 0 0 1px #FF8B00;
+}
+.work.blocked-1 {
+  background-color: #FFBDAD;
+  box-shadow: inset 0 0 0 1px #FF991F;
+}
+.work.blocked-0, .chip--blocked {
+  background-color: #FFEBE6;
+  box-shadow: inset 0 0 0 1px #FFAB00;
+}
+
+a, a:visited {
+  color:#172B4D;
+  text-decoration: none;
+}
+
+a:hover, a:focus {
+  color: #0052CC;
+  text-decoration: underline;
+}
+
+/* Copied Atlassian flags: https://atlassian.design/components/flag/examples */
+simple-tooltip {
+  background-color: #ffffff;
+  border-radius: 3px;
+  box-shadow: rgb(9 30 66 / 31%) 0px 0px 1px, rgb(9 30 66 / 25%) 0px 20px 32px -8px;
+  padding: 12px;
+}
+
+simple-tooltip span {
+  /* display: block; */
+  font-size: 14px;
+  line-height: 24px;
 }
