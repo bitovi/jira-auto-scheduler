@@ -4,14 +4,18 @@ import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
 
 class JiraTeam extends StacheElement {
   static view = `
-    <div class='left'>
-      <label>{{team.teamKey}}</label>
+    <th class="sticky-column">
+      <label for="project-key-REPLACE">{{team.teamKey}}</label>
       <input
         type="number"
+        id="project-key-REPLACE" 
         value:from='this.velocity'
         valueAsNumber:to='this.velocity'/>
-    </div>
-    <ul></ul>
+    </th>
+    <td class="day-lines">
+      <ul class="work-container">
+      </ul>
+    </td>
   `;
   static props = {
     team: type.maybeConvert(Object),
@@ -27,7 +31,8 @@ class JiraTeam extends StacheElement {
   updateWork(){
     var team = this.team;
 
-    var ul = this.lastElementChild;
+    // var ul = this.lastElementChild;
+    var ul = this.querySelector(".work-container");
     ul.innerHTML = "";
 
     var currentDay = 0;
@@ -47,9 +52,10 @@ class JiraTeam extends StacheElement {
       li.id = work.issue["Issue key"];
       li.onmouseenter = (event) => {
         this.tooltip.enteredElement(event, `
-          <code>Start: ${work.startDay}, Days: ${work.daysOfWork}</code><br/>
-          <code>Estimate: ${printNumber(work.estimate)}, Confidence: ${printNumber(work.confidence)}</code><br/>
-          <code>Estimated days: ${printNumber(work.estimatedDaysOfWork)}, Extra days: ${printNumber(work.extraDays)}</code>
+          <span><strong>${work.issue["Summary"]}</strong></span><br/>
+          <span>Start: ${work.startDay}, Days: ${work.daysOfWork}</span><br/>
+          <span>Estimate: ${printNumber(work.estimate)}, Confidence: ${printNumber(work.confidence)}</span><br/>
+          <span>Estimated days: ${printNumber(work.estimatedDaysOfWork)}, Extra days: ${printNumber(work.extraDays)}</span>
         `)
         /*workInfo.innerHTML = `
           <p>${work.issue["Summary"]}!</p>

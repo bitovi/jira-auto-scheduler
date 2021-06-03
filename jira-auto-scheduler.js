@@ -13,46 +13,77 @@ class JiraAutoScheduler extends StacheElement {
   static view = `
     <simple-tooltip this:to='this.tooltip'></simple-tooltip>
 
+    <header>
+      <h1>Auto Scheduler for Jira</h1>
 
-    <form>
-      {{# if( this.rawIssues ) }}
-        <button on:click="this.clearIssues()">Change CSV</button>
+      <form>
+      <div class="inline-grid">
+        {{# if( this.rawIssues ) }}
+          <div>
+            <button on:click="this.clearIssues()" class="button--primary">Change CSV file</button>
+          </div>
 
-        <label>Zoom:</label>
-        <input type="range"
-          min="10" max="50"
-          value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>,
+          <div>
+            <label>Zoom:</label>
+            <input type="range"
+              min="10" max="50"
+              value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
+          </div>
 
-        <label>Uncertainty Weight:</label>
-        <input type="range"
-          min="0" max="100"
-          value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
+          <div>
+            <label>Uncertainty Weight:</label>
+            <input type="range"
+              min="0" max="100"
+              value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
+          </div>
 
-      {{ else }}
+          <div>
+            <ul class="key">
+              <li><span>Key:</span></li>
+              <li><span class="chip chip--blocking">Blocking</span></li>
+              <li><span class="chip chip--current">Current item</span></li>
+              <li><span class="chip chip--blocked">Blocked by</span></li>
+            </ul>
+          </div>
 
-      <fieldset>
-        <legend>Import a CSV file</legend>
-        <input type="file" id="jiraCSVExport" accept=".csv"
-          on:change='this.processFile(scope.element)'/>
+        {{ else }}
+          <div>
+            <label for="jiraCSVExport" class="file-upload">Upload CSV file</label>
+            <input type="file" id="jiraCSVExport" accept=".csv" class="visually-hidden"
+            on:change='this.processFile(scope.element)'/>
+          </div>
 
-        <input on:change='this.processUrl(scope.element.value)'
-            placeholder="Enter CSV url"
-            value:from='this.uploadUrl'/>
-      </fieldset>
+          <div>
+            <span>or</span>
+          </div>
 
-      {{/ if }}
-    </form>
+          <div>
+            <input type="text" id="jiraCSVURL"
 
+              value:bind='this.uploadUrl'
+              placeholder="Enter CSV URL" aria-label="Enter CSV URL"
+              />&nbsp;
+            <button class="button--secondary" on:click='this.processUrl(this.uploadUrl)'>Upload</button>
+          </div>
+        {{/ if }}
+      </div>
+      </form>
+    </header>
 
-    {{# for(team of this.teams) }}
-      <jira-team
-        team:from="team"
-        dayWidth:from="this.dayWidth"
-        tooltip:from="this.tooltip"
-        velocity:from='this.getVelocityForTeam(team.teamKey)'
-        on:velocity='this.updateVelocity(team.teamKey, scope.event.value)'
-        ></jira-team>
-    {{/}}
+    <main>
+      <table class="team-table">
+        {{# for(team of this.teams) }}
+          <jira-team
+            role="row"
+            team:from="team"
+            dayWidth:from="this.dayWidth"
+            tooltip:from="this.tooltip"
+            velocity:from='this.getVelocityForTeam(team.teamKey)'
+            on:velocity='this.updateVelocity(team.teamKey, scope.event.value)'
+            ></jira-team>
+        {{/}}
+      </table>
+    </main>
   `;
   static props = {
     dayWidth: {
@@ -75,7 +106,6 @@ class JiraAutoScheduler extends StacheElement {
       }
     },
     get velocitiesJSON(){
-
       return this.velocities.serialize();
     },
 
@@ -109,8 +139,12 @@ class JiraAutoScheduler extends StacheElement {
     this.listenTo("velocitiesJSON", ({value}) => {
       localStorage.setItem("team-velocities", JSON.stringify(value) );
       this.scheduleIssues();
-    });
+    })
 
+    // redraw lines when zoom changes
+    this.listenTo("dayWidth", ()=> {
+      this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
+    })
 
     if(this.uploadUrl) {
       this.processUrl(this.uploadUrl);
@@ -119,6 +153,7 @@ class JiraAutoScheduler extends StacheElement {
 
   // methods
   async processFile(input) {
+    this.uploadUrl = null;
     const results = await getCSVResultsFromFile(input.files[0]);
     this.scheduleCSV(results);
 
