@@ -154,8 +154,16 @@ ul.work-container li {
   overflow: hidden;
   margin-bottom: -3px;
   padding: 8px 12px;
-  text-overflow: ellipsis; 
-  white-space: nowrap;
+  white-space: normal; 
+}
+
+p.truncate {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
 }
 
 li.work {
