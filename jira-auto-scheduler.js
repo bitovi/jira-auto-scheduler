@@ -36,7 +36,8 @@ class JiraAutoScheduler extends StacheElement {
           on:change='this.processFile(scope.element)'/>
 
         <input on:change='this.processUrl(scope.element.value)'
-            placeholder="Enter CSV url"/>
+            placeholder="Enter CSV url"
+            value:from='this.uploadUrl'/>
       </fieldset>
 
       {{/ if }}
@@ -83,6 +84,15 @@ class JiraAutoScheduler extends StacheElement {
       return Object.keys(this.workByTeam || {}).map( (key)=> {
         return workByTeams[key];
       })
+    },
+    uploadUrl: {
+      get default(){
+        return localStorage.getItem("csv-url") || "";
+      },
+      set(newVal) {
+        localStorage.setItem("csv-url", newVal);
+        return newVal;
+      }
     }
   };
   // hooks
@@ -99,7 +109,12 @@ class JiraAutoScheduler extends StacheElement {
     this.listenTo("velocitiesJSON", ({value}) => {
       localStorage.setItem("team-velocities", JSON.stringify(value) );
       this.scheduleIssues();
-    })
+    });
+
+
+    if(this.uploadUrl) {
+      this.processUrl(this.uploadUrl);
+    }
   }
 
   // methods
@@ -107,6 +122,11 @@ class JiraAutoScheduler extends StacheElement {
     const results = await getCSVResultsFromFile(input.files[0]);
     this.scheduleCSV(results);
 
+  }
+  async processUrl(url) {
+    this.uploadUrl = url;
+    const results = await getCSVResultsFromUrl(url);
+    this.scheduleCSV(results);
   }
 
   scheduleCSV(results) {
@@ -133,6 +153,7 @@ class JiraAutoScheduler extends StacheElement {
   updateVelocity(teamKey, value){
     this.velocities[teamKey] = value;
   }
+
 }
 
 

@@ -43,7 +43,7 @@ class JiraTeam extends StacheElement {
       li.style.width =( (work.daysOfWork ) *this.dayWidth)+"px";
       li.work = work;
       li.classList.add("work");
-      li.innerHTML = `<a href="https://yumbrands.atlassian.net/browse/${work.issue["Issue key"]}">${work.issue["Summary"]}</a>`
+      li.innerHTML = `<a href="https://jira/${work.issue["Issue key"]}">${work.issue["Summary"]}</a>`
       li.id = work.issue["Issue key"];
       li.onmouseenter = (event) => {
         this.tooltip.enteredElement(event, `
