@@ -153,7 +153,7 @@ class JiraAutoScheduler extends StacheElement {
 
   // methods
   async processFile(input) {
-    this.uploadUrl = null;
+    this.uploadUrl = "";
     const results = await getCSVResultsFromFile(input.files[0]);
     this.scheduleCSV(results);
 
