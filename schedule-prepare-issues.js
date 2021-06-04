@@ -55,7 +55,8 @@ export function prepareIssues(issuesSource, {
     // Get only the epics that have parent (this could be done in filter I think)
     var {falsy: epicsWithoutParents, truthy: epicsWithParents} =
       splitByHavingPropertyValue(initialIssuesByType.Epic, parentProperty);
-    onIgnoredIssues(epicsWithoutParents, "epoics-with-no-parents");
+
+    onIgnoredIssues(epicsWithoutParents, "epics-with-no-parents");
 
 
     const issuesByType = {
@@ -96,7 +97,7 @@ export function prepareIssues(issuesSource, {
     // start building the block tree
     // adds a `.blocks` and `.blockedBy`
     linkBlocks(interestingEpics, issueByKey, getBlockingKeys);
-
+    checkForCycles(interestingEpics);
     return {preparedIssues: interestingEpics, issuesByKey: issueByKey, workByTeams};
 }
 
@@ -154,6 +155,26 @@ function linkBlocks(issues, issueByKey, getBlockingKeys) {
     })
 }
 
+function checkForCycles(issues) {
+  issues.forEach((issue) => {
+    // collect all the recursive blocks, make sure it doesn't block itself ...
+    checkCycle([issue]);
+  })
+}
+function checkCycle(issuePath) {
+  var last = issuePath[issuePath.length-1];
+  var issuePathSet = new Set(issuePath);
+
+  last.blocks.forEach( (blocked)=> {
+      if(issuePathSet.has(blocked)) {
+        console.log(issuePath, blocked);
+        throw "There is a cycle of dependencies. Aborting."
+      } else {
+        checkCycle([...issuePath, blocked]);
+      }
+  })
+}
+
 // NOT NEEDED
 function blockedByDepth(issue) {
     if(issue.blockedByDepth !== undefined) {
@@ -195,11 +216,21 @@ function getProjectKeyDefault(issue) {
 }
 
 function getConfidenceDefault(issue) {
-    if(issue["Custom field (Confidence)"]){
-        var val = parseInt(issue["Custom field (Confidence)"], 10);
-        if(val !== 0 && val !== "") {
+    const outerValue = issue["Custom field (Confidence)"];
+
+    if(Array.isArray(outerValue)) {
+      for(let rawValue of outerValue) {
+        let converted = parseInt(rawValue, 10);
+
+        if(converted !== 0 && converted !== "") {
             return val;
         }
+      }
+    } else {
+      var val = parseInt(outerValue, 10);
+      if(val !== 0 && val !== "") {
+          return val;
+      }
     }
     return undefined;
 }
@@ -209,10 +240,12 @@ function getEstimateDefault(issue) {
     if(issue["Custom field (Story Points)"]){
         rawValue = parseInt(issue["Custom field (Story Points)"], 10);
     }
-    for( let value of issue["Custom field (Story point estimate)"] ){
-        if(value) {
-            rawValue = parseInt(value, 10);
-        }
+    if( issue["Custom field (Story point estimate)"] ) {
+      for( let value of issue["Custom field (Story point estimate)"] ){
+          if(value) {
+              rawValue = parseInt(value, 10);
+          }
+      }
     }
     if(rawValue !== undefined && rawValue !== 0 && rawValue !== "") {
         return rawValue;

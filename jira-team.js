@@ -8,7 +8,7 @@ class JiraTeam extends StacheElement {
       <label for="project-key-REPLACE">{{team.teamKey}}</label>
       <input
         type="number"
-        id="project-key-REPLACE" 
+        id="project-key-REPLACE"
         value:from='this.velocity'
         valueAsNumber:to='this.velocity'/>
     </th>
@@ -48,7 +48,7 @@ class JiraTeam extends StacheElement {
       li.style.width =( (work.daysOfWork ) *this.dayWidth)+"px";
       li.work = work;
       li.classList.add("work");
-      li.innerHTML = `<a href="https://yumbrands.atlassian.net/browse/${work.issue["Issue key"]}"><p class="truncate">${work.issue["Summary"]}</p></a>`
+      li.innerHTML = `<a href="https://jira/${work.issue["Issue key"]}"><p class="truncate">${work.issue["Summary"]}</p></a>`
       li.id = work.issue["Issue key"];
       li.onmouseenter = (event) => {
         this.tooltip.enteredElement(event, `

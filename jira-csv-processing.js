@@ -12,7 +12,7 @@ export function getCSVResultsFromUrl(url){
 
   return new Promise(function(resolve){
     papaPromise.then(function(Papa){
-      Papa.parse("./tb-r2a.csv",{
+      Papa.parse(url,{
         download: true,
         // rest of config ...
         complete: function(results, file) {

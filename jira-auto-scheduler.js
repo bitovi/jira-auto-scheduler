@@ -49,7 +49,7 @@ class JiraAutoScheduler extends StacheElement {
         {{ else }}
           <div>
             <label for="jiraCSVExport" class="file-upload">Upload CSV file</label>
-            <input type="file" id="jiraCSVExport" accept=".csv" class="visually-hidden" 
+            <input type="file" id="jiraCSVExport" accept=".csv" class="visually-hidden"
             on:change='this.processFile(scope.element)'/>
           </div>
 
@@ -58,8 +58,12 @@ class JiraAutoScheduler extends StacheElement {
           </div>
 
           <div>
-            <input type="text" id="jiraCSVURL" on:change='this.processUrl(scope.element.value)' placeholder="Enter CSV URL" aria-label="Enter CSV URL" />&nbsp;
-            <button class="button--secondary">Upload</button>
+            <input type="text" id="jiraCSVURL"
+
+              value:bind='this.uploadUrl'
+              placeholder="Enter CSV URL" aria-label="Enter CSV URL"
+              />&nbsp;
+            <button class="button--secondary" on:click='this.processUrl(this.uploadUrl)'>Upload</button>
           </div>
         {{/ if }}
       </div>
@@ -69,8 +73,8 @@ class JiraAutoScheduler extends StacheElement {
     <main>
       <table class="team-table">
         {{# for(team of this.teams) }}
-          <jira-team  
-            role="row" 
+          <jira-team
+            role="row"
             team:from="team"
             dayWidth:from="this.dayWidth"
             tooltip:from="this.tooltip"
@@ -110,6 +114,15 @@ class JiraAutoScheduler extends StacheElement {
       return Object.keys(this.workByTeam || {}).map( (key)=> {
         return workByTeams[key];
       })
+    },
+    uploadUrl: {
+      get default(){
+        return localStorage.getItem("csv-url") || "";
+      },
+      set(newVal) {
+        localStorage.setItem("csv-url", newVal);
+        return newVal;
+      }
     }
   };
   // hooks
@@ -132,13 +145,23 @@ class JiraAutoScheduler extends StacheElement {
     this.listenTo("dayWidth", ()=> {
       this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
     })
+
+    if(this.uploadUrl) {
+      this.processUrl(this.uploadUrl);
+    }
   }
 
   // methods
   async processFile(input) {
+    this.uploadUrl = "";
     const results = await getCSVResultsFromFile(input.files[0]);
     this.scheduleCSV(results);
 
+  }
+  async processUrl(url) {
+    this.uploadUrl = url;
+    const results = await getCSVResultsFromUrl(url);
+    this.scheduleCSV(results);
   }
 
   scheduleCSV(results) {
@@ -165,6 +188,7 @@ class JiraAutoScheduler extends StacheElement {
   updateVelocity(teamKey, value){
     this.velocities[teamKey] = value;
   }
+
 }
 
 
