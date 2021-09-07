@@ -99,7 +99,8 @@ function scheduleIssue(work, firstDayWorkCouldStartOn) {
                 work.startDay = possibleStartDay;
                 team.workPlan.splice(w, 0, work);
                 if(work.startDay > firstDayWorkCouldStartOn) {
-                    console.log("can't schedule where we'd want to. This is in the way:", existingWork);
+                    work.artificiallyDelayed = true;
+                    //console.log("can't schedule where we'd want to. This is in the way:", existingWork);
                 }
                 return work;
             } else {
@@ -111,8 +112,9 @@ function scheduleIssue(work, firstDayWorkCouldStartOn) {
         // work not scheduled, add to the end ...
         work.startDay = Math.max(firstDayWorkCouldStartOn, firstDayToStartWorkAfterExistingWork);
         if(work.startDay > firstDayWorkCouldStartOn) {
-            console.log("can't schedule where we'd want to. This is in the way:",
-                team.workPlan.map( (work)=> { return {summary: work.issue.Summary, startDay: work.startDay}}));
+            work.artificiallyDelayed = true;
+            //console.log("can't schedule where we'd want to. This is in the way:",
+            //    team.workPlan.map( (work)=> { return {summary: work.issue.Summary, startDay: work.startDay}}));
         }
         team.workPlan.push(work);
     }

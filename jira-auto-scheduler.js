@@ -5,9 +5,12 @@ import {
   getCSVResultsFromUrl } from "./jira-csv-processing.js";
 
 import {scheduleIssues } from "./schedule.js";
+import {getEstimateDefault} from "./schedule-prepare-issues.js";
 
 import "./jira-team.js";
+import "./jira-configure-csv.js";
 import "./simple-tooltip.js";
+import config from "./jira-config.js";
 
 class JiraAutoScheduler extends StacheElement {
   static view = `
@@ -19,33 +22,33 @@ class JiraAutoScheduler extends StacheElement {
       <form>
       <div class="inline-grid">
         {{# if( this.rawIssues ) }}
-          <div>
-            <button on:click="this.clearIssues()" class="button--primary">Change CSV file</button>
-          </div>
+            <div>
+              <button on:click="this.clearIssues()" class="button--primary">Change CSV file</button>
+              <button on:click="this.configureCSV(scope.event)">Configure</button>
+            </div>
 
-          <div>
-            <label>Zoom:</label>
-            <input type="range"
-              min="10" max="50"
-              value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
-          </div>
+            <div>
+              <label>Zoom:</label>
+              <input type="range"
+                min="10" max="50"
+                value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
+            </div>
 
-          <div>
-            <label>Uncertainty Weight:</label>
-            <input type="range"
-              min="0" max="100"
-              value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
-          </div>
+            <div>
+              <label>Uncertainty Weight:</label>
+              <input type="range"
+                min="0" max="100"
+                value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
+            </div>
 
-          <div>
-            <ul class="key">
-              <li><span>Key:</span></li>
-              <li><span class="chip chip--blocking">Blocking</span></li>
-              <li><span class="chip chip--current">Current item</span></li>
-              <li><span class="chip chip--blocked">Blocked by</span></li>
-            </ul>
-          </div>
-
+            <div>
+              <ul class="key">
+                <li><span>Key:</span></li>
+                <li><span class="chip chip--blocking">Blocking</span></li>
+                <li><span class="chip chip--current">Current item</span></li>
+                <li><span class="chip chip--blocked">Blocked by</span></li>
+              </ul>
+            </div>
         {{ else }}
           <div>
             <label for="jiraCSVExport" class="file-upload">Upload CSV file</label>
@@ -71,6 +74,9 @@ class JiraAutoScheduler extends StacheElement {
     </header>
 
     <main>
+    {{# if(this.configuringCSV) }}
+      <jira-configure-csv rawIssues:from="this.rawIssues" config:from="this.config"/>
+    {{ else }}
       <table class="team-table">
         {{# for(team of this.teams) }}
           <jira-team
@@ -83,6 +89,7 @@ class JiraAutoScheduler extends StacheElement {
             ></jira-team>
         {{/}}
       </table>
+      {{/}}
     </main>
   `;
   static props = {
@@ -98,6 +105,10 @@ class JiraAutoScheduler extends StacheElement {
     rawIssues: type.Any,
     workByTeam: type.Any,
     tooltip: HTMLElement,
+    configuringCSV: {Type: Boolean, value: false},
+    config: {
+      default: config
+    },
     velocities: {
       get default(){
         return new ObservableObject(
@@ -135,11 +146,14 @@ class JiraAutoScheduler extends StacheElement {
     this.listenTo("uncertaintyWeight", ()=> {
       this.scheduleIssues();
     })
+    this.listenTo("configuration", ()=> {
+      this.scheduleIssues();
+    });
 
     this.listenTo("velocitiesJSON", ({value}) => {
       localStorage.setItem("team-velocities", JSON.stringify(value) );
       this.scheduleIssues();
-    })
+    });
 
     // redraw lines when zoom changes
     this.listenTo("dayWidth", ()=> {
@@ -168,6 +182,18 @@ class JiraAutoScheduler extends StacheElement {
     this.rawIssues = makeObjectsFromRows(results.data)
     this.scheduleIssues();
   }
+  get configuration(){
+
+    return {
+      getTeamKey: this.config.getTeamKey,
+      getDaysPerSprint: this.config.getDaysPerSprint,
+      getConfidence: this.config.getConfidence,
+      getEstimate: this.config.getEstimate,
+      getParentKey: this.config.getParentKey,
+      getBlockingKeys: this.config.getBlockingKeys
+    };
+  }
+
   scheduleIssues() {
     this.workByTeam = null;
     scheduleIssues(this.rawIssues, {
@@ -175,8 +201,18 @@ class JiraAutoScheduler extends StacheElement {
       onPlannedIssues: (workByTeam) => {
         this.workByTeam = workByTeam;
       },
-      getVelocity: this.getVelocityForTeam.bind(this)
+      getVelocity: this.getVelocityForTeam.bind(this),
+      onIgnoredIssues: function(ignored, reason){
+        console.log(ignored, reason);
+      },
+      // Overwrite for EB
+      getEstimate: EB_getEstimate,
+      getTeamKey: this.configuration.getTeamKey
     })
+  }
+  configureCSV(event){
+    event.preventDefault();
+    this.configuringCSV = !this.configuringCSV;
   }
   clearIssues(){
     this.rawIssues = null;
@@ -231,21 +267,38 @@ function setupSavingVelocity(input, team) {
 }
 
 
-// SCHEDULING THINGS =======================================================
+// Overwrite things
 
+const shirtSizeToPoints = {Small: 5, Medium: 13, Large: 21};
+function getShirtSizePoints(value) {
+  if(shirtSizeToPoints[value]) {
+    return shirtSizeToPoints[value];
+  } else {
+    throw new Error(value+" shirt size does not have points");
+  }
+}
 
+// returning undefiined has meaning. We preserve that.
+function EB_getEstimate(issue){
 
+  var rawValue = getEstimateDefault(issue);
 
+  if( issue["Custom field (T-shirt Size)"] ) {
+    for( let value of issue["Custom field (T-shirt Size)"] ){
+        if(value) {
+          rawValue = getShirtSizePoints(value)
+        }
+    }
+  }
+  let sum;
+  if(issue._children) {
+    sum = issue._children.reduce((sum, child) => {
+      return sum + getEstimateDefault(child) || 0;
+    }, 0);
+    if(sum > 0) {
+      return typeof rawValue === "number" ? rawValue + sum : sum;
+    }
+  }
+  return rawValue || 13;
 
-
-
-
-
-
-
-
-
-
-
-
-// estimation things ============
+}
