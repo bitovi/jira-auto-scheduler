@@ -10,7 +10,7 @@ function saveToLocalStorage(key, defaultValue) {
       resolve( JSON.parse( localStorage.getItem(key) ) || defaultValue );
 
       listenTo(lastSet, (value)=> {
-        localStorage.setItem("get-team-key", JSON.stringify(value));
+        localStorage.setItem(key, JSON.stringify(value));
         resolve(value);
       })
     }

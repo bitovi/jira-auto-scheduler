@@ -206,7 +206,7 @@ class JiraAutoScheduler extends StacheElement {
         console.log(ignored, reason);
       },
       // Overwrite for EB
-      getEstimate: EB_getEstimate,
+      getEstimate: this.configuration.getEstimate,
       getTeamKey: this.configuration.getTeamKey
     })
   }

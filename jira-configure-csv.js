@@ -40,31 +40,43 @@ class JiraConfigureCSV extends StacheElement {
     <p>Given an issue, returns an array of keys that the issue blocks.</p>
     <jira-configure-json-logic rawIssues:from="this.rawIssues" jsonLogic:bind="this.config.getBlockingKeysJsonLogic"/>
 
-    <!--
     <h2>Types</h2>
-    <ul>
-      {{# for( issueType of this.issueTypes) }}
-        <li>{{issueType}} <input type="checkbox" checked/> {{this.issuesByType[issueType].length}}
-            <details><summary>Settings</summary>
-            {{# let keys=this.issueTypesKeysWithValues[issueType] }}
-              <ul>
-              {{# for(keyItem of keys)}}
-                <li><code>{{keyItem.key}}</code>: <code>{{keyItem.example}}</code></li>
-              {{/ for}}
-              </ul>
-            {{/ let }}
-            </details>
-        </li>
-      {{/ for }}
-    </ul>
-    -->
+    {{# if(this._showTypeInfo) }}
+      <ul>
+        {{# for( issueType of this.issueTypes) }}
+          <li>{{issueType}} -
+                {{this.issuesByType[issueType].length}} -
+
+              <details><summary>Settings</summary>
+              {{# let keys=this.issueTypesKeysWithValues[issueType] }}
+
+                <ul>
+                {{# for(keyItem of keys)}}
+                  <li><b>{{keyItem.key}}</b>:
+                    <select>
+                      {{# for(value of keyItem.values) }}
+                        <option>{{value}}</option>
+                      {{/ for}}
+                    </select>
+                  </li>
+                {{/ for}}
+                </ul>
+              {{/ let }}
+              </details>
+          </li>
+        {{/ for }}
+      </ul>
+    {{ else }}
+      <button on:click="this.showTypeInfo()">Show Type Info</button>
+    {{/ if }}
   `;
   static props = {
     rawIssues: type.Any,
-    config: type.Any
+    config: type.Any,
+    _showTypeInfo: {Type: Boolean, default: false}
   };
 
-  /*
+
   get issuesByType(){
     return groupByKey(this.rawIssues || [], "Issue Type");
   }
@@ -78,27 +90,26 @@ class JiraConfigureCSV extends StacheElement {
       const keyMap = {};
       for(let issue of this.issuesByType[type]) {
         for(let key in issue) {
-          if(key === "Custom field (Functional Breakouts)") {
-            debugger;
-          }
+
           if( isMeaningfulData( issue[key] ) )  {
             if(!keyMap[key]) {
-              keyMap[key] = [];
+              keyMap[key] = new Set();
             }
-            keyMap[key].push( getMeaningfulData(issue[key]) );
+            keyMap[key].add( getMeaningfulData(issue[key]) );
           }
         }
       }
       types[type] = Object.keys(keyMap).map( (key)=> {
+          const values = [...keyMap[key]];
           return {
             key: key,
-            values: keyMap[key],
-            example: keyMap[key][0]
+            values: values,
+            example: values[0],
           }
       })
     }
     return types;
-  }*/
+  }
 
   connected(){
 
@@ -106,6 +117,9 @@ class JiraConfigureCSV extends StacheElement {
 
   changeParentKey(){
 
+  }
+  showTypeInfo(){
+    this._showTypeInfo = true;
   }
 
 }
