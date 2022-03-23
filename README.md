@@ -16,7 +16,9 @@ A JIRA auto-scheduling application for product management
 5) Select "Save as" and name the filter and select submit
 
 # How to run locally
-1) Navigate to the root directory of jira-auto-scheduler
-2) Install python
-3) Create a local server using python, in your terminal if you are using python version is 2.x run the following `python -m SimpleHTTPServer` if it's 3.x then you will run `python3 -m http.server` which generates the local server and the port will be assigned which is usually `8000`
-4) Navigate to your newly generated local server in the browser `localhost:8000` in this case.
+1) If python isn't installed go to https://www.python.org/
+2) Navigate to the root directory of jira-auto-scheduler
+3) Create a local server using python, in your terminal:
+    python 2.x: `python -m SimpleHTTPServer`
+    python 3.x: `python3 -m http.server` 
+4) Navigate to your newly generated local server in the browser with the port listed in the terminal e.g `localhost:8000`.
