@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JIRA Auto Scheduler</title>
+  <link rel="stylesheet" href="../../jira-auto-scheduler.css">
+</head>
+<body>
+
+
+  <link href="//cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.5.5/jsoneditor.min.css" rel="stylesheet" type="text/css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.5.5/jsoneditor.min.js"></script>
+  <script type="module">
+    import JiraConfigureJsonLogic from "./configure-json-logic.js";
+    const element = new JiraConfigureJsonLogic();
+
+    element.rawIssues = [
+      { key: "1", Summary: "first", "Custom field (Epic Link)": "" },
+      { key: "2", Summary: "second", "Custom field (Epic Link)": "1" }];
+
+    element.jsonLogic = {
+      "var": ["Custom field (Epic Link)"]
+    };
+
+    element.addEventListener("jsonLogic", function({value}){
+      console.log(value);
+    })
+
+    document.body.append(element);
+  </script>
+</body>
+</html>

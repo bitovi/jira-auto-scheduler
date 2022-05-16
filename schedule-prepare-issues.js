@@ -11,13 +11,11 @@ import {estimateExtraPoints} from "./confidence.js";
 
 
 export function prepareIssues(issuesSource, {
-  issueFilter = makeFilterByPropertyNotEqualToOneOfValues("Status", ["Done"]),
-
-  // Which property points to the parent issue
-  parentProperty = "Custom field (Parent Link)",
-
   // Decides what the project key is from an issue
-  getProjectKey = getProjectKeyDefault,
+  getTeamKey = getTeamKeyDefault,
+
+  // returns the number of work days per sprint
+  getDaysPerSprint = (teamKey) => 10,
 
   // Returns a team's velocity
   getVelocity = (key) => 21,
@@ -28,48 +26,41 @@ export function prepareIssues(issuesSource, {
   // Returns an estimate of the amount of work
   getEstimate = getEstimateDefault,
 
+
+  issueFilter = issueFilterDefault,
+
+
+  getParentKey = (issue) => issue["Custom field (Epic Link)"],
+
   // returns an array of keys that the issue blocks
   getBlockingKeys = (issue) => stringToArray(issue["Outward issue link (Blocks)"]) || [],
 
-  // returns the number of work days per sprint
-  getDaysPerSprint = (projectKey) => 10,
 
   // Called back when an issue isn't used
   onIgnoredIssues = (issues, reason) => {},
 
   uncertaintyWeight = 100
 }) {
-
+    window.issuesSource = issuesSource;
     // Copy issues
     const issues = issuesSource.map( issue => {
         return {...issue}
     });
 
-    // Remove issues that we don't care about (done issues)
-    const {truthy: interestingIssues, falsy: filteredOut} = partition( issues, issueFilter);
+    // Remove issues that we don't care about (done issues and epics without parents)
+    const {truthy: interestingIssues, falsy: filteredOut} = partition( issues, issueFilterDefault);
     onIgnoredIssues(filteredOut, "filtered-out");
 
+    const issueByKey = makeObjectMapByKey(interestingIssues, "Issue key");
+
     // Group issues by type
-    const initialIssuesByType = groupByKey(interestingIssues, "Issue Type");
-
-    // Get only the epics that have parent (this could be done in filter I think)
-    var {falsy: epicsWithoutParents, truthy: epicsWithParents} =
-      splitByHavingPropertyValue(initialIssuesByType.Epic, parentProperty);
-
-    onIgnoredIssues(epicsWithoutParents, "epics-with-no-parents");
-
-
-    const issuesByType = {
-      ...initialIssuesByType,
-      Epic: epicsWithParents
-    };
+    const issuesByType = groupByKey(interestingIssues, "Issue Type");
 
     const interestingEpics = issuesByType.Epic;
 
-    const issuesByProject = groupByKey(interestingEpics, getProjectKey);
+    const issuesByTeam = groupByKey(interestingIssues, getTeamKey);
 
-    var projectIds = Object.keys(issuesByProject);
-
+    var projectIds = Object.keys(issuesByTeam);
 
     const workByTeams = makeObjectMapByKey(projectIds.map( (teamKey) => {
         return {
@@ -81,18 +72,17 @@ export function prepareIssues(issuesSource, {
 
     // Warning: Mutations of data start here!
 
+    // Make parent-child relationship
+    associateParentAndChildren(interestingIssues, getParentKey, issueByKey);
+
     // add timing to epics
     interestingEpics.forEach( issue => {
       // mutation!
       issue.work = createWork(issue,
         workByTeams,
-        {getProjectKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint});
+        {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint});
 
     });
-
-
-    // Now we start making relationships ----------
-    const issueByKey = makeObjectMapByKey(interestingEpics, "Issue key");
 
     // start building the block tree
     // adds a `.blocks` and `.blockedBy`
@@ -101,19 +91,26 @@ export function prepareIssues(issuesSource, {
     return {preparedIssues: interestingEpics, issuesByKey: issueByKey, workByTeams};
 }
 
+const removeDone = makeFilterByPropertyNotEqualToOneOfValues("Status", ["Done"]);
+function issueFilterDefault(issue){
+    return removeDone(issue) && (issue.Type === "Epic" ? issue["Custom field (Parent Link)"] : true)
+}
 
 function createWork(issue, workByTeams,
-  {getProjectKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint}) {
+  {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint}) {
     if(issue.work) {
         return issue.work;
     }
-    var projectKey = getProjectKey(issue);
-    var team = workByTeams[projectKey];
+
+    var teamKey = getTeamKey(issue);
+    var team = workByTeams[teamKey];
     var confidence = getConfidence(issue);
+    
     var estimate = getEstimate(issue);
+
     var canEstimate =  confidence !== undefined && estimate !== undefined;
 
-    var pointsPerDay = team.velocity / getDaysPerSprint(projectKey);
+    var pointsPerDay = team.velocity / getDaysPerSprint(teamKey);
 
     var usedEstimate = (estimate !== undefined ? estimate : team.velocity );
     var usedConfidence = (confidence !== undefined ? confidence : 50 );
@@ -142,8 +139,13 @@ function createWork(issue, workByTeams,
 
 function linkBlocks(issues, issueByKey, getBlockingKeys) {
     issues.forEach((issue)=> {
-        issue.blocks = getBlockingKeys(issue).map( (blockKey)=> {
-            return issueByKey[blockKey]
+        issue.blocks = (stringToArray( getBlockingKeys(issue) || [])).map( (blockKey)=> {
+            const blocked = issueByKey[blockKey];
+            if(blocked && blocked["Issue Type"] !== issue["Issue Type"]) {
+              console.log(issue["Issue Type"], issue.Summary,"is blocking", blocked["Issue Type"], blocked.Summary, ". This is ignored");
+              return undefined;
+            }
+            return blocked
         }).filter( x=>  x);
 
         issue.blocks.forEach( (blocker)=> {
@@ -203,10 +205,27 @@ function blocksDepth(issue) {
 }
 
 
+function associateParentAndChildren(issues, getParentKey, issuesByKey) {
+
+  const issuesForEpics = groupByKey(issues,getParentKey);
+
+  for(let epicKey in issuesForEpics) {
+    if(epicKey) {
+      const epic = issuesByKey[epicKey];
+      if(epic) {
+        epic._children = issuesForEpics[epicKey];
+        epic._children.forEach( child => child._parent = epic );
+      } else {
+        console.log("Unable to find epic", epicKey, "perhaps it is marked as done but has an issue not done");
+      }
+
+    }
+  }
+}
 
 
 // WEIRD STUFF
-function getProjectKeyDefault(issue) {
+function getTeamKeyDefault(issue) {
     var matches = issue["Summary"].match( /M\d: ([^:]+): / )
     if(matches) {
         return issue["Project key"]+":"+matches[1]
@@ -226,16 +245,16 @@ function getConfidenceDefault(issue) {
             return val;
         }
       }
-    } else {
+    } else if(val !== undefined) {
       var val = parseInt(outerValue, 10);
-      if(val !== 0 && val !== "") {
+      if(val !== 0) {
           return val;
       }
     }
     return undefined;
 }
 
-function getEstimateDefault(issue) {
+export function getEstimateDefault(issue) {
     var rawValue;
     if(issue["Custom field (Story Points)"]){
         rawValue = parseInt(issue["Custom field (Story Points)"], 10);

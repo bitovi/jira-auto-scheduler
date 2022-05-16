@@ -103,12 +103,12 @@ header label {
   display: inline-block;
 }
 
-table label {
+table.team-table  label {
   display: block;
   margin-bottom: 8px;
 }
 
-table {
+table.team-table {
   background-color: #FAFBFC;
   background-size: 20px;
   background-image: linear-gradient(to right, #DFE1E6 1px, transparent 1px);
@@ -133,7 +133,7 @@ jira-team {
   z-index: 9999;
 }
 
-td {
+.team-table td {
   overflow: hidden;
   padding: 0;
   vertical-align: top;
@@ -236,4 +236,25 @@ simple-tooltip span {
   /* display: block; */
   font-size: 14px;
   line-height: 24px;
+}
+
+jira-configure-csv {
+  margin: 20px;
+  display: block;
+}
+
+jira-configure-csv ul {
+  margin: 20px;
+}
+
+jira-configure-json-logic {
+  display: flex;
+}
+
+jira-configure-json-logic textarea {
+  min-height: 200px;
+  flex-grow: 4;
+}
+jira-configure-json-logic textarea.dirty {
+  border: solid 1px red;
 }

@@ -1,5 +1,8 @@
 import {prepareIssues} from "./schedule-prepare-issues.js";
 
+// This is the main function that schedule issues.
+// issues - a raw list of issue objects, no metadata
+// options - a whole buncho f configuration options
 export function scheduleIssues(issues, options){
   const {
     onPlannedIssueIncrement, onPlannedIssues
@@ -16,8 +19,6 @@ export function scheduleIssues(issues, options){
     workByTeams} = prepareIssues(issues, options);
 
 
-
-
   // adds a .blocksWorkDepth
   preparedIssues.forEach(issue => blocksWorkDepth(issue));
 
@@ -25,7 +26,9 @@ export function scheduleIssues(issues, options){
   preparedIssues.sort((iA, iB) => iB.blocksWorkDepth - iA.blocksWorkDepth);
 
 
+  // starting with the issue that blocks the most work
   preparedIssues.forEach( (issue)=> {
+    // plan that issue out
     planIssue(issue, workByTeams);
     onPlannedIssueIncrement(issue, workByTeams);
 
@@ -48,15 +51,20 @@ function blocksWorkDepth(issue) {
 }
 
 
-// problem here is that the `firstDay` doesn't line up with other potential blockers ....
+// This function tries to plan an issue.
+// It is recursive. It will plan the issue and then try to plan everything the issue
+// blocks.
 function planIssue(issue, workByTeams) {
     var work = issue.work;
 
+    // Has everything that blocks this work already been scheduled?
     if( areAllBlockersScheduled(work) ) {
 
         // schedule
         if(work.startDay == null) {
+            // Look at each blocker and get the first date when all blockers will be done
             var firstDayWorkCouldStartOn = earliestStartTimeFromBlockers(work);
+
 
             console.log(new Array(firstDayWorkCouldStartOn).join(" "),
               issue.blocksWorkDepth,
@@ -64,6 +72,7 @@ function planIssue(issue, workByTeams) {
               issue.Summary,
               "rescheduled");
 
+            // Try to place this work in the first place the team could absorb it.
             scheduleIssue(work, firstDayWorkCouldStartOn );
 
             if(issue.blocks) {
@@ -73,16 +82,17 @@ function planIssue(issue, workByTeams) {
         }
 
     } else {
-      // we can't schedule this until our parent blocker has been schedule
+      // If there is a blocker that hasn't been scheduled, we will wait on the blocker
+      // to be scheduled.  It will then recurse to this issue and schedule it.
     }
 }
 
-
+// Try to find the first available time  the work could be scheduled for this team.
 function scheduleIssue(work, firstDayWorkCouldStartOn) {
 
     var team = work.team;
 
-    // find a gap between days and insert the work ...
+    // If there is no work for this team, then make this the first work item.
     if(!team.workPlan.length) {
         work.startDay = firstDayWorkCouldStartOn;
         team.workPlan.push(work)
@@ -99,7 +109,8 @@ function scheduleIssue(work, firstDayWorkCouldStartOn) {
                 work.startDay = possibleStartDay;
                 team.workPlan.splice(w, 0, work);
                 if(work.startDay > firstDayWorkCouldStartOn) {
-                    console.log("can't schedule where we'd want to. This is in the way:", existingWork);
+                    work.artificiallyDelayed = true;
+                    //console.log("can't schedule where we'd want to. This is in the way:", existingWork);
                 }
                 return work;
             } else {
@@ -111,8 +122,9 @@ function scheduleIssue(work, firstDayWorkCouldStartOn) {
         // work not scheduled, add to the end ...
         work.startDay = Math.max(firstDayWorkCouldStartOn, firstDayToStartWorkAfterExistingWork);
         if(work.startDay > firstDayWorkCouldStartOn) {
-            console.log("can't schedule where we'd want to. This is in the way:",
-                team.workPlan.map( (work)=> { return {summary: work.issue.Summary, startDay: work.startDay}}));
+            work.artificiallyDelayed = true;
+            //console.log("can't schedule where we'd want to. This is in the way:",
+            //    team.workPlan.map( (work)=> { return {summary: work.issue.Summary, startDay: work.startDay}}));
         }
         team.workPlan.push(work);
     }
