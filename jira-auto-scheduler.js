@@ -86,6 +86,7 @@ class JiraAutoScheduler extends StacheElement {
             tooltip:from="this.tooltip"
             velocity:from='this.getVelocityForTeam(team.teamKey)'
             on:velocity='this.updateVelocity(team.teamKey, scope.event.value)'
+            issueLinkPrefix:from="this.config.issueLinkPrefix"
             ></jira-team>
         {{/}}
       </table>
@@ -207,7 +208,8 @@ class JiraAutoScheduler extends StacheElement {
       },
       // Overwrite for EB
       getEstimate: this.configuration.getEstimate,
-      getTeamKey: this.configuration.getTeamKey
+      getTeamKey: this.configuration.getTeamKey,
+      getParentKey: this.configuration.getParentKey,
     })
   }
   configureCSV(event){

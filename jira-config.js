@@ -37,6 +37,8 @@ function makeLogicAndFunctionDefinition(key, defaultValue){
 
 class Configure extends ObservableObject {
   static props = {
+    issueLinkPrefix: saveToLocalStorage("issueLinkPrefix", "https://bitovi.atlassian.net/browse/"),
+
     ...makeLogicAndFunctionDefinition("getTeamKey", {"var": "Project key"}),
 
     ...makeLogicAndFunctionDefinition("getDaysPerSprint", 10),

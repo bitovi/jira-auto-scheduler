@@ -95,7 +95,7 @@ const removeDone = makeFilterByPropertyNotEqualToOneOfValues("Status", ["Done"])
 function issueFilterDefault(issue){
     return removeDone(issue) && (issue.Type === "Epic" ? issue["Custom field (Parent Link)"] : true)
 }
-window.estimates = [];
+
 function createWork(issue, workByTeams,
   {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint}) {
     if(issue.work) {
@@ -105,20 +105,9 @@ function createWork(issue, workByTeams,
     var teamKey = getTeamKey(issue);
     var team = workByTeams[teamKey];
     var confidence = getConfidence(issue);
-    if(issue.Summary === "Dual Plan Year") {
-      debugger;
-    }
+    
     var estimate = getEstimate(issue);
 
-    window.estimates.push({
-      Summary: issue.Summary,
-      estimate,
-      sps: issue["Custom field (Story Points)"],
-      tShirt: issue["Custom field (T-shirt Size)"].toString(),
-      children: (issue._children || []).map((i)=>{
-        return i["Custom field (Story Points)"]
-      }).toString()
-    });
     var canEstimate =  confidence !== undefined && estimate !== undefined;
 
     var pointsPerDay = team.velocity / getDaysPerSprint(teamKey);
@@ -223,8 +212,13 @@ function associateParentAndChildren(issues, getParentKey, issuesByKey) {
   for(let epicKey in issuesForEpics) {
     if(epicKey) {
       const epic = issuesByKey[epicKey];
-      epic._children = issuesForEpics[epicKey];
-      epic._children.forEach( child => child._parent = epic );
+      if(epic) {
+        epic._children = issuesForEpics[epicKey];
+        epic._children.forEach( child => child._parent = epic );
+      } else {
+        console.log("Unable to find epic", epicKey, "perhaps it is marked as done but has an issue not done");
+      }
+
     }
   }
 }

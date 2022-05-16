@@ -35,6 +35,11 @@ const isComplete = {
     {"==": [{var: "Status"}, "Ready to Test"]}, true,
     {"==": [{var: "Status"}, "QA Testing"]}, true,
     {"==": [{var: "Status"}, "Closed"]}, true,
+    {"==": [{var: "Status"}, "Customer Acceptance Testing"]}, true,
+    {"==": [{var: "Status"}, "Release Candidate"]}, true,
+    {"==": [{var: "Status"}, "Canceled"]}, true,
+    {"==": [{var: "Status"}, "Testing"]}, true,
+    {"==": [{var: "Status"}, "Done"]}, true,
     false
   ]
 }

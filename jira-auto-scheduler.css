@@ -238,6 +238,11 @@ simple-tooltip span {
   line-height: 24px;
 }
 
+jira-configure-csv {
+  margin: 20px;
+  display: block;
+}
+
 jira-configure-csv ul {
   margin: 20px;
 }
