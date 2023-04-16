@@ -1,0 +1,22 @@
+{
+  "name": "jira-auto-scheduler",
+  "version": "1.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start-local": "node server/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "oauth": "^0.10.0"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
