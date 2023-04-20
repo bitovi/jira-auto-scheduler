@@ -1,3 +1,4 @@
+import JiraAutoScheduler from "./jira-auto-scheduler.js";
 export default async function main(jiraHelpers) {
 
 	mainElement.textContent = "Checking for Jira Access Token";
@@ -14,12 +15,12 @@ export default async function main(jiraHelpers) {
 	mainElement.textContent = "Got Access Token";
 	mainElement.style.display = "none";
 
-	//const report = new PIPrioritize();
-	//report.jiraHelpers = jiraHelpers;
+	const report = new JiraAutoScheduler();
+	report.jiraHelpers = jiraHelpers;
 	//report.mode = "TEAMS";
-	//document.body.append(report);
+	document.body.append(report);
 
-	document.body.innerHTML = "ready 2 go"
+	//document.body.innerHTML = "ready 2 go"
 }
 
 

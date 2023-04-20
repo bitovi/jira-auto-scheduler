@@ -146,7 +146,7 @@ export default function JiraOIDCHelpers({
 		},
 		fetchAllJiraIssuesWithJQLUsingNamedFields: async function(params) {
 			const fields = await fieldsRequest;
-			
+
 			const newParams = {
 				...params,
 				fields: params.fields.map(f => fields.nameMap[f] || f)
@@ -228,7 +228,7 @@ export default function JiraOIDCHelpers({
 			function getRemainingChangeLogsForIssues(response) {
 				return jiraHelpers.fetchRemainingChangelogsForIssues(response.issues)
 			}
-
+			
 			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, expand: ["changelog"], ...params });
 
 			const { issues, maxResults, total, startAt } = await firstRequest;

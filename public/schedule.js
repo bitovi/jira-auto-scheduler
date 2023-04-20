@@ -2,7 +2,7 @@ import {prepareIssues} from "./schedule-prepare-issues.js";
 
 // This is the main function that schedule issues.
 // issues - a raw list of issue objects, no metadata
-// options - a whole buncho f configuration options
+// options - a whole bunch of configuration options
 export function scheduleIssues(issues, options){
   const {
     onPlannedIssueIncrement, onPlannedIssues

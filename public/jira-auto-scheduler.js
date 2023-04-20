@@ -6,6 +6,7 @@ import {
 
 import {scheduleIssues } from "./schedule.js";
 import {getEstimateDefault} from "./schedule-prepare-issues.js";
+import {toCVSFormatAndAddWorkingBusinessDays} from "./shared/issue-cleanup.js";
 
 import "./jira-team.js";
 import "./jira-configure-csv.js";
@@ -94,6 +95,7 @@ class JiraAutoScheduler extends StacheElement {
     </main>
   `;
   static props = {
+		jiraHelpers: {type: type.Any},
     dayWidth: {
       type: type.maybeConvert(Number),
       default: 20
@@ -164,6 +166,38 @@ class JiraAutoScheduler extends StacheElement {
     if(this.uploadUrl) {
       this.processUrl(this.uploadUrl);
     }
+
+
+		// temp
+
+		const serverInfoPromise = this.jiraHelpers.getServerInfo();
+
+    const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
+        jql: "issueType = Epic",//this.jql,
+        fields: [
+
+					"summary",
+            "Start date",
+            "Due date",
+            "Issue Type",
+            "Fix versions",
+            "Story Points",
+						"status",
+            "Confidence",
+						"Linked Issues"
+					], // LABELS_KEY, STATUS_KEY ]
+    });
+
+    return Promise.all([
+        issuesPromise, serverInfoPromise
+    ]).then(([issues, serverInfo]) => {
+				const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+				console.log(issues, raw);
+				this.rawIssues = raw;
+				this.scheduleIssues();
+    })
+
+		//this.jiraHelpers
   }
 
   // methods
@@ -229,7 +263,7 @@ class JiraAutoScheduler extends StacheElement {
 
 }
 
-
+export default JiraAutoScheduler;
 
 customElements.define("jira-auto-scheduler", JiraAutoScheduler);
 
