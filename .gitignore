@@ -104,3 +104,8 @@ dist
 .tern-port
 
 promotion-example.csv
+
+
+.vscode/
+.env
+.DS_Store
