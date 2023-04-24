@@ -71,7 +71,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+# .env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -107,5 +107,5 @@ promotion-example.csv
 
 
 .vscode/
-.env
+# .env
 .DS_Store
