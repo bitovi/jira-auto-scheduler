@@ -19,7 +19,7 @@ jobs:
     steps:
     - id: destroy
       name: Destroy
-      uses: bitovi/github-actions-deploy-docker-to-ec2@v0.5.1
+      uses: bitovi/github-actions-deploy-docker-to-ec2@v0.5.2
       with:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_JIRA_INTEGRATIONS}}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_JIRA_INTEGRATIONS}}
