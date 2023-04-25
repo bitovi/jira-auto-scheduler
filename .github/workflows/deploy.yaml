@@ -23,4 +23,5 @@ jobs:
         dot_env: ${{ secrets.DOT_ENV }}
 
         domain_name: bitovi-jira.com
+        sub_domain: jira-auto-scheduler
         app_port: 3000
