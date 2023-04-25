@@ -1,4 +1,5 @@
 import {getBusinessDatesCount} from "./dateUtils.js";
+import {estimateExtraPoints} from "./confidence.js";
 
 const ISSUE_KEY = "Issue key";
 const PRODUCT_TARGET_RELEASE_KEY = "Product Target Release";
