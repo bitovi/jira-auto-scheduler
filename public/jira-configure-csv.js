@@ -8,7 +8,7 @@ import {
   stringToArray
 } from "./helpers.js";
 
-import jsonLogic from "./json-logic.js";
+import jsonLogic from "./json-logic/json-logic.js";
 import "./components/configure-json-logic/configure-json-logic.js";
 
 

@@ -1,4 +1,4 @@
-import jsonLogic from "../json-logic.js";
+import jsonLogic from "./json-logic.js";
 
 
 const test = (function(){
