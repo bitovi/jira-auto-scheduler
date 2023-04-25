@@ -7,7 +7,7 @@ import {
   stringToArray
 } from "./helpers.js";
 
-import {estimateExtraPoints} from "./confidence.js";
+import {estimateExtraPoints} from "./shared/confidence.js";
 
 
 export function prepareIssues(issuesSource, {
