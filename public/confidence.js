@@ -1,3 +1,7 @@
+/**
+ * Given an estimate, a confidence, and a
+ */
+
 
 export function estimateExtraPoints(estimate, confidence, uncertaintyWeight) {
     return estimate * NormSInv( toP(confidence) ) * (uncertaintyWeight / 100);

@@ -33,7 +33,7 @@ export function prepareIssues(issuesSource, {
   getParentKey = (issue) => issue["Custom field (Epic Link)"],
 
   // returns an array of keys that the issue blocks
-  getBlockingKeys = (issue) => stringToArray(issue["Outward issue link (Blocks)"]) || [],
+  getBlockingKeys = (issue) => stringToArray(issue.linkedIssues.blocks) || [],
 
 
   // Called back when an issue isn't used
@@ -105,7 +105,7 @@ function createWork(issue, workByTeams,
     var teamKey = getTeamKey(issue);
     var team = workByTeams[teamKey];
     var confidence = getConfidence(issue);
-    
+
     var estimate = getEstimate(issue);
 
     var canEstimate =  confidence !== undefined && estimate !== undefined;

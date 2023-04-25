@@ -1,6 +1,6 @@
 import { ObservableObject, type } from "//unpkg.com/can@6/core.mjs";
 
-import jsonLogic from "./json-logic.js";
+import jsonLogic from "./json-logic/json-logic.js";
 window.jsonLogic = jsonLogic;
 
 
@@ -49,7 +49,7 @@ class Configure extends ObservableObject {
           0,
           // adds to the first element of the array
           { filter: [
-            { merge: { var: "Custom field (Confidence)" } },
+            { merge: [{var: "Story Points Confidence"},{ var: "Custom field (Confidence)" }] },
             { "!==": [{"var":""}, ""] }
           ]}
         ]},
@@ -61,7 +61,7 @@ class Configure extends ObservableObject {
           0,
           // adds to the first element of the array
           { filter: [
-            { merge: [{ var: "Custom field (Story Points)" }, {var: "Custom field (Story point estimate)"} ] },
+            { merge: [{var: "Story Points"},{ var: "Custom field (Story Points)" }, {var: "Custom field (Story point estimate)"} ] },
             { "!==": [{"var":""}, ""] }
           ]}
         ]},
@@ -70,7 +70,7 @@ class Configure extends ObservableObject {
     }),
 
     ...makeLogicAndFunctionDefinition("getParentKey", {"var": "Custom field (Parent Link)"}),
-    ...makeLogicAndFunctionDefinition("getBlockingKeys", {"var": "Outward issue link (Blocks)"})
+    ...makeLogicAndFunctionDefinition("getBlockingKeys", {"var": "linkedIssues.blocks"})
   };
 }
 

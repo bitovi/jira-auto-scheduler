@@ -14,7 +14,7 @@ const FIX_VERSIONS_KEY = "Fix versions";
 function toCVSFormat(issues, serverInfo){
 	return issues.map( issue => {
 
-		const linkedIssues = issue.fields["Linked Issues"].filter( (link) => {
+		const blocks = issue.fields["Linked Issues"].filter( (link) => {
 			return link.outwardIssue && link.type.name === "Blocks";
 		}).map((link)=>{
 			return link.outwardIssue.key;
@@ -30,7 +30,7 @@ function toCVSFormat(issues, serverInfo){
 			[PRODUCT_TARGET_RELEASE_KEY]: issue.fields[PRODUCT_TARGET_RELEASE_KEY]?.[0],
 			[PARENT_LINK_KEY]: issue.fields[PARENT_LINK_KEY]?.data?.key,
 			[STATUS_KEY]: issue.fields[STATUS_KEY]?.name,
-			"Outward issue link (Blocks)": linkedIssues
+			linkedIssues: {blocks}
 		}
 	})
 }

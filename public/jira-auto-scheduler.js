@@ -176,14 +176,14 @@ class JiraAutoScheduler extends StacheElement {
         jql: "issueType = Epic",//this.jql,
         fields: [
 
-					"summary",
+						"summary",
             "Start date",
             "Due date",
             "Issue Type",
             "Fix versions",
             "Story Points",
 						"status",
-            "Confidence",
+            "Story Points Confidence",
 						"Linked Issues"
 					], // LABELS_KEY, STATUS_KEY ]
     });
@@ -244,6 +244,7 @@ class JiraAutoScheduler extends StacheElement {
       getEstimate: this.configuration.getEstimate,
       getTeamKey: this.configuration.getTeamKey,
       getParentKey: this.configuration.getParentKey,
+			getConfidence: this.configuration.getConfidence
     })
   }
   configureCSV(event){

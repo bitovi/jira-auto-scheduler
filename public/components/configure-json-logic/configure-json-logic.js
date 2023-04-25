@@ -1,6 +1,6 @@
 import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
 
-import jsonLogic from "../../json-logic.js";
+import jsonLogic from "../../json-logic/json-logic.js";
 
 class JiraConfigureJSONLogic extends StacheElement {
   static view = `
