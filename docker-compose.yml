@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - CLIENT_JIRA_CLIENT_ID=${CLIENT_JIRA_CLIENT_ID}
+      - JIRA_CLIENT_SECRET=${JIRA_CLIENT_SECRET}
+      - CLIENT_JIRA_CALLBACK_URL=${CLIENT_JIRA_CALLBACK_URL}
