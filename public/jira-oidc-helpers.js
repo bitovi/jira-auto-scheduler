@@ -228,7 +228,7 @@ export default function JiraOIDCHelpers({
 			function getRemainingChangeLogsForIssues(response) {
 				return jiraHelpers.fetchRemainingChangelogsForIssues(response.issues)
 			}
-			
+
 			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, expand: ["changelog"], ...params });
 
 			const { issues, maxResults, total, startAt } = await firstRequest;
@@ -340,6 +340,7 @@ export default function JiraOIDCHelpers({
 				idMap: idMap
 			}
 		});
+		jiraHelpers.fieldsRequest = fieldsRequest;
 	}
 
 

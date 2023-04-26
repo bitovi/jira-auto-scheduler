@@ -24,7 +24,6 @@ class JiraAutoScheduler extends StacheElement {
       <div class="inline-grid">
         {{# if( this.rawIssues ) }}
             <div>
-              <button on:click="this.clearIssues()" class="button--primary">Change CSV file</button>
               <button on:click="this.configureCSV(scope.event)">Configure</button>
             </div>
 
@@ -51,24 +50,7 @@ class JiraAutoScheduler extends StacheElement {
               </ul>
             </div>
         {{ else }}
-          <div>
-            <label for="jiraCSVExport" class="file-upload">Upload CSV file</label>
-            <input type="file" id="jiraCSVExport" accept=".csv" class="visually-hidden"
-            on:change='this.processFile(scope.element)'/>
-          </div>
-
-          <div>
-            <span>or</span>
-          </div>
-
-          <div>
-            <input type="text" id="jiraCSVURL"
-
-              value:bind='this.uploadUrl'
-              placeholder="Enter CSV URL" aria-label="Enter CSV URL"
-              />&nbsp;
-            <button class="button--secondary" on:click='this.processUrl(this.uploadUrl)'>Upload</button>
-          </div>
+          <div>Loading issues</div>
         {{/ if }}
       </div>
       </form>
@@ -76,7 +58,7 @@ class JiraAutoScheduler extends StacheElement {
 
     <main>
     {{# if(this.configuringCSV) }}
-      <jira-configure-csv rawIssues:from="this.rawIssues" config:from="this.config"/>
+      <jira-configure-csv rawIssues:from="this.rawIssues" config:from="this.config" jiraHelpers:from="this.jiraHelpers"/>
     {{ else }}
       <table class="team-table">
         {{# for(team of this.teams) }}
@@ -105,7 +87,7 @@ class JiraAutoScheduler extends StacheElement {
       default: 100
     },
 
-    rawIssues: type.Any,
+    //rawIssues: type.Any,
     workByTeam: type.Any,
     tooltip: HTMLElement,
     configuringCSV: {Type: Boolean, value: false},
@@ -119,6 +101,24 @@ class JiraAutoScheduler extends StacheElement {
         );
       }
     },
+		rawIssues: {
+			async(resolve) {
+				const serverInfoPromise = this.jiraHelpers.getServerInfo();
+
+		    const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
+		        jql: this.config.issueJQL,//this.jql,
+		        fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
+		    });
+
+		    return Promise.all([
+		        issuesPromise, serverInfoPromise
+		    ]).then(([issues, serverInfo]) => {
+						const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+						console.log(issues, raw);
+						return raw;
+		    })
+			}
+		},
     get velocitiesJSON(){
       return this.velocities.serialize();
     },
@@ -129,15 +129,18 @@ class JiraAutoScheduler extends StacheElement {
         return workByTeams[key];
       })
     },
-    uploadUrl: {
-      get default(){
-        return localStorage.getItem("csv-url") || "";
-      },
-      set(newVal) {
-        localStorage.setItem("csv-url", newVal);
-        return newVal;
-      }
-    }
+
+		get configuration(){
+
+			return {
+				getTeamKey: this.config.getTeamKey,
+				getDaysPerSprint: this.config.getDaysPerSprint,
+				getConfidence: this.config.getConfidence,
+				getEstimate: this.config.getEstimate,
+				getParentKey: this.config.getParentKey,
+				getBlockingKeys: this.config.getBlockingKeys
+			};
+		}
   };
   // hooks
   async connected() {
@@ -152,6 +155,9 @@ class JiraAutoScheduler extends StacheElement {
     this.listenTo("configuration", ()=> {
       this.scheduleIssues();
     });
+		this.listenTo("rawIssues", ()=> {
+      this.scheduleIssues();
+    });
 
     this.listenTo("velocitiesJSON", ({value}) => {
       localStorage.setItem("team-velocities", JSON.stringify(value) );
@@ -163,72 +169,15 @@ class JiraAutoScheduler extends StacheElement {
       this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
     })
 
-    if(this.uploadUrl) {
-      this.processUrl(this.uploadUrl);
-    }
+
 
 
 		// temp
 
-		const serverInfoPromise = this.jiraHelpers.getServerInfo();
 
-    const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
-        jql: "issueType = Epic",//this.jql,
-        fields: [
-
-						"summary",
-            "Start date",
-            "Due date",
-            "Issue Type",
-            "Fix versions",
-            "Story Points",
-						"status",
-            "Story Points Confidence",
-						"Linked Issues"
-					], // LABELS_KEY, STATUS_KEY ]
-    });
-
-    return Promise.all([
-        issuesPromise, serverInfoPromise
-    ]).then(([issues, serverInfo]) => {
-				const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
-				console.log(issues, raw);
-				this.rawIssues = raw;
-				this.scheduleIssues();
-    })
 
 		//this.jiraHelpers
   }
-
-  // methods
-  async processFile(input) {
-    this.uploadUrl = "";
-    const results = await getCSVResultsFromFile(input.files[0]);
-    this.scheduleCSV(results);
-
-  }
-  async processUrl(url) {
-    this.uploadUrl = url;
-    const results = await getCSVResultsFromUrl(url);
-    this.scheduleCSV(results);
-  }
-
-  scheduleCSV(results) {
-    this.rawIssues = makeObjectsFromRows(results.data)
-    this.scheduleIssues();
-  }
-  get configuration(){
-
-    return {
-      getTeamKey: this.config.getTeamKey,
-      getDaysPerSprint: this.config.getDaysPerSprint,
-      getConfidence: this.config.getConfidence,
-      getEstimate: this.config.getEstimate,
-      getParentKey: this.config.getParentKey,
-      getBlockingKeys: this.config.getBlockingKeys
-    };
-  }
-
   scheduleIssues() {
     this.workByTeam = null;
     scheduleIssues(this.rawIssues, {
@@ -250,10 +199,6 @@ class JiraAutoScheduler extends StacheElement {
   configureCSV(event){
     event.preventDefault();
     this.configuringCSV = !this.configuringCSV;
-  }
-  clearIssues(){
-    this.rawIssues = null;
-    this.workByTeam = null;
   }
   getVelocityForTeam(teamKey) {
     return this.velocities[teamKey] || 21;

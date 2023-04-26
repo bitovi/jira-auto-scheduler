@@ -37,6 +37,17 @@ function makeLogicAndFunctionDefinition(key, defaultValue){
 
 class Configure extends ObservableObject {
   static props = {
+		issueJQL: saveToLocalStorage("issueJQL", "issueType = Epic"),
+		issueFields: saveToLocalStorage("issueFields", [
+			"Summary",
+			"Start date",
+			"Due date",
+			"Issue Type",
+			"Story Points",
+			"status",
+			"Story Points Confidence",
+			"Linked Issues"
+		]),
     issueLinkPrefix: saveToLocalStorage("issueLinkPrefix", "https://bitovi.atlassian.net/browse/"),
 
     ...makeLogicAndFunctionDefinition("getTeamKey", {"var": "Project key"}),

@@ -14,7 +14,23 @@ import "./components/configure-json-logic/configure-json-logic.js";
 
 class JiraConfigureCSV extends StacheElement {
   static view = `
-    <h2>Issue Link Prefix</h2>
+		<h2>Issue JQL</h2>
+		<p>What issues do you want to load?</p>
+		<p><input value:bind="this.config.issueJQL"/></p>
+
+
+		<h2>Issue Fields</h2>
+		<p>What issue data do you want to load?</p>
+		{{# if(this.sortedFieldNames.value)}}
+			<select multiple values:bind="this.config.issueFields">
+				{{# for(field of this.sortedFieldNames.value)}}
+					<option value="{{field.name}}">{{field.name}}</option>
+				{{/}}
+			</select>
+		{{/ }}
+
+
+		<h2>Issue Link Prefix</h2>
     <p>What address should be used to link to issues? <input value:bind="this.config.issueLinkPrefix"/></p>
 
 
@@ -78,10 +94,17 @@ class JiraConfigureCSV extends StacheElement {
   static props = {
     rawIssues: type.Any,
     config: type.Any,
-    _showTypeInfo: {Type: Boolean, default: false}
+    _showTypeInfo: {Type: Boolean, default: false},
+		jiraHelpers: type.Any
   };
 
-
+	get sortedFieldNames(){
+		return this.jiraHelpers.fieldsRequest.then((fields)=>{
+			return fields.list.sort( (f1, f2)=>{
+				return f1.name > f2.name ? 1 : -1
+			});
+		})
+	}
   get issuesByType(){
     return groupByKey(this.rawIssues || [], "Issue Type");
   }
