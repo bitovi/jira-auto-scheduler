@@ -29,12 +29,6 @@ class JiraConfigureCSV extends StacheElement {
 			</select>
 		{{/ }}
 
-
-		<h2>Issue Link Prefix</h2>
-    <p>What address should be used to link to issues? <input value:bind="this.config.issueLinkPrefix"/></p>
-
-
-
     <h2>Get Team Key</h2>
     <p>Given an issue, returns a key that represents which team will take on the work.</p>
     <jira-configure-json-logic rawIssues:from="this.rawIssues" jsonLogic:bind="this.config.getTeamKeyJsonLogic"/>

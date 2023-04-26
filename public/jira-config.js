@@ -16,6 +16,31 @@ function saveToLocalStorage(key, defaultValue) {
     }
   }
 }
+
+function saveToUrl(key, defaultValue){
+	const defaultJSON = JSON.stringify(defaultValue);
+	return {
+      value({ lastSet, listenTo, resolve }) {
+          if (lastSet.value) {
+              resolve(lastSet.value)
+          } else {
+              resolve(JSON.parse( new URL(window.location).searchParams.get(key) || defaultJSON ) );
+          }
+
+          listenTo(lastSet, (value) => {
+              const newUrl = new URL(window.location);
+							const valueJSON = JSON.stringify(value);
+							if(valueJSON !== defaultJSON) {
+								newUrl.searchParams.set(key, valueJSON );
+							}
+              history.pushState({}, '', newUrl);
+              resolve(value);
+          })
+      }
+  }
+}
+
+
 function getJsonLogicFunction(key) {
   return {
     get(){
@@ -27,6 +52,10 @@ function getJsonLogicFunction(key) {
   }
 }
 
+
+
+
+
 function makeLogicAndFunctionDefinition(key, defaultValue){
   return {
     [key+"JsonLogic"]: saveToLocalStorage(key, defaultValue),
@@ -34,11 +63,18 @@ function makeLogicAndFunctionDefinition(key, defaultValue){
   };
 }
 
+function makeLogicAndFunctionDefinitionSaveToUrl(key, defaultValue){
+  return {
+    [key+"JsonLogic"]: saveToUrl(key, defaultValue),
+    [key]: getJsonLogicFunction(key+"JsonLogic")
+  };
+}
+
 
 class Configure extends ObservableObject {
   static props = {
-		issueJQL: saveToLocalStorage("issueJQL", "issueType = Epic"),
-		issueFields: saveToLocalStorage("issueFields", [
+		issueJQL: saveToUrl("issueJQL", "issueType = Epic"),
+		issueFields: saveToUrl("issueFields", [
 			"Summary",
 			"Start date",
 			"Due date",
@@ -46,34 +82,34 @@ class Configure extends ObservableObject {
 			"Story Points",
 			"status",
 			"Story Points Confidence",
+			"Confidence",
 			"Linked Issues"
 		]),
-    issueLinkPrefix: saveToLocalStorage("issueLinkPrefix", "https://bitovi.atlassian.net/browse/"),
 
     ...makeLogicAndFunctionDefinition("getTeamKey", {"var": "Project key"}),
 
     ...makeLogicAndFunctionDefinition("getDaysPerSprint", 10),
 
-    ...makeLogicAndFunctionDefinition("getConfidence", {
+    ...makeLogicAndFunctionDefinitionSaveToUrl("getConfidence", {
       "or": [
         {"+" :[
           0,
           // adds to the first element of the array
           { filter: [
-            { merge: [{var: "Story Points Confidence"},{ var: "Custom field (Confidence)" }] },
-            { "!==": [{"var":""}, ""] }
+            { merge: [{var: "Story Points Confidence"},{ var: "Confidence" }] },
+            { "!==": [{"var":""}, null] }
           ]}
         ]},
         50
       ]} ),
-    ...makeLogicAndFunctionDefinition("getEstimate", {
+    ...makeLogicAndFunctionDefinitionSaveToUrl("getEstimate", {
       "or": [
         {"+" :[
           0,
           // adds to the first element of the array
           { filter: [
-            { merge: [{var: "Story Points"},{ var: "Custom field (Story Points)" }, {var: "Custom field (Story point estimate)"} ] },
-            { "!==": [{"var":""}, ""] }
+            { merge: [{var: "Story Points"} ] },
+            { "!==": [{"var":""}, null] }
           ]}
         ]},
         50

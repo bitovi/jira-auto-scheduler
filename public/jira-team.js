@@ -21,8 +21,7 @@ class JiraTeam extends StacheElement {
     team: type.maybeConvert(Object),
     dayWidth: Number,
     tooltip: type.Any,
-    velocity: Number,
-    issueLinkPrefix: String
+    velocity: Number
   };
 
   connected(){

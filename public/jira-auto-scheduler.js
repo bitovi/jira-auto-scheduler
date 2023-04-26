@@ -69,7 +69,6 @@ class JiraAutoScheduler extends StacheElement {
             tooltip:from="this.tooltip"
             velocity:from='this.getVelocityForTeam(team.teamKey)'
             on:velocity='this.updateVelocity(team.teamKey, scope.event.value)'
-            issueLinkPrefix:from="this.config.issueLinkPrefix"
             ></jira-team>
         {{/}}
       </table>
