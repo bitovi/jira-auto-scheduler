@@ -100,7 +100,7 @@ class Configure extends ObservableObject {
             { "!==": [{"var":""}, null] }
           ]}
         ]},
-        50
+        undefined
       ]} ),
     ...makeLogicAndFunctionDefinitionSaveToUrl("getEstimate", {
       "or": [
@@ -112,7 +112,7 @@ class Configure extends ObservableObject {
             { "!==": [{"var":""}, null] }
           ]}
         ]},
-        50
+        undefined
       ]
     }),
 

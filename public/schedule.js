@@ -91,6 +91,17 @@ function planIssue(issue, workByTeams) {
 function scheduleIssue(work, firstDayWorkCouldStartOn) {
 
     var team = work.team;
+		
+		team.workPlans.sheduleWork(work, firstDayWorkCouldStartOn);
+		return work;
+
+		// Lets make a combination of all of the team's parallel tracks ...
+		// this is likely inefficient, but I'll worry about that later
+		team.workPlans.map( (workPlan, ) => {
+			return {
+
+			}
+		});
 
     // If there is no work for this team, then make this the first work item.
     if(!team.workPlan.length) {

@@ -213,6 +213,9 @@ li.work:hover, .chip--current {
   background-color: #FFEBE6;
   box-shadow: inset 0 0 0 1px #FFAB00;
 }
+.work.work-missing-confidence, .work.work-missing-estimate {
+	border: solid 1px rgb(211, 31,13);
+}
 
 a, a:visited {
   color:#172B4D;
