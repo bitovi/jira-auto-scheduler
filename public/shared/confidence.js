@@ -1,5 +1,5 @@
 /**
- * Given an estimate, a confidence, and a
+ * Given an estimate, a confidence, and an uncertainty
  */
 
 

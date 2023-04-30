@@ -25,7 +25,7 @@ export function scheduleIssues(issues, options){
   // Sorts by the items that has the most work
   preparedIssues.sort((iA, iB) => iB.blocksWorkDepth - iA.blocksWorkDepth);
 
-
+	console.log("sorted by depth", preparedIssues)
   // starting with the issue that blocks the most work
   preparedIssues.forEach( (issue)=> {
     // plan that issue out
@@ -66,11 +66,11 @@ function planIssue(issue, workByTeams) {
             var firstDayWorkCouldStartOn = earliestStartTimeFromBlockers(work);
 
 
-            console.log(new Array(firstDayWorkCouldStartOn).join(" "),
+            /*console.log(new Array(firstDayWorkCouldStartOn).join(" "),
               issue.blocksWorkDepth,
               issue.work.daysOfWork,
               issue.Summary,
-              "rescheduled");
+              "rescheduled");*/
 
             // Try to place this work in the first place the team could absorb it.
             scheduleIssue(work, firstDayWorkCouldStartOn );
@@ -91,55 +91,10 @@ function planIssue(issue, workByTeams) {
 function scheduleIssue(work, firstDayWorkCouldStartOn) {
 
     var team = work.team;
-		
+
 		team.workPlans.sheduleWork(work, firstDayWorkCouldStartOn);
+		console.log(new Array(Math.ceil(work.startDay / 2)).join(" "), work.startDay, work.issue.Summary)
 		return work;
-
-		// Lets make a combination of all of the team's parallel tracks ...
-		// this is likely inefficient, but I'll worry about that later
-		team.workPlans.map( (workPlan, ) => {
-			return {
-
-			}
-		});
-
-    // If there is no work for this team, then make this the first work item.
-    if(!team.workPlan.length) {
-        work.startDay = firstDayWorkCouldStartOn;
-        team.workPlan.push(work)
-    } else {
-
-        // check if the work can exist before existing work
-        var firstDayToStartWorkAfterExistingWork = 0;
-        // find the first spot where this will fit after `startDay`
-        for(let w = 0 ; w < team.workPlan.length; w++) {
-            let existingWork = team.workPlan[w];
-            // check if work can be done before this existing work
-            var possibleStartDay = Math.max(firstDayWorkCouldStartOn, firstDayToStartWorkAfterExistingWork);
-            if(possibleStartDay + work.daysOfWork <= existingWork.startDay) {
-                work.startDay = possibleStartDay;
-                team.workPlan.splice(w, 0, work);
-                if(work.startDay > firstDayWorkCouldStartOn) {
-                    work.artificiallyDelayed = true;
-                    //console.log("can't schedule where we'd want to. This is in the way:", existingWork);
-                }
-                return work;
-            } else {
-
-                // move forward
-                firstDayToStartWorkAfterExistingWork = existingWork.startDay + existingWork.daysOfWork;
-            }
-        }
-        // work not scheduled, add to the end ...
-        work.startDay = Math.max(firstDayWorkCouldStartOn, firstDayToStartWorkAfterExistingWork);
-        if(work.startDay > firstDayWorkCouldStartOn) {
-            work.artificiallyDelayed = true;
-            //console.log("can't schedule where we'd want to. This is in the way:",
-            //    team.workPlan.map( (work)=> { return {summary: work.issue.Summary, startDay: work.startDay}}));
-        }
-        team.workPlan.push(work);
-    }
-    return work;
 }
 
 

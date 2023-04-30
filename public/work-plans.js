@@ -52,10 +52,10 @@ class WorkPlan {
 		if(this.head === workNode) {
 			this.head = newNode;
 		} else {
-			const oldPrevious = work.previous;
-			oldPrevous.next = newNode;
-			work.previous = newNode;
-			newNode.previous = oldPrevous;
+			const oldPrevious = workNode.previous;
+			oldPrevious.next = newNode;
+			workNode.previous = newNode;
+			newNode.previous = oldPrevious;
 		}
 		newNode.next = workNode;
 		workNode.previous = newNode;
@@ -67,7 +67,7 @@ class WorkPlan {
 			work.startDay = firstDayWorkCouldStartOn;
 		} else {
 			// MUTATION
-			work.startDay = this.tail.work.startDay  + this.tail.work.daysOfWork;
+			work.startDay = Math.max( this.tail.work.startDay  + this.tail.work.daysOfWork, firstDayWorkCouldStartOn)
 			if(work.startDay > firstDayWorkCouldStartOn) {
 				work.artificiallyDelayed = true;
 			}
@@ -92,18 +92,29 @@ class WorkPlan {
 }
 
 export class WorkPlans {
+	static sortByEndDate = (workNodeA, workNodeB) => {
+		return (workNodeA.startDay + workNodeA.daysOfWork) - (workNodeB.startDay + workNodeB.daysOfWork)
+	};
+
 	constructor(parallelWorkStreams){
 		this.plans = [];
 		for(let i = 0; i < parallelWorkStreams; i++) {
 			this.plans.push(new WorkPlan())
 		}
 	}
+	workNodes(){
+		return this.plans.map( workPlan => [...workPlan]).flat();
+	}
 	sortedWorkNodes(){
-		return this.plans.map( workPlan => [...workPlan]).flat().sort( (workNodeA, workNodeB) => {
-			return workNodeA.startDay - workNodeB.startDay
+		return this.workNodes().sort( (workNodeA, workNodeB) => {
+			return workNodeA.work.startDay - workNodeB.work.startDay
 		})
 	}
+	sortedWorkNodesByEndDate(){
+		return this.workNodes().sort( WorkPlans.sortByEndDate )
+	}
 	sheduleWork(work, firstDayWorkCouldStartOn) {
+
 		// if any are empty, add it right away
 		for(const workPlan of this.plans) {
 			if(workPlan.isEmpty) {
@@ -121,8 +132,9 @@ export class WorkPlans {
 			}
 			// if we are at the end of a list ... we can add it there before going to later lists
 			if(existingWork.isTail) {
-				existingWork.append(work, firstDayWorkCouldStartOn)
+				existingWork.append(work, firstDayWorkCouldStartOn);
+				return;
 			}
-	}
+		}
 	}
 }

@@ -175,7 +175,7 @@ li.work {
   cursor: pointer;
 }
 
-li.work:hover, .chip--current {
+.work:hover, .chip--current {
   background-color: #FFFAE6;
   box-shadow: inset 0 0 0 1px #FFC400;
 }
@@ -201,7 +201,7 @@ li.work:hover, .chip--current {
   box-shadow: inset 0 0 0 1px #57D9A3;
 }
 
-.work.blocked-2 {
+.work.blocked-2, .work.blocked-3, .work.blocked-4, .work.blocked-5, .work-blocked {
   background-color: #FF8F73;
   box-shadow: inset 0 0 0 1px #FF8B00;
 }
@@ -233,6 +233,7 @@ simple-tooltip {
   border-radius: 3px;
   box-shadow: rgb(9 30 66 / 31%) 0px 0px 1px, rgb(9 30 66 / 25%) 0px 20px 32px -8px;
   padding: 12px;
+	z-index: 1000;
 }
 
 simple-tooltip span {
@@ -260,4 +261,30 @@ jira-configure-json-logic textarea {
 }
 jira-configure-json-logic textarea.dirty {
   border: solid 1px red;
+}
+
+
+.border-y-solid-1px-gray-300 {
+	border-top: solid 1px #d1d5db;
+	border-bottom: solid 1px #d1d5db;
+}
+.border-y-solid-1px-gray-300 {
+	border-top: solid 1px #d1d5db;
+	border-bottom: solid 1px #d1d5db;
+}
+.border-yl-solid-1px-gray-200 {
+	border-top: solid 1px #e5e7eb;
+	border-bottom: solid 1px #e5e7eb;
+	border-left: solid 1px #e5e7eb;
+}
+.border-solid-1px-black {
+	border: solid 1px black;
+}
+
+.block {
+	display: block;
+}
+
+.p2 {
+	padding: 0.5rem;
 }

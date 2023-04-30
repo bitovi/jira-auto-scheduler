@@ -39,22 +39,22 @@ function addWorkingBusinessDays(issues) {
 
 
 	return issues.map( issue => {
-		let weightedEstimate = null;
+		/*let weightedEstimate = null;
 		if( issue["Story Points"]) {
 			if(issue["Confidence"]) {
 				weightedEstimate = issue["Story Points"] + Math.round( estimateExtraPoints(issue["Story Points"], issue["Confidence"]) );
 			} else {
 				weightedEstimate = issue["Story Points"];
 			}
-		}
+		}*/
 
 		return {
 			...issue,
 			//workType: isQAWork(issue) ? "qa" : ( isPartnerReviewWork(issue) ? "uat" : "dev"),
 			workingBusinessDays:
 				issue["Due date"] && issue["Start date"] ?
-					getBusinessDatesCount( new Date(issue["Start date"]), new Date(issue["Due date"]) )  : null,
-			weightedEstimate: weightedEstimate
+					getBusinessDatesCount( new Date(issue["Start date"]), new Date(issue["Due date"]) )  : null//,
+			//weightedEstimate: weightedEstimate
 		};
 	})
 }

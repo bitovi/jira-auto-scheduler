@@ -70,11 +70,11 @@ export function prepareIssues(issuesSource, {
 
     var projectIds = Object.keys(issuesByTeam);
 
-    const workByTeams = makeObjectMapByKey(projectIds.map( (teamKey) => {
+    const workByTeams = makeObjectMapByKey(projectIds.map( (teamKey, i) => {
         return {
             teamKey,
-            workPlans: new WorkPlans(1),
-            velocity: getVelocity(teamKey) / getParallelWorkLimit(teamKey)
+            workPlans: new WorkPlans(getParallelWorkLimit(teamKey)),
+            velocity: getVelocity(teamKey) // getParallelWorkLimit(teamKey)
         }
     }), "teamKey" );
 

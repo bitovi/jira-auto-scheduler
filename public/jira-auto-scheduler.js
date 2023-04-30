@@ -7,8 +7,10 @@ import {
 import {scheduleIssues } from "./schedule.js";
 import {getEstimateDefault} from "./schedule-prepare-issues.js";
 import {toCVSFormatAndAddWorkingBusinessDays} from "./shared/issue-cleanup.js";
+import {saveJSONToUrl} from "./shared/state-storage.js";
 
 import "./jira-team.js";
+import "./jira-teams.js";
 import "./jira-configure-csv.js";
 import "./simple-tooltip.js";
 import config from "./jira-config.js";
@@ -30,7 +32,7 @@ class JiraAutoScheduler extends StacheElement {
             <div>
               <label>Zoom:</label>
               <input type="range"
-                min="10" max="50"
+                min="5" max="50"
                 value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
             </div>
 
@@ -60,27 +62,22 @@ class JiraAutoScheduler extends StacheElement {
     {{# if(this.configuringCSV) }}
       <jira-configure-csv rawIssues:from="this.rawIssues" config:from="this.config" jiraHelpers:from="this.jiraHelpers"/>
     {{ else }}
-      <table class="team-table">
-        {{# for(team of this.teams) }}
-          <jira-team
-            role="row"
-            team:from="team"
-            dayWidth:from="this.dayWidth"
-            tooltip:from="this.tooltip"
-            velocity:from='this.getVelocityForTeam(team.teamKey)'
-            on:velocity='this.updateVelocity(team.teamKey, scope.event.value)'
-            ></jira-team>
-        {{/}}
-      </table>
+
+
+		<jira-teams
+			teams:from="this.teams"
+			dayWidth:from="this.dayWidth"
+			tooltip:from="this.tooltip"
+			getVelocityForTeam:from="this.getVelocityForTeam"
+			updateVelocity:from="this.updateVelocity"
+			></jira-teams>
+
       {{/}}
     </main>
   `;
   static props = {
-		jiraHelpers: {type: type.Any},
-    dayWidth: {
-      type: type.maybeConvert(Number),
-      default: 20
-    },
+    jiraHelpers: {type: type.Any},
+    dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
     uncertaintyWeight: {
       type: type.maybeConvert(Number),
       default: 100
@@ -164,9 +161,9 @@ class JiraAutoScheduler extends StacheElement {
     });
 
     // redraw lines when zoom changes
-    this.listenTo("dayWidth", ()=> {
-      this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
-    })
+    //this.listenTo("dayWidth", ()=> {
+    //  this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
+    //})
 
 
 
@@ -203,6 +200,7 @@ class JiraAutoScheduler extends StacheElement {
     return this.velocities[teamKey] || 21;
   }
   updateVelocity(teamKey, value){
+		debugger;
     this.velocities[teamKey] = value;
   }
 
