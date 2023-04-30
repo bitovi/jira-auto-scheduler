@@ -27,6 +27,8 @@ export function saveJSONToUrl(key, defaultValue, Type){
 							const valueJSON = JSON.stringify(value);
 							if(valueJSON !== defaultJSON) {
 								newUrl.searchParams.set(key, valueJSON );
+							} else {
+								newUrl.searchParams.delete(key );
 							}
               history.pushState({}, '', newUrl);
               resolve(value);

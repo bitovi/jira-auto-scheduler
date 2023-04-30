@@ -32,14 +32,15 @@ class JiraAutoScheduler extends StacheElement {
             <div>
               <label>Zoom:</label>
               <input type="range"
-                min="5" max="50"
+                min="3" max="20"
                 value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
             </div>
 
             <div>
-              <label>Uncertainty Weight:</label>
+              <label>Certainty Threshold:</label>
               <input type="range"
-                min="0" max="100"
+                min="50" max="90"
+								step="5"
                 value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
             </div>
 
@@ -78,10 +79,7 @@ class JiraAutoScheduler extends StacheElement {
   static props = {
     jiraHelpers: {type: type.Any},
     dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
-    uncertaintyWeight: {
-      type: type.maybeConvert(Number),
-      default: 100
-    },
+    uncertaintyWeight: saveJSONToUrl("weight",90,type.maybeConvert(Number)),
 
     //rawIssues: type.Any,
     workByTeam: type.Any,

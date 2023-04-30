@@ -8,14 +8,20 @@ class ScheduledWorkNode {
 		this.previous = null;
 		this.workPlan = workPlan;
 	}
-
-	prependIfPossible(work, firstDayWorkCouldStartOn) {
+	isPrependPossible(work, firstDayWorkCouldStartOn) {
 		let firstDayToStartWorkAfterExistingWork = 0;
 		if(this.previous !== null) {
 			firstDayToStartWorkAfterExistingWork = this.previous.work.startDay + this.previous.work.daysOfWork;
 		}
 		var possibleStartDay = Math.max(firstDayWorkCouldStartOn, firstDayToStartWorkAfterExistingWork);
-		if( possibleStartDay + work.daysOfWork <= this.work.startDay ) {
+		return {
+			isPossible:possibleStartDay + work.daysOfWork <= this.work.startDay,
+			possibleStartDay: possibleStartDay
+		};
+	}
+	prependIfPossible(work, firstDayWorkCouldStartOn) {
+		const {isPossible, possibleStartDay} = this.isPrependPossible(work, firstDayWorkCouldStartOn);
+		if( isPossible ) {
 			this.workPlan.prepend(this, work, possibleStartDay, firstDayWorkCouldStartOn)
 			return true;
 		} else {
@@ -41,6 +47,26 @@ class WorkPlan {
 	get work(){
 		return [...this].map( (workNode) => workNode.work )
 	}
+	// figures out the earliest start day ... if it is selected, includes a function to do the update
+	earliestStartDay(work, firstDayWorkCouldStartOn) {
+		for(const workNode of this) {
+			const {isPossible, possibleStartDay} = workNode.isPrependPossible(work, firstDayWorkCouldStartOn)
+			if(isPossible) {
+				return {
+					possibleStartDay,
+					updatePlan: ()=>{
+						workNode.prependIfPossible(work, firstDayWorkCouldStartOn);
+					}
+				}
+			}
+		}
+		return {
+			possibleStartDay: this.appendStartDay(work, firstDayWorkCouldStartOn),
+			updatePlan: ()=>{
+				this.append(work, firstDayWorkCouldStartOn)
+			}
+		};
+	}
 	prepend(workNode, work, startDay, firstDayWorkCouldStartOn) {
 		// MUTATION
 		work.startDay = startDay;
@@ -60,14 +86,22 @@ class WorkPlan {
 		newNode.next = workNode;
 		workNode.previous = newNode;
 	}
+	appendStartDay(work, firstDayWorkCouldStartOn){
+		if(!this.tail) {
+			return firstDayWorkCouldStartOn;
+		} else {
+			return Math.max( this.tail.work.startDay  + this.tail.work.daysOfWork, firstDayWorkCouldStartOn)
+		}
+	}
 	append(work, firstDayWorkCouldStartOn) {
+		const startDay = this.appendStartDay(work, firstDayWorkCouldStartOn);
 		if(!this.tail) {
 			this.head = this.tail = new ScheduledWorkNode(work, this);
 			// MUTATION
-			work.startDay = firstDayWorkCouldStartOn;
+			work.startDay = startDay;
 		} else {
 			// MUTATION
-			work.startDay = Math.max( this.tail.work.startDay  + this.tail.work.daysOfWork, firstDayWorkCouldStartOn)
+			work.startDay = startDay;
 			if(work.startDay > firstDayWorkCouldStartOn) {
 				work.artificiallyDelayed = true;
 			}
@@ -122,6 +156,18 @@ export class WorkPlans {
 				return;
 			}
 		}
+
+		// try each workplan for it's earliest fit ...
+		const earliestDates = this.plans.map( (plan)=>{
+			return plan.earliestStartDay(work, firstDayWorkCouldStartOn)
+		}).sort( (dataA, dataB) => {
+			return dataA.possibleStartDay - dataB.possibleStartDay;
+		});
+
+		earliestDates[0].updatePlan();
+
+
+		return;
 		// now we need to order them ....
 		const allWorkNodes = this.sortedWorkNodes();
 

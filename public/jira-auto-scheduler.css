@@ -165,14 +165,10 @@ p.truncate {
   -webkit-box-orient: vertical;
 }
 
-li.work {
+.work {
   box-sizing: border-box;
-  height: 88px;
-  padding: 8px 12px;
-  background-color: #FFFFFF;
+  background-color: rgba(255,255,255,.6);
   box-shadow: inset 0 0 0 1px #C1C7D0;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .work:hover, .chip--current {
@@ -277,6 +273,10 @@ jira-configure-json-logic textarea.dirty {
 	border-bottom: solid 1px #e5e7eb;
 	border-left: solid 1px #e5e7eb;
 }
+.color-bg-slate-100 {
+	background-color: #f1f5f9;
+}
+
 .border-solid-1px-black {
 	border: solid 1px black;
 }
@@ -287,4 +287,8 @@ jira-configure-json-logic textarea.dirty {
 
 .p2 {
 	padding: 0.5rem;
+}
+
+.text-center {
+	text-align: center;
 }

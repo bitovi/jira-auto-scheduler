@@ -91,6 +91,9 @@ function planIssue(issue, workByTeams) {
 function scheduleIssue(work, firstDayWorkCouldStartOn) {
 
     var team = work.team;
+		//if(work.issue["Issue key"] === "YUMPOS-4131") {
+		//	debugger;
+		//}
 
 		team.workPlans.sheduleWork(work, firstDayWorkCouldStartOn);
 		console.log(new Array(Math.ceil(work.startDay / 2)).join(" "), work.startDay, work.issue.Summary)
