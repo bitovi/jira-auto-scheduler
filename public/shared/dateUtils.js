@@ -51,3 +51,50 @@ export function getBusinessDatesCount(startDate, endDate) {
     }
     return count;
 }
+
+
+// getEndDateFromStartDateAndBusinessDays( parseDateISOString("2022-01-01"), 2 ) //-> Jan 5
+
+export function getEndDateFromStartDateAndBusinessDays(startDate, businessDays){
+	const curDate = new Date(startDate.getTime());
+	const startDay = curDate.getDay();
+
+	// move to Monday ...
+	if(startDay === 0 ) { // sunday
+		curDate.setDate(curDate.getDate() + 1 );
+	} else if(startDay === 6) { // saturday
+		curDate.setDate(curDate.getDate() + 2 );
+	}
+
+	const weeksToMoveForward = Math.floor(businessDays / 5);
+	const remainingDays =  businessDays % 5;
+
+	curDate.setDate(curDate.getDate() + weeksToMoveForward*7 + remainingDays );
+
+	const endDay = curDate.getDay();
+
+	// move to Monday ...
+	if(endDay === 0 ) { // sunday
+		curDate.setDate(curDate.getDate() + 1 );
+	} else if(endDay === 6) { // saturday
+		curDate.setDate(curDate.getDate() + 2 );
+	}
+
+	return curDate;
+}
+
+
+
+export function parseDateISOString(s) {
+    if (!s) return s;
+
+    // if this is a date already, assume we need to correct timezone
+    if (s instanceof Date) {
+        // fix timezone to UTC
+        return new Date(s.getTime() + s.getTimezoneOffset() * 60 * 1000);
+    }
+
+    let ds = s.split(/\D/).map(s => parseInt(s));
+    ds[1] = ds[1] - 1; // adjust month
+    return new Date(...ds);
+}

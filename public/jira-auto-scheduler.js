@@ -44,6 +44,12 @@ class JiraAutoScheduler extends StacheElement {
                 value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
             </div>
 
+						<div>
+							<label>Start Date:</label>
+							<input type="date"
+								valueAsDate:bind="this.startDate"/>
+						</div>
+
             <div>
               <ul class="key">
                 <li><span>Key:</span></li>
@@ -66,11 +72,15 @@ class JiraAutoScheduler extends StacheElement {
 
 
 		<jira-teams
+			class="py-2"
 			teams:from="this.teams"
 			dayWidth:from="this.dayWidth"
 			tooltip:from="this.tooltip"
 			getVelocityForTeam:from="this.getVelocityForTeam"
 			updateVelocity:from="this.updateVelocity"
+			startDate:from="this.startDate"
+			addWorkPlanForTeam:from="this.addWorkPlanForTeam"
+			removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
 			></jira-teams>
 
       {{/}}
@@ -80,7 +90,8 @@ class JiraAutoScheduler extends StacheElement {
     jiraHelpers: {type: type.Any},
     dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
     uncertaintyWeight: saveJSONToUrl("weight",90,type.maybeConvert(Number)),
-
+		startDate: saveJSONToUrl("startDate",null,type.maybeConvert(Date)),
+		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
     //rawIssues: type.Any,
     workByTeam: type.Any,
     tooltip: HTMLElement,
@@ -153,6 +164,10 @@ class JiraAutoScheduler extends StacheElement {
       this.scheduleIssues();
     });
 
+		this.listenTo("workLimit", ()=> {
+      this.scheduleIssues();
+    });
+
     this.listenTo("velocitiesJSON", ({value}) => {
       localStorage.setItem("team-velocities", JSON.stringify(value) );
       this.scheduleIssues();
@@ -187,7 +202,8 @@ class JiraAutoScheduler extends StacheElement {
       getEstimate: this.configuration.getEstimate,
       getTeamKey: this.configuration.getTeamKey,
       getParentKey: this.configuration.getParentKey,
-			getConfidence: this.configuration.getConfidence
+			getConfidence: this.configuration.getConfidence,
+			getParallelWorkLimit: this.getParallelWorkLimit.bind(this)
     })
   }
   configureCSV(event){
@@ -198,10 +214,29 @@ class JiraAutoScheduler extends StacheElement {
     return this.velocities[teamKey] || 21;
   }
   updateVelocity(teamKey, value){
-		debugger;
     this.velocities[teamKey] = value;
   }
-
+	addWorkPlanForTeam(teamKey){
+		const copy = { ... this.workLimit };
+		copy[teamKey] = teamKey in copy ? copy[teamKey]+1 : 2;
+		this.workLimit = copy;
+	}
+	removeWorkPlanForTeam(teamKey){
+		const copy = { ... this.workLimit };
+		if(copy.workLimit === 2) {
+			delete copy.workLimit;
+		} else if(teamKey in copy) {
+			copy[teamKey]--
+		}
+		this.workLimit = copy;
+	}
+	getParallelWorkLimit(teamKey) {
+		if(teamKey in this.workLimit) {
+			return this.workLimit[teamKey];
+		} else {
+			return 1;
+		}
+	}
 }
 
 export default JiraAutoScheduler;

@@ -11,6 +11,8 @@ export function saveToLocalStorage(key, defaultValue) {
   }
 }
 
+const dateMatch = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
 export function saveJSONToUrl(key, defaultValue, Type){
 	const defaultJSON = JSON.stringify(defaultValue);
 	return {
@@ -19,7 +21,12 @@ export function saveJSONToUrl(key, defaultValue, Type){
           if (lastSet.value) {
               resolve(lastSet.value)
           } else {
-              resolve(JSON.parse( new URL(window.location).searchParams.get(key) || defaultJSON ) );
+							const parsed = JSON.parse( new URL(window.location).searchParams.get(key) || defaultJSON );
+							if(parsed && dateMatch.test(parsed)) {
+								resolve( new Date(parsed) );
+							} else {
+								resolve( parsed );
+							}
           }
 
           listenTo(lastSet, (value) => {

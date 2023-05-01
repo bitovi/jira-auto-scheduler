@@ -1,6 +1,7 @@
 import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
+import {getEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js";
 
-
+const dateFormatter = new Intl.DateTimeFormat('en-US')
 
 class JiraTeams extends StacheElement {
   static view = `
@@ -9,7 +10,9 @@ class JiraTeams extends StacheElement {
 			{{#for (sprint of this.sprints)}}
 				<div
 					class="{{sprint.className}} text-center"
-					style="grid-column: {{plus(sprint.startDay, 2)}} / span {{sprint.days}}; grid-row: 1 / span {{plus(this.teamsAndWorkPlansWithRowNumbers.rows, 2)}}">{{sprint.number}}</div>
+					style="grid-column: {{plus(sprint.startDay, 2)}} / span {{sprint.days}}; grid-row: 1 / span {{plus(this.teamsAndWorkPlansWithRowNumbers.rows, 2)}}">
+					<div>{{sprint.number}}</div>
+				</div>
 			{{/ }}
 
 			{{#for( team of this.teamsAndWorkPlansWithRowNumbers) }}
@@ -21,16 +24,25 @@ class JiraTeams extends StacheElement {
 				</div>
 				<div
 					class='p2'
-					style='grid-column: 1 / span 1; grid-row: {{plus(team.teamIndex, 2)}} / span {{team.workPlans.length}}'>
+					style='grid-column: 1 / span 1; grid-row: {{plus(team.teamIndex, 2)}} / span 1'>
 					<label class='block'>{{team.teamKey}}</label>
 					<input
 						type="number"
 						value:from='this.getVelocityForTeam(team.teamKey)'
 						on:change='this.updateVelocity(team.teamKey, scope.element.valueAsNumber)'
 						/>
+					<button on:click="this.addWorkPlanForTeam(team.teamKey)">+</button>
 				</div>
 
 				{{# for(workPlan of team.workPlans) }}
+					{{# not( eq(scope.index, 0) ) }}
+						<div
+							class='p2'
+							style='grid-column: 1 / span 1; grid-row: {{ plus(workPlan.workPlanIndex, 2) }} / span 1'>
+							<button on:click="this.removeWorkPlanForTeam(team.teamKey)">-</button>
+						</div>
+					{{/ }}
+
 					<div
 						class='border-yl-solid-1px-gray-200'
 						style='grid-column: 2 / span {{this.totalNumberOfDays}}; grid-row: {{plus(workPlan.workPlanIndex, 2)}} / span 1'>
@@ -115,12 +127,27 @@ class JiraTeams extends StacheElement {
 		return sprints;
 	}
 	showTooltip(event, work) {
-		this.tooltip.enteredElement(event, `
+		let tip = `
 			<span><strong>${work.issue["Summary"]}</strong></span><br/>
 			<span>Start: ${work.startDay}, Days of Work: ${work.daysOfWork}</span><br/>
 			<span>Estimate: ${printNumber(work.estimate)}, Confidence: ${printNumber(work.confidence)}</span><br/>
 			<span>Estimated days: ${printNumber(work.estimatedDaysOfWork)}, Extra days: ${printNumber(work.extraDays)}</span>
-		`)
+		`;
+		if(this.startDate) {
+			tip = tip+`<br/>
+				<span>Start Date: ${
+					dateFormatter.format(
+						getEndDateFromStartDateAndBusinessDays(this.startDate, work.startDay)
+					)
+				}</span><br/>
+				<span>End Date: ${
+					dateFormatter.format(
+						getEndDateFromStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork)
+					)
+				}</span>
+			`
+		}
+		this.tooltip.enteredElement(event, tip)
 		/*workInfo.innerHTML = `
 			<p>${work.issue["Summary"]}!</p>
 			<code>Start: ${work.startDay}, Days: ${work.daysOfWork}</code><br/>
@@ -137,64 +164,6 @@ class JiraTeams extends StacheElement {
 
 		this.tooltip.leftElement();
 	}
-  updateWork(){
-    var team = this.team;
-
-    // var ul = this.lastElementChild;
-    var ul = this.querySelector(".work-container");
-    ul.innerHTML = "";
-
-    var currentDay = 0;
-
-    for(let work of team.workPlans.plans[0].work) {
-
-      if(work.startDay > currentDay) {
-          // there is a hole
-          let emptyDay = document.createElement("li");
-          emptyDay.classList.add("empty-day")
-          emptyDay.style.width =( (work.startDay - currentDay) *this.dayWidth)+"px";
-          ul.appendChild(emptyDay);
-      }
-      let li = document.createElement("li");
-      li.style.width =( (work.daysOfWork ) *this.dayWidth)+"px";
-      li.work = work;
-      li.classList.add("work");
-			if(work.confidence == null) {
-				li.classList.add("work-missing-confidence")
-			}
-			if(work.estimate == null) {
-				li.classList.add("work-missing-estimate")
-			}
-      li.innerHTML = `<a href="${work.issue.url}"><p class="truncate">${work.issue["Summary"]}</p></a>`
-      li.id = work.issue["Issue key"];
-      li.onmouseenter = (event) => {
-        this.tooltip.enteredElement(event, `
-          <span><strong>${work.issue["Summary"]}</strong></span><br/>
-          <span>Start: ${work.startDay}, Days: ${work.daysOfWork}</span><br/>
-          <span>Estimate: ${printNumber(work.estimate)}, Confidence: ${printNumber(work.confidence)}</span><br/>
-          <span>Estimated days: ${printNumber(work.estimatedDaysOfWork)}, Extra days: ${printNumber(work.extraDays)}</span>
-        `)
-        /*workInfo.innerHTML = `
-          <p>${work.issue["Summary"]}!</p>
-          <code>Start: ${work.startDay}, Days: ${work.daysOfWork}</code><br/>
-          <code>Estimate: ${printNumber(work.estimate)}, Confidence: ${printNumber(work.confidence)}</code><br/>
-          <code>Estimated days: ${printNumber(work.estimatedDaysOfWork)}, Extra days: ${printNumber(work.extraDays)}</code>
-        `;*/
-
-        highlightDependencies(work.issue, "blocks","blocked");
-        highlightDependencies(work.issue, "blockedBy","blocking");
-      }
-      li.onmouseleave = () => {
-        unhighlightDependencies(work.issue, "blocks","blocked");
-        unhighlightDependencies(work.issue, "blockedBy","blocking");
-
-        this.tooltip.leftElement();
-      }
-      ul.appendChild(li);
-
-      currentDay = work.startDay + work.daysOfWork;
-    }
-  }
 }
 customElements.define("jira-teams", JiraTeams);
 

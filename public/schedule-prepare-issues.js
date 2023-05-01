@@ -42,11 +42,7 @@ export function prepareIssues(issuesSource, {
   uncertaintyWeight = 100,
 
 	getParallelWorkLimit = (teamKey) => {
-		if(teamKey === "YUMPOS") {
-			return 3
-		} else {
-			return 1;
-		}
+		return 1;
 	}
 }) {
     window.issuesSource = issuesSource;
@@ -74,7 +70,7 @@ export function prepareIssues(issuesSource, {
         return {
             teamKey,
             workPlans: new WorkPlans(getParallelWorkLimit(teamKey)),
-            velocity: getVelocity(teamKey) // getParallelWorkLimit(teamKey)
+            velocity: getVelocity(teamKey)
         }
     }), "teamKey" );
 
@@ -105,7 +101,7 @@ function issueFilterDefault(issue){
 }
 
 function createWork(issue, workByTeams,
-  {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint}) {
+  {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint, getParallelWorkLimit}) {
     if(issue.work) {
         return issue.work;
     }
@@ -121,7 +117,7 @@ function createWork(issue, workByTeams,
 
     var canEstimate =  confidence !== undefined && estimate !== undefined;
 
-    var pointsPerDay = team.velocity / getDaysPerSprint(teamKey); /* / getParallelWorkLimit(teamKey); */
+    var pointsPerDay = team.velocity / getDaysPerSprint(teamKey)  / getParallelWorkLimit(teamKey);
 
     var usedEstimate = (estimate != undefined ? estimate : team.velocity );
     var usedConfidence = (confidence != undefined ? confidence : 50 );

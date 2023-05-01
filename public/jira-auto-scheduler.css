@@ -7,20 +7,21 @@ body {
 }
 
 jira-auto-scheduler {
-  display: grid;
-  height: 100vh;
+  display: block;
+}
+jira-teams {
+	display: block;
 }
 
 header {
   border-bottom: 1px solid #DFE1E6;
-  max-height: 76px;
-  overflow: hidden;
   padding: 20px 32px 24px;
+	position: sticky;
+	top: 0px;
+	z-index: 10;
+	background-color: white;
 }
 
-main {
-  overflow: auto;
-}
 
 h1 {
   font-size: 24px;
@@ -288,7 +289,14 @@ jira-configure-json-logic textarea.dirty {
 .p2 {
 	padding: 0.5rem;
 }
+.py-2 {
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+}
 
 .text-center {
 	text-align: center;
+}
+.sticky {
+	position: sticky;
 }
