@@ -24,6 +24,6 @@ jobs:
         # Provide a secret called `DOT_ENV` to append environment variables to the .env file
         dot_env: ${{ secrets.DOT_ENV }}
 
-        sub-domain: "timeline-report-${{ github.ref_name }}"
+        sub_domain: "timeline-report-${{ github.ref_name }}"
         domain_name: bitovi-jira.com
         app_port: 3000
