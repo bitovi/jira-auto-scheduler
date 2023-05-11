@@ -8,7 +8,7 @@ import {
 } from "./helpers.js";
 
 import {estimateExtraPoints} from "./shared/confidence.js";
-
+import {WorkPlans} from "./work-plans.js";
 
 export function prepareIssues(issuesSource, {
   // Decides what the project key is from an issue
@@ -39,7 +39,11 @@ export function prepareIssues(issuesSource, {
   // Called back when an issue isn't used
   onIgnoredIssues = (issues, reason) => {},
 
-  uncertaintyWeight = 100
+  uncertaintyWeight = 100,
+
+	getParallelWorkLimit = (teamKey) => {
+		return 1;
+	}
 }) {
     window.issuesSource = issuesSource;
     // Copy issues
@@ -62,10 +66,10 @@ export function prepareIssues(issuesSource, {
 
     var projectIds = Object.keys(issuesByTeam);
 
-    const workByTeams = makeObjectMapByKey(projectIds.map( (teamKey) => {
+    const workByTeams = makeObjectMapByKey(projectIds.map( (teamKey, i) => {
         return {
             teamKey,
-            workPlan: [],
+            workPlans: new WorkPlans(getParallelWorkLimit(teamKey)),
             velocity: getVelocity(teamKey)
         }
     }), "teamKey" );
@@ -80,7 +84,7 @@ export function prepareIssues(issuesSource, {
       // mutation!
       issue.work = createWork(issue,
         workByTeams,
-        {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint});
+        {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint, getParallelWorkLimit});
 
     });
 
@@ -97,7 +101,7 @@ function issueFilterDefault(issue){
 }
 
 function createWork(issue, workByTeams,
-  {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint}) {
+  {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint, getParallelWorkLimit}) {
     if(issue.work) {
         return issue.work;
     }
@@ -107,13 +111,16 @@ function createWork(issue, workByTeams,
     var confidence = getConfidence(issue);
 
     var estimate = getEstimate(issue);
+		if(!confidence || !estimate) {
+			//debugger; Template Void, Refund features beyond Store 1
+		}
 
     var canEstimate =  confidence !== undefined && estimate !== undefined;
 
-    var pointsPerDay = team.velocity / getDaysPerSprint(teamKey);
+    var pointsPerDay = team.velocity / getDaysPerSprint(teamKey)  / getParallelWorkLimit(teamKey);
 
-    var usedEstimate = (estimate !== undefined ? estimate : team.velocity );
-    var usedConfidence = (confidence !== undefined ? confidence : 50 );
+    var usedEstimate = (estimate != undefined ? estimate : team.velocity );
+    var usedConfidence = (confidence != undefined ? confidence : 50 );
 
     var extraPoints = estimateExtraPoints(usedEstimate, usedConfidence, uncertaintyWeight);
     var estimatedDaysOfWork =  Math.ceil( (usedEstimate) / pointsPerDay);

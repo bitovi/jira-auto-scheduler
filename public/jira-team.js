@@ -36,7 +36,9 @@ class JiraTeam extends StacheElement {
     ul.innerHTML = "";
 
     var currentDay = 0;
-    for(let work of team.workPlan) {
+
+    for(let work of team.workPlans.plans[0].work) {
+
       if(work.startDay > currentDay) {
           // there is a hole
           let emptyDay = document.createElement("li");
@@ -48,6 +50,12 @@ class JiraTeam extends StacheElement {
       li.style.width =( (work.daysOfWork ) *this.dayWidth)+"px";
       li.work = work;
       li.classList.add("work");
+			if(work.confidence == null) {
+				li.classList.add("work-missing-confidence")
+			}
+			if(work.estimate == null) {
+				li.classList.add("work-missing-estimate")
+			}
       li.innerHTML = `<a href="${work.issue.url}"><p class="truncate">${work.issue["Summary"]}</p></a>`
       li.id = work.issue["Issue key"];
       li.onmouseenter = (event) => {

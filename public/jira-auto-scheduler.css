@@ -7,20 +7,21 @@ body {
 }
 
 jira-auto-scheduler {
-  display: grid;
-  height: 100vh;
+  display: block;
+}
+jira-teams {
+	display: block;
 }
 
 header {
   border-bottom: 1px solid #DFE1E6;
-  max-height: 76px;
-  overflow: hidden;
   padding: 20px 32px 24px;
+	position: sticky;
+	top: 0px;
+	z-index: 10;
+	background-color: white;
 }
 
-main {
-  overflow: auto;
-}
 
 h1 {
   font-size: 24px;
@@ -165,17 +166,13 @@ p.truncate {
   -webkit-box-orient: vertical;
 }
 
-li.work {
+.work {
   box-sizing: border-box;
-  height: 88px;
-  padding: 8px 12px;
-  background-color: #FFFFFF;
+  background-color: rgba(255,255,255,.6);
   box-shadow: inset 0 0 0 1px #C1C7D0;
-  font-weight: 600;
-  cursor: pointer;
 }
 
-li.work:hover, .chip--current {
+.work:hover, .chip--current {
   background-color: #FFFAE6;
   box-shadow: inset 0 0 0 1px #FFC400;
 }
@@ -201,7 +198,7 @@ li.work:hover, .chip--current {
   box-shadow: inset 0 0 0 1px #57D9A3;
 }
 
-.work.blocked-2 {
+.work.blocked-2, .work.blocked-3, .work.blocked-4, .work.blocked-5, .work-blocked {
   background-color: #FF8F73;
   box-shadow: inset 0 0 0 1px #FF8B00;
 }
@@ -212,6 +209,9 @@ li.work:hover, .chip--current {
 .work.blocked-0, .chip--blocked {
   background-color: #FFEBE6;
   box-shadow: inset 0 0 0 1px #FFAB00;
+}
+.work.work-missing-confidence, .work.work-missing-estimate {
+	border: solid 1px rgb(211, 31,13);
 }
 
 a, a:visited {
@@ -230,6 +230,7 @@ simple-tooltip {
   border-radius: 3px;
   box-shadow: rgb(9 30 66 / 31%) 0px 0px 1px, rgb(9 30 66 / 25%) 0px 20px 32px -8px;
   padding: 12px;
+	z-index: 1000;
 }
 
 simple-tooltip span {
@@ -257,4 +258,45 @@ jira-configure-json-logic textarea {
 }
 jira-configure-json-logic textarea.dirty {
   border: solid 1px red;
+}
+
+
+.border-y-solid-1px-gray-300 {
+	border-top: solid 1px #d1d5db;
+	border-bottom: solid 1px #d1d5db;
+}
+.border-y-solid-1px-gray-300 {
+	border-top: solid 1px #d1d5db;
+	border-bottom: solid 1px #d1d5db;
+}
+.border-yl-solid-1px-gray-200 {
+	border-top: solid 1px #e5e7eb;
+	border-bottom: solid 1px #e5e7eb;
+	border-left: solid 1px #e5e7eb;
+}
+.color-bg-slate-100 {
+	background-color: #f1f5f9;
+}
+
+.border-solid-1px-black {
+	border: solid 1px black;
+}
+
+.block {
+	display: block;
+}
+
+.p2 {
+	padding: 0.5rem;
+}
+.py-2 {
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+}
+
+.text-center {
+	text-align: center;
+}
+.sticky {
+	position: sticky;
 }

@@ -1,44 +1,12 @@
 import { ObservableObject, type } from "//unpkg.com/can@6/core.mjs";
 
 import jsonLogic from "./json-logic/json-logic.js";
+import {saveJSONToUrl, saveToLocalStorage} from "./shared/state-storage.js";
+
 window.jsonLogic = jsonLogic;
 
 
-function saveToLocalStorage(key, defaultValue) {
-  return {
-    value({lastSet, listenTo, resolve}) {
-      resolve( JSON.parse( localStorage.getItem(key) ) || defaultValue );
 
-      listenTo(lastSet, (value)=> {
-        localStorage.setItem(key, JSON.stringify(value));
-        resolve(value);
-      })
-    }
-  }
-}
-
-function saveToUrl(key, defaultValue){
-	const defaultJSON = JSON.stringify(defaultValue);
-	return {
-      value({ lastSet, listenTo, resolve }) {
-          if (lastSet.value) {
-              resolve(lastSet.value)
-          } else {
-              resolve(JSON.parse( new URL(window.location).searchParams.get(key) || defaultJSON ) );
-          }
-
-          listenTo(lastSet, (value) => {
-              const newUrl = new URL(window.location);
-							const valueJSON = JSON.stringify(value);
-							if(valueJSON !== defaultJSON) {
-								newUrl.searchParams.set(key, valueJSON );
-							}
-              history.pushState({}, '', newUrl);
-              resolve(value);
-          })
-      }
-  }
-}
 
 
 function getJsonLogicFunction(key) {
@@ -65,7 +33,7 @@ function makeLogicAndFunctionDefinition(key, defaultValue){
 
 function makeLogicAndFunctionDefinitionSaveToUrl(key, defaultValue){
   return {
-    [key+"JsonLogic"]: saveToUrl(key, defaultValue),
+    [key+"JsonLogic"]: saveJSONToUrl(key, defaultValue),
     [key]: getJsonLogicFunction(key+"JsonLogic")
   };
 }
@@ -73,8 +41,8 @@ function makeLogicAndFunctionDefinitionSaveToUrl(key, defaultValue){
 
 class Configure extends ObservableObject {
   static props = {
-		issueJQL: saveToUrl("issueJQL", "issueType = Epic"),
-		issueFields: saveToUrl("issueFields", [
+		issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
+		issueFields: saveJSONToUrl("issueFields", [
 			"Summary",
 			"Start date",
 			"Due date",
@@ -100,7 +68,7 @@ class Configure extends ObservableObject {
             { "!==": [{"var":""}, null] }
           ]}
         ]},
-        50
+        undefined
       ]} ),
     ...makeLogicAndFunctionDefinitionSaveToUrl("getEstimate", {
       "or": [
@@ -112,7 +80,7 @@ class Configure extends ObservableObject {
             { "!==": [{"var":""}, null] }
           ]}
         ]},
-        50
+        undefined
       ]
     }),
 
