@@ -14,7 +14,7 @@ jobs:
     if: "!contains(github.head_ref, 'skip-deploy')"
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.ref_name }}
+      name: "PR-${{ github.event.pull_request.number }}"
       url: ${{ steps.deploy.outputs.vm_url }}
     steps:
     - id: deploy
@@ -28,6 +28,6 @@ jobs:
         # Provide a secret called `DOT_ENV` to append environment variables to the .env file
         dot_env: ${{ secrets.DOT_ENV }}
 
-        sub_domain: "timeline-report-PR-${{ github.event.number }}"
+        sub_domain: "timeline-report-PR-${{ github.event.pull_request.number }}"
         domain_name: bitovi-jira.com
         app_port: 3000
