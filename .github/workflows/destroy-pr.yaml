@@ -8,6 +8,10 @@ on:
   pull_request:
     types: [ closed ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   destroy:
     # if the branch name of the PR does not contain 'skip-deploy'
@@ -30,6 +34,3 @@ jobs:
 
         # Provide a secret called `DOT_ENV` to append environment variables to the .env file
         dot_env: ${{ secrets.DOT_ENV }}
-
-        domain_name: bitovi-jira.com
-        app_port: 3000
