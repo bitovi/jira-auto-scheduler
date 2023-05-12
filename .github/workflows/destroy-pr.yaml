@@ -18,7 +18,7 @@ jobs:
     if: "!contains(github.head_ref, 'skip-deploy')"
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.ref_name }}
+      name: "PR-${{ github.event.pull_request.number }}"
       url: ${{ steps.deploy.outputs.vm_url }}
     steps:
     - id: destroy

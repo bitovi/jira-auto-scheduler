@@ -28,6 +28,6 @@ jobs:
         # Provide a secret called `DOT_ENV` to append environment variables to the .env file
         dot_env: ${{ secrets.DOT_ENV }}
 
-        sub_domain: "timeline-report-PR-${{ github.event.pull_request.number }}"
+        sub_domain: "auto-scheduler-PR-${{ github.event.pull_request.number }}"
         domain_name: bitovi-jira.com
         app_port: 3000
