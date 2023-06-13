@@ -123,8 +123,9 @@ function createWork(issue, workByTeams,
     var usedConfidence = (confidence != undefined ? confidence : 50 );
 
     var extraPoints = estimateExtraPoints(usedEstimate, usedConfidence, uncertaintyWeight);
-    var estimatedDaysOfWork =  Math.ceil( (usedEstimate) / pointsPerDay);
-    var daysOfWork = Math.ceil( (usedEstimate + extraPoints) / pointsPerDay);
+
+    var estimatedDaysOfWork =  Math.max( Math.round( (usedEstimate) / pointsPerDay), 1);
+    var daysOfWork = Math.max( Math.round( (usedEstimate + extraPoints) / pointsPerDay), 1);
 
     var work = {
         isDefaultValue: !canEstimate,

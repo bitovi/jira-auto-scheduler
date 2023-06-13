@@ -1,7 +1,7 @@
 import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
-import {getEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js";
+import {getEndDateFromUTCStartDateAndBusinessDays} from "./shared/dateUtils.js";
 
-const dateFormatter = new Intl.DateTimeFormat('en-US')
+const dateFormatter = new Intl.DateTimeFormat('en-US',{timeZone: "UTC"});
 
 class JiraTeams extends StacheElement {
   static view = `
@@ -137,12 +137,12 @@ class JiraTeams extends StacheElement {
 			tip = tip+`<br/>
 				<span>Start Date: ${
 					dateFormatter.format(
-						getEndDateFromStartDateAndBusinessDays(this.startDate, work.startDay)
+						getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay)
 					)
 				}</span><br/>
 				<span>End Date: ${
 					dateFormatter.format(
-						getEndDateFromStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork)
+						getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork)
 					)
 				}</span>
 			`

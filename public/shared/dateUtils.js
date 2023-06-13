@@ -83,7 +83,20 @@ export function getEndDateFromStartDateAndBusinessDays(startDate, businessDays){
 	return curDate;
 }
 
+export function getEndDateFromUTCStartDateAndBusinessDays(startDate, businessDays){
+	const currentDate = new Date(startDate.getTime());
+	const startingDate = startDate.getUTCDate();
 
+	let addedDays = 1;
+	while(addedDays < businessDays || (currentDate.getUTCDay() === 0 || currentDate.getUTCDay() === 6) ) {
+		if (currentDate.getUTCDay() !== 0 && currentDate.getUTCDay() !== 6) {
+			addedDays++;
+		}
+		currentDate.setUTCDate( currentDate.getUTCDate() + 1 );
+	}
+
+	return currentDate;
+}
 
 export function parseDateISOString(s) {
     if (!s) return s;

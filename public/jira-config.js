@@ -47,8 +47,10 @@ class Configure extends ObservableObject {
 			"Start date",
 			"Due date",
 			"Issue Type",
-			"Story Points",
+			"Story points median",
+			"Story points",
 			"status",
+			"Story points confidence",
 			"Story Points Confidence",
 			"Confidence",
 			"Linked Issues"
@@ -64,7 +66,7 @@ class Configure extends ObservableObject {
           0,
           // adds to the first element of the array
           { filter: [
-            { merge: [{var: "Story Points Confidence"},{ var: "Confidence" }] },
+            { merge: [{var: "Story points confidence"},{ var: "Confidence" }] },
             { "!==": [{"var":""}, null] }
           ]}
         ]},
@@ -76,7 +78,7 @@ class Configure extends ObservableObject {
           0,
           // adds to the first element of the array
           { filter: [
-            { merge: [{var: "Story Points"} ] },
+            { merge: [{var: "Story points median"},{ var: "Story Points" } ] },
             { "!==": [{"var":""}, null] }
           ]}
         ]},
