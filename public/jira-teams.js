@@ -131,6 +131,7 @@ class JiraTeams extends StacheElement {
 			<span><strong>${work.issue["Summary"]}</strong></span><br/>
 			<span>Start: ${work.startDay}, Days of Work: ${work.daysOfWork}</span><br/>
 			<span>Estimate: ${printNumber(work.estimate)}, Confidence: ${printNumber(work.confidence)}</span><br/>
+			<span>Adjusted estimate: ${printNumber(Math.round(work.estimate + work.extraPoints))}</span><br/>
 			<span>Estimated days: ${printNumber(work.estimatedDaysOfWork)}, Extra days: ${printNumber(work.extraDays)}</span>
 		`;
 		if(this.startDate) {
