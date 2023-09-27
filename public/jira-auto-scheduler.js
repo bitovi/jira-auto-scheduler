@@ -26,9 +26,16 @@ class JiraAutoScheduler extends StacheElement {
       <div class="inline-grid">
         {{# if( this.rawIssues ) }}
             <div>
-              <button on:click="this.configureCSV(scope.event)">Configure</button>
+              <button on:click="this.configureCSV(scope.event)">
+                {{# if(this.configuringCSV) }}
+                  Back
+                {{ else }}
+                  Configure
+                {{/ }}
+              </button>
             </div>
 
+            {{# not(this.configuringCSV) }}
             <div>
               <label>Zoom:</label>
               <input type="range"
@@ -37,11 +44,12 @@ class JiraAutoScheduler extends StacheElement {
             </div>
 
             <div>
-              <label>Certainty Threshold:</label>
+              <label>Likelihood:</label>
               <input type="range"
                 min="50" max="90"
 								step="5"
                 value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
+                ({{this.uncertaintyWeight}}%)
             </div>
 
 						<div>
@@ -58,6 +66,7 @@ class JiraAutoScheduler extends StacheElement {
                 <li><span class="chip chip--blocked">Blocked by</span></li>
               </ul>
             </div>
+            {{/ not }}
         {{ else }}
           <div>Loading issues</div>
         {{/ if }}
@@ -119,9 +128,10 @@ class JiraAutoScheduler extends StacheElement {
 		        issuesPromise, serverInfoPromise
 		    ]).then(([issues, serverInfo]) => {
 						const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
-						console.log(issues, raw);
 						return raw;
-		    })
+		    }).catch(function(){
+          return [];
+        })
 			}
 		},
     get velocitiesJSON(){

@@ -16,7 +16,9 @@ class JiraConfigureCSV extends StacheElement {
   static view = `
 		<h2>Issue JQL</h2>
 		<p>What issues do you want to load?</p>
-		<p><input value:bind="this.config.issueJQL"/></p>
+    <p>Use <code class="inline-code">issuekey in portfolioChildIssuesOf("KEY") and issueType = Epic</code> to load epics for a single initiative.</p>
+		<p><input value:bind="this.config.issueJQL" class="w-full text-base"/></p>
+    <p>Loaded {{this.rawIssues.length}} issues.</p>
 
 
 		<h2>Issue Fields</h2>
