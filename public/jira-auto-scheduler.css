@@ -286,6 +286,7 @@ jira-configure-json-logic textarea.dirty {
 	display: block;
 }
 
+/** SIZING */
 .p2 {
 	padding: 0.5rem;
 }
@@ -293,6 +294,24 @@ jira-configure-json-logic textarea.dirty {
 	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;
 }
+.w-full {
+  width: 100%;
+}
+
+/* FONT SIZING */
+.text-base {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+}
+
+/** FONT **/
+
+.inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background-color: rgb(241 245 249);
+  border: solid 1px #e5e7eb;
+}
+
 
 .text-center {
 	text-align: center;
