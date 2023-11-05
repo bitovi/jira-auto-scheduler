@@ -2,8 +2,28 @@
 const CACHE_FETCH = false;
 
 function responseToJSON(response) {
+	if(!response.ok) {
+		return response.json().then((payload) => {
+			const err = new Error("HTTP status code: " + response.status);
+			Object.assign(err, payload);
+			Object.assign(err, response);
+			throw err;
+		})
+	}
 	return response.json();
 }
+function responseToText(response) {
+	if(!response.ok) {
+		return response.json().then((payload) => {
+			const err = new Error("HTTP status code: " + response.status);
+			Object.assign(err, payload);
+			Object.assign(err, response);
+			throw err;
+		})
+	}
+	return response.text();
+}
+
 
 function nativeFetchJSON(url, options) {
 	return fetch(url, options).then(responseToJSON)
@@ -54,7 +74,8 @@ export default function JiraOIDCHelpers({
 			return window.localStorage.getItem(key);
 		},
 		fetchAuthorizationCode: () => {
-			const url = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${JIRA_CLIENT_ID}&scope=${JIRA_SCOPE}&redirect_uri=${JIRA_CALLBACK_URL}&response_type=code&prompt=consent&state=${encodeURIComponent(window.location.search)}`;
+			const url = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${JIRA_CLIENT_ID}&scope=${escape(JIRA_SCOPE)}&redirect_uri=${JIRA_CALLBACK_URL}&response_type=code&prompt=consent&state=${encodeURIComponent(window.location.search)}`;
+			//console.log(url)
 			window.location.href = url;
 		},
 		refreshAccessToken: async (accessCode) => {
@@ -113,6 +134,30 @@ export default function JiraOIDCHelpers({
 				}
 			}
 			return await axios.get(url, config);
+		},
+		editJiraIssueWithNamedFields: async (issueId, fields) => {
+			const scopeIdForJira = jiraHelpers.fetchFromLocalStorage('scopeId');
+			const accessToken = jiraHelpers.fetchFromLocalStorage('accessToken');
+
+			const fieldMapping = await fieldsRequest;
+			
+			const editBody = fieldsToEditBody(fields, fieldMapping);
+			//const fieldsWithIds = mapNamesToIds(fields || {}, fieldMapping),
+			//	updateWithIds = mapNamesToIds(update || {}, fieldMapping);
+
+			return fetch(
+				`${JIRA_API_URL}/${scopeIdForJira}/rest/api/3/issue/${issueId}?` +
+				"" /*new URLSearchParams(params)*/,
+				{
+					method: 'PUT',
+					headers: {
+						'Authorization': `Bearer ${accessToken}`,
+						'Accept': 'application/json',
+    					'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(editBody)
+				}
+			).then(responseToText);
 		},
 		fetchJiraIssuesWithJQL: function (params) {
 			const scopeIdForJira = jiraHelpers.fetchFromLocalStorage('scopeId');
@@ -351,6 +396,47 @@ export default function JiraOIDCHelpers({
 		}
 		return mapped;
 	}
+	function fieldsToEditBody(obj, fieldMapping){
+		const editBody = {fields: {}, update: {}};
+		
+		for (let prop in obj) {
+			//if(prop === "Story points") {
+				// 10016 -> story point estimate
+				// 10034 -> story points
+				//obj[prop] = ""+obj[prop];
+				//mapped["customfield_10016"] = obj[prop];
+				//mapped["customfield_10034"] = obj[prop];
+				//mapped["Story points"] = obj[prop];
+				//mapped["storypoints"] = obj[prop];
+				//mapped["Story Points"] = obj[prop];
+				// 10016 -> story point estimate
+			//} else {
+				//mapped[fields.nameMap[prop] || prop] = obj[prop];
+			//}
+			editBody.update[fieldMapping.nameMap[prop] || prop] = [{set: obj[prop]}];
+		}
+		return editBody;
+	}
+	function mapNamesToIds(obj, fields) {
+		const mapped = {};
+		for (let prop in obj) {
+			//if(prop === "Story points") {
+				// 10016 -> story point estimate
+				// 10034 -> story points
+				//obj[prop] = ""+obj[prop];
+				//mapped["customfield_10016"] = obj[prop];
+				//mapped["customfield_10034"] = obj[prop];
+				//mapped["Story points"] = obj[prop];
+				//mapped["storypoints"] = obj[prop];
+				//mapped["Story Points"] = obj[prop];
+				// 10016 -> story point estimate
+			//} else {
+				mapped[fields.nameMap[prop] || prop] = obj[prop];
+			//}
+			
+		}
+		return mapped;
+	}
 
-	return jiraHelpers;
+	return window.jiraHelpers = jiraHelpers;
 }

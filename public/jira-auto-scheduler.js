@@ -14,6 +14,16 @@ import "./jira-teams.js";
 import "./jira-configure-csv.js";
 import "./simple-tooltip.js";
 import config from "./jira-config.js";
+import {getEndDateFromUTCStartDateAndBusinessDays, parseDateISOString} from "./shared/dateUtils.js";
+
+
+const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the YYYY-MM-DD format
+  year: 'numeric',
+  month: '2-digit', // '2-digit' will ensure month is always represented with two digits
+  day: '2-digit', // '2-digit' will ensure day is always represented with two digits
+  calendar: 'iso8601', // This specifies usage of the ISO 8601 calendar
+  timeZone: "UTC"
+});
 
 class JiraAutoScheduler extends StacheElement {
   static view = `
@@ -57,14 +67,12 @@ class JiraAutoScheduler extends StacheElement {
 							<input type="date"
 								valueAsDate:bind="this.startDate"/>
 						</div>
-
             <div>
-              <ul class="key">
-                <li><span>Key:</span></li>
-                <li><span class="chip chip--blocking">Blocking</span></li>
-                <li><span class="chip chip--current">Current item</span></li>
-                <li><span class="chip chip--blocked">Blocked by</span></li>
-              </ul>
+              {{# if(this.issueUpdates.isPending) }}
+                <button disabled>Saving ...</button>
+              {{ else }}
+                <button on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+              {{/ if }}
             </div>
             {{/ not }}
         {{ else }}
@@ -76,7 +84,8 @@ class JiraAutoScheduler extends StacheElement {
 
     <main>
     {{# if(this.configuringCSV) }}
-      <jira-configure-csv rawIssues:from="this.rawIssues" config:from="this.config" jiraHelpers:from="this.jiraHelpers"/>
+      <jira-configure-csv 
+      rawIssues:from="this.rawIssues" config:from="this.config" jiraHelpers:from="this.jiraHelpers"/>
     {{ else }}
 
 
@@ -94,9 +103,18 @@ class JiraAutoScheduler extends StacheElement {
 
       {{/}}
     </main>
+    <div>
+      <ul class="key">
+        <li><span>Key:</span></li>
+        <li><span class="chip chip--blocking">Blocking</span></li>
+        <li><span class="chip chip--current">Current item</span></li>
+        <li><span class="chip chip--blocked">Blocked by</span></li>
+      </ul>
+    </div>
   `;
   static props = {
     jiraHelpers: {type: type.Any},
+    issueUpdates: {type: type.Any},
     dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
     uncertaintyWeight: saveJSONToUrl("weight",90,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",null,type.maybeConvert(Date)),
@@ -247,6 +265,38 @@ class JiraAutoScheduler extends StacheElement {
 			return 1;
 		}
 	}
+  saveDates(event){
+    // we can calculate how much changed work there is and show the button then ...
+    event.preventDefault();
+    console.log(this.workByTeam);
+    const allWork = Object.values(this.workByTeam)
+      .map( team => team.workPlans.plans ).flat()
+      .map( plans => plans.work ).flat()
+      .map( work => {
+        return {
+          ...work,
+          updates: {
+            "Start date": jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay) ),
+            "Due date": jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork) ),
+            "Story points": Math.round( work.estimate + work.extraPoints )
+          }
+        };
+      });
+
+    const changedWork = allWork/*.filter((work) => {
+      return work.issue["Start date"] !== work.updates["Start date"]  
+        || work.issue["Due date"] !== work.updates["Due date"] 
+        || work.issue["Story points"] !== work.updates["Story points"];
+    });*/
+    
+    const updates = changedWork.map( work => {
+      return jiraHelpers.editJiraIssueWithNamedFields(work.issue["Issue key"], work.updates)
+    })
+    this.issueUpdates = Promise.allSettled(updates);
+    this.issueUpdates.catch(e => {
+      console.log(e)
+    })
+  }
 }
 
 export default JiraAutoScheduler;
