@@ -1,6 +1,12 @@
 module.exports = {
-    content: ["./public/**/*.{html,js}"],
+    content: ["./public/**/*.{html,js}","./pages/**/*.{html,js}"],
     theme: {
+      fontFamily: {
+        "sans": 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+        "serif": 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+        "mono": 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+        "bitovipoopins": 'Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
+      },
       extend: {
         colors: {
             blue: {
@@ -21,6 +27,12 @@ module.exports = {
                 40: '#DFE1E6',
                 30: '#EBECF0', // secondary buttton color
                 10: '#FAFBFC'
+            },
+            orange: {
+              400: '#F5532D' // Bitovi color
+            },
+            slate: {
+              400: '#505F79'
             }
         },
         spacing: {

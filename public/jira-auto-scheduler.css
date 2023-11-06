@@ -4,10 +4,10 @@
 
 @layer components {
   .btn-primary {
-    @apply py-2 px-4 bg-blue-300 text-white font-semibold rounded-lg shadow-md hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    @apply py-1 px-2 bg-blue-300 text-white font-semibold rounded-lg shadow-md hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
   }
   .btn-secondary {
-    @apply py-2 px-4 bg-neutral-30 text-black font-semibold rounded-lg  hover:bg-neutral-40 focus:outline-none focus:ring-2 focus:bg-neutral-40 focus:ring-opacity-75;
+    @apply py-1 px-2 bg-neutral-30 text-black font-semibold rounded-lg  hover:bg-neutral-40 focus:outline-none focus:ring-2 focus:bg-neutral-40 focus:ring-opacity-75;
   }
   .form-border {
     @apply border-neutral-800 border;
@@ -22,6 +22,27 @@ body {
   margin: 0;
   padding: 0;
 }
+body.fullscreen .hide-on-fullscreen {
+  display: none;
+}
+body.fullscreen .fullscreen-fixed-to-top {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  
+}
+body.fullscreen .fullscreen-pt-14 {
+  padding-top: 56px;
+}
+body.fullscreen .fullscreen-m-0 {
+  margin: 0px;
+}
+
+body.fullscreen .fullscreen-round-none {
+  border-radius: 0px;
+}
+
 
 jira-auto-scheduler {
   display: block;
@@ -234,7 +255,7 @@ p.truncate {
 	border: solid 1px rgb(211, 31,13);
 }
 
-a, a:visited {
+p a, p a:visited {
   color: #0052CC;
   text-decoration: none;
 }
@@ -306,9 +327,6 @@ jira-configure-json-logic textarea.dirty {
 }*/
 
 /** SIZING */
-.p2 {
-	padding: 0.5rem;
-}
 .py-2 {
 	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;

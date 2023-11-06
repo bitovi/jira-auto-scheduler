@@ -29,83 +29,90 @@ class JiraAutoScheduler extends StacheElement {
   static view = `
     <simple-tooltip this:to='this.tooltip'></simple-tooltip>
 
-    <header class="sticky top-0 z-10 bg-white p2">
-      <h1>Auto Scheduler for Jira</h1>
-      <details class="border-neutral-800 border-solid border rounded-lg bg-white" open="true">
-        <summary class="text-base p-3 bg-neutral-100 cursor-pointer rounded-lg">
-          Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.config.issueJQL}}</span></span>
-        </summary>
-          <jira-configure-csv 
-            rawIssues:from="this.rawIssues" config:from="this.config"/>
+    
+    <details class="border-neutral-800 border-solid border rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
+      <summary class="text-base p-3 bg-neutral-100 cursor-pointer rounded-lg">
+        Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.config.issueJQL}}</span></span>
+      </summary>
+        <jira-configure-csv 
+          rawIssues:from="this.rawIssues" config:from="this.config"/>
 
-      </details>
+    </details>
 
-      <div class="flex rounded-lg border-neutral-800 border-solid border text-base p-3 gap-6">
-        {{# if( this.rawIssues ) }}
-            
+    <div class=" z-10 right-0 flex rounded-t-lg border-neutral-800 border-solid border text-base p-2 gap-6 bg-white mt-2 mx-2 fullscreen-fixed-to-top fullscreen-m-0 fullscreen-round-none">
+      {{# if( this.rawIssues ) }}
+          {{# not(this.configuringCSV) }}
+          <div class="flex grow gap-1">
+            <label class="text-base py-1">Zoom:</label>
+            <input type="range" class="grow h-8"
+              min="3" max="20"
+              value:from="this.dayWidth" on:input:value:to="this.dayWidth"/>
+          </div>
 
-            {{# not(this.configuringCSV) }}
-            <div class="flex grow gap-1">
-              <label class="text-base py-2">Zoom:</label>
-              <input type="range" class="grow"
-                min="3" max="20"
-                value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
-            </div>
+          <div class="flex grow gap-1">
+            <label class="text-base py-1">Likelihood ({{this.uncertaintyWeight}}%):</label>
+            <input 
+              class="grow h-8"
+              type="range"
+              min="50" max="90"
+              step="5"
+              value:from="this.uncertaintyWeight" on:input:value:to="this.uncertaintyWeight"/>
+              
+          </div>
 
-            <div class="flex grow gap-1">
-              <label class="text-base py-2">Likelihood ({{this.uncertaintyWeight}}%):</label>
-              <input 
-                class="grow"
-                type="range"
-                min="50" max="90"
-								step="5"
-                value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
-                
-            </div>
-
-						<div  class="flex gap-1">
-							<label class="text-base py-2">Start Date:</label>
-							<input type="date"
-                class="form-border font-mono px-1"
-								valueAsDate:bind="this.startDate"/>
-						</div>
-            <div>
-              {{# if(this.issueUpdates.isPending) }}
-                <button disabled>Saving ...</button>
+          <div  class="flex gap-1">
+            <label class="text-base py-1">Start Date:</label>
+            <input type="date"
+              class="form-border font-mono px-1 py-0 text-sm h-8"
+              valueAsDate:bind="this.startDate"/>
+          </div>
+          <div>
+            {{# if(this.issueUpdates.isPending) }}
+              <button disabled>Saving ...</button>
+            {{/ if }}
+            {{# or(this.issueUpdates.isResolved, not(this.issueUpdates)) }}
+              <button class="btn-primary"
+                on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+            {{/ if }}
+            {{# if(this.issueUpdates.isRejected) }}
+              ERROR! Check Logs!
+            {{/ if }}
+          </div>
+          {{/ not }}
+          <div>
+            <button on:click="this.toggleFullscreen(scope.event)" title="Show Full Screen">
+              {{# if(this.showingFullscreen) }}
+                <img src="./images/arrows-pointing-in.svg" width="32px" height="32px"/>
               {{ else }}
-                <button class="btn-primary"
-                  on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+                <img src="./images/arrows-pointing-out.svg" width="32px" height="32px"/>
               {{/ if }}
-            </div>
-            {{/ not }}
-        {{ else }}
-          <div>Loading issues</div>
-        {{/ if }}
-      </div>
+            </button>
+          </div>
+      {{ else }}
+        <div>Loading issues</div>
+      {{/ if }}
+    </div>
       
-    </header>
-  
-
-    <main>
+    <main class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
 
 
 
-		<jira-teams
-			class="py-2"
-			teams:from="this.teams"
-			dayWidth:from="this.dayWidth"
-			tooltip:from="this.tooltip"
-			getVelocityForTeam:from="this.getVelocityForTeam"
-			updateVelocity:from="this.updateVelocity"
-			startDate:from="this.startDate"
-			addWorkPlanForTeam:from="this.addWorkPlanForTeam"
-			removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
-			></jira-teams>
+      <jira-teams
+        class="bg-white"
+        teams:from="this.teams"
+        dayWidth:from="this.dayWidth"
+        tooltip:from="this.tooltip"
+        getVelocityForTeam:from="this.getVelocityForTeam"
+        updateVelocity:from="this.updateVelocity"
+        startDate:from="this.startDate"
+        addWorkPlanForTeam:from="this.addWorkPlanForTeam"
+        removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
+        ></jira-teams>
 
     </main>
-    <div>
+    <div class="p-2 hide-on-fullscreen">
       <ul class="key">
-        <li><span>Key:</span></li>
+        <li><span class="text-white">Key:</span></li>
         <li><span class="chip chip--blocking">Blocking</span></li>
         <li><span class="chip chip--current">Current item</span></li>
         <li><span class="chip chip--blocked">Blocked by</span></li>
@@ -113,6 +120,7 @@ class JiraAutoScheduler extends StacheElement {
     </div>
   `;
   static props = {
+    showingFullscreen: {type: Boolean, default: false},
     jiraHelpers: {type: type.Any},
     issueUpdates: {type: type.Any},
     dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
@@ -227,7 +235,7 @@ class JiraAutoScheduler extends StacheElement {
 		//this.jiraHelpers
   }
   scheduleIssues() {
-    if(!this.configuration) {
+    if(!this.configuration || !this.rawIssues.length) {
       return;
     }
     this.workByTeam = null;
@@ -279,10 +287,26 @@ class JiraAutoScheduler extends StacheElement {
 			return 1;
 		}
 	}
+  get updateFields(){
+    const storyPoints = this.config.storyPointField[0],
+      startDate = this.config.startDateField[0],
+      dueDate = this.config.dueDateField[0];
+
+    if(storyPoints && startDate && dueDate) {
+      return {storyPoints , startDate, dueDate};
+    }
+  }
   saveDates(event){
     // we can calculate how much changed work there is and show the button then ...
     event.preventDefault();
-    console.log(this.workByTeam);
+    console.log(this.workByTeam, this.config.storyPointField, this.config.startDateField, this.config.dueDateField );
+    
+    const updateFields = this.updateFields;
+    if(!updateFields) {
+      this.issueUpdates = Promise.reject({message: "Missing an output field. Check your configuration"});
+      return;
+    }
+    
     const allWork = Object.values(this.workByTeam)
       .map( team => team.workPlans.plans ).flat()
       .map( plans => plans.work ).flat()
@@ -290,9 +314,9 @@ class JiraAutoScheduler extends StacheElement {
         return {
           ...work,
           updates: {
-            "Start date": jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay) ),
-            "Due date": jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork) ),
-            "Story points": Math.round( work.estimate + work.extraPoints )
+            [updateFields.startDate]: jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay) ),
+            [updateFields.dueDate]: jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork) ),
+            [updateFields.storyPoints]: Math.round( work.estimate + work.extraPoints )
           }
         };
       });
@@ -310,6 +334,11 @@ class JiraAutoScheduler extends StacheElement {
     this.issueUpdates.catch(e => {
       console.log(e)
     })
+  }
+  toggleFullscreen(event){
+    event.preventDefault();
+    document.body.classList.toggle("fullscreen");
+    this.showingFullscreen = document.body.classList.contains("fullscreen");
   }
 }
 

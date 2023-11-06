@@ -10,7 +10,8 @@ class JiraTeam extends StacheElement {
         type="number"
         id="project-key-REPLACE"
         value:from='this.velocity'
-        valueAsNumber:to='this.velocity'/>
+        valueAsNumber:to='this.velocity'
+        class="form-border" />
     </th>
     <td class="day-lines">
       <ul class="work-container">

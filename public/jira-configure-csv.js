@@ -124,7 +124,7 @@ class JiraConfigureCSV extends StacheElement {
       </div>
     </div>
 
-    <details class="border-yellow-500 border-solid border bg-white mt-4" open="true">
+    <details class="border-yellow-500 border-solid border bg-white mt-4">
       <summary class="text-base p-3 bg-yellow-500 cursor-pointer">
         Advanced Configuration
       </summary>
