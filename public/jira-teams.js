@@ -5,7 +5,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US',{timeZone: "UTC"});
 
 class JiraTeams extends StacheElement {
   static view = `
-		<div style='display: grid; grid-template-columns: max-content repeat({{plus(this.totalNumberOfDays,1)}}, {{this.dayWidth}}px);'>
+		<div class="bg-white" style='display: grid; grid-template-columns: max-content repeat({{plus(this.totalNumberOfDays,1)}}, {{this.dayWidth}}px);'>
 		<div>&nbsp;</div>
 			{{#for (sprint of this.sprints)}}
 				<div
@@ -23,23 +23,27 @@ class JiraTeams extends StacheElement {
 
 				</div>
 				<div
-					class='p2'
+					class='p-2'
 					style='grid-column: 1 / span 1; grid-row: {{plus(team.teamIndex, 2)}} / span 1'>
 					<label class='block'>{{team.teamKey}}</label>
 					<input
 						type="number"
 						value:from='this.getVelocityForTeam(team.teamKey)'
 						on:change='this.updateVelocity(team.teamKey, scope.element.valueAsNumber)'
+						class="form-border"
 						/>
-					<button on:click="this.addWorkPlanForTeam(team.teamKey)">+</button>
+					<button on:click="this.addWorkPlanForTeam(team.teamKey)" 
+						class="btn-secondary"
+						title="Add a parallel track for this team">+</button>
 				</div>
 
 				{{# for(workPlan of team.workPlans) }}
 					{{# not( eq(scope.index, 0) ) }}
 						<div
-							class='p2'
+							class='p-2'
 							style='grid-column: 1 / span 1; grid-row: {{ plus(workPlan.workPlanIndex, 2) }} / span 1'>
-							<button on:click="this.removeWorkPlanForTeam(team.teamKey)">-</button>
+							<button on:click="this.removeWorkPlanForTeam(team.teamKey)" class="btn-secondary"
+								title="Add a parallel track for this team">-</button>
 						</div>
 					{{/ }}
 
@@ -121,7 +125,7 @@ class JiraTeams extends StacheElement {
 				number: (s+1),
 				startDay: s*10,
 				days: Math.min( this.totalNumberOfDays - s* 10, 10),
-				className: (s % 2 ? "color-bg-slate-100" : "")
+				className: (s % 2 ? "color-bg-slate-100" : "bg-white")
 			})
 		}
 		return sprints;

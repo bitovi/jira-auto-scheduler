@@ -41,7 +41,77 @@ function makeLogicAndFunctionDefinitionSaveToUrl(key, defaultValue){
 
 class Configure extends ObservableObject {
   static props = {
-		issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
+		fields: {type: type.Any},
+    get sortedFieldNames(){
+
+			return this.fields.list.sort( (f1, f2)=>{
+				return f1.name > f2.name ? 1 : -1
+			}).map( f=> f.name );
+	  },
+    medianEstimateFields: saveJSONToUrl(
+      "medianEstimateFields", 
+      function(){
+        return this.sortedFieldNames.filter( f => {
+          const lowerFieldName = f.toLowerCase();
+          return lowerFieldName.includes("story") && lowerFieldName.includes("points") && 
+          ( lowerFieldName.includes("median") || lowerFieldName.includes("average") ) 
+        } )
+      },
+      type.Any),
+    confidenceFields: saveJSONToUrl(
+      "confidenceFields", 
+      function(){
+        const haveConfidence = this.sortedFieldNames.filter( f => {
+          const lowerFieldName = f.toLowerCase();
+          return lowerFieldName.includes("confidence")  
+        });
+        if(haveConfidence.length > 1) {
+          return haveConfidence.filter( field => field.toLowerCase().includes("story"))
+        } else {
+          return haveConfidence;
+        }
+      },
+      type.Any),
+    storyPointField: saveJSONToUrl(
+      "storyPointField", 
+      function(){
+        const storyPoints = this.sortedFieldNames.filter( f => {
+          const lowerFieldName = f.toLowerCase();
+          return lowerFieldName === "Story points"
+        });
+        if(storyPoints.length  === 1) {
+          return storyPoints;
+        } else {
+          return this.sortedFieldNames.filter( f => {
+            const lowerFieldName = f.toLowerCase();
+            return lowerFieldName.includes("story") && lowerFieldName.includes("points") && 
+            !( lowerFieldName.includes("median") || lowerFieldName.includes("average") || lowerFieldName.includes("confidence") ) 
+          });
+        }
+      },
+      type.Any),
+    startDateField: saveJSONToUrl(
+      "startDateField", 
+      function(){
+        const startDate = this.sortedFieldNames.filter( f => f === "Start date");
+        return startDate.length ? [startDate[0]] :[]
+      },
+      type.Any),
+    dueDateField: saveJSONToUrl(
+      "dueDateField", 
+      function(){
+        const dueDate = this.sortedFieldNames.filter( f => f === "Due date");
+        return dueDate.length ? [dueDate[0]] :[]
+      },
+      type.Any),
+
+    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
+    get issueFields(){
+      return ["Summary", "Issue Type","status","Linked Issues", 
+        this.startDateField, this.dueDateField,
+        ...this.medianEstimateFields, ...this.confidenceFields, ...this.storyPointField]
+    },
+    /*
 		issueFields: saveJSONToUrl("issueFields", [
 			"Summary",
 			"Start date",
@@ -54,25 +124,33 @@ class Configure extends ObservableObject {
 			"Story Points Confidence",
 			"Confidence",
 			"Linked Issues"
-		]),
+		]),*/
 
     ...makeLogicAndFunctionDefinition("getTeamKey", {"var": "Project key"}),
 
     ...makeLogicAndFunctionDefinition("getDaysPerSprint", 10),
 
-    ...makeLogicAndFunctionDefinitionSaveToUrl("getConfidence", {
-      "or": [
-        {"+" :[
-          0,
-          // adds to the first element of the array
-          { filter: [
-            { merge: [{var: "Story points confidence"},{ var: "Confidence" }] },
-            { "!==": [{"var":""}, null] }
-          ]}
-        ]},
-        undefined
-      ]} ),
-    ...makeLogicAndFunctionDefinitionSaveToUrl("getEstimate", {
+    ...makeLogicAndFunctionDefinitionSaveToUrl("getConfidence", function(){
+      return {var: this.confidenceFields[0]}
+    } ),
+    ...makeLogicAndFunctionDefinitionSaveToUrl("getEstimate", function(){
+      return {var: this.medianEstimateFields[0]}
+    }),
+
+    ...makeLogicAndFunctionDefinition("getParentKey", {"var": "Custom field (Parent Link)"}),
+    ...makeLogicAndFunctionDefinition("getBlockingKeys", {"var": "linkedIssues.blocks"})
+  };
+}
+
+
+
+export default (jiraHelpers) => {
+  return jiraHelpers.fieldsRequest.then((fields)=>{
+    return new Configure({fields})
+  })
+};
+/*
+{
       "or": [
         {"+" :[
           0,
@@ -84,13 +162,5 @@ class Configure extends ObservableObject {
         ]},
         undefined
       ]
-    }),
-
-    ...makeLogicAndFunctionDefinition("getParentKey", {"var": "Custom field (Parent Link)"}),
-    ...makeLogicAndFunctionDefinition("getBlockingKeys", {"var": "linkedIssues.blocks"})
-  };
-}
-
-
-
-export default new Configure();
+    }
+*/
