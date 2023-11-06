@@ -1,52 +1,3 @@
-import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
-import {
-  makeObjectMapByKey,
-  makeFilterByPropertyNotEqualToOneOfValues,
-  groupByKey,
-  splitByHavingPropertyValue,
-  partition,
-  stringToArray
-} from "./helpers.js";
-
-import jsonLogic from "./json-logic/json-logic.js";
-import "./components/configure-json-logic/configure-json-logic.js";
-import "./shared/autocomplete/autocomplete.js";
-import {saveJSONToUrl} from "./shared/state-storage.js";
-
-
-class JiraConfigureCSV extends StacheElement {
-  static view = `
-    <h2 class="text-lg font-bold">Issue JQL</h2>
-    <div class="flex gap-6 flex-wrap pb-4">
-      <div class="grow">
-        
-        <p class="text-base my-1">What issues do you want to load?</p>
-        <p><input value:bind="this.config.issueJQL" class="w-full text-base form-border"/></p>
-        <p class="text-sm text-right">Loaded {{this.rawIssues.length}} issues.</p>
-      </div>
-      <div class="lg:w-112 bg-neutral-30 p-1 w-full">
-        <p class="my-1 text-sm">Use <code class="inline-code  whitespace-nowrap">issuekey in portfolioChildIssuesOf("KEY")</code> to load all issues for a single initiative.</p>
-      </div>
-    </div>
-    <h2 class="text-lg font-bold">Median Estimate Field(s)</h2>
-    <div class="flex gap-6 flex-wrap pb-4">
-      <div class="grow">
-        
-        <p class="text-base my-1">What field(s) provide the median estimate?</p>
-        <auto-complete 
-          data:from="this.config.sortedFieldNames" 
-          selected:bind="this.config.medianEstimateFields"
-          inputPlaceholder:raw="Search for field"></auto-complete>
-      </div>
-      <div class="lg:w-112 bg-neutral-30 p-1 w-full">
-        <p class="my-1 text-sm">
-          The median estimate is the average amount of time the epic will take to complete.
-          See <a href="https://www.bitovi.com/academy/learn-agile-program-management-with-jira/continuous-exploration-board.html#adding-custom-fields">Adding Custom Fields</a>
-          for how to create a <code class="inline-code">Story points median</code> field.
-        </p>
-      </div>
-    </div>
-
     <h2 class="text-lg font-bold">Confidence Field(s)</h2>
     <div class="flex gap-6 flex-wrap pb-4">
       <div class="grow">
@@ -124,7 +75,83 @@ class JiraConfigureCSV extends StacheElement {
       </div>
     </div>
 
-    <details class="border-yellow-500 border-solid border bg-white mt-4" open="true">
+
+
+   
+   MORE
+   
+   
+   
+   
+   <!--
+      <div class="flex rounded-lg border-neutral-800 border-solid border text-base p-3 gap-6">
+        {{# if( this.rawIssues ) }}
+            
+
+            {{# not(this.configuringCSV) }}
+            <div class="flex grow gap-1">
+              <label class="text-base py-2">Zoom:</label>
+              <input type="range" class="grow"
+                min="3" max="20"
+                value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
+            </div>
+
+            <div class="flex grow gap-1">
+              <label class="text-base py-2">Likelihood ({{this.uncertaintyWeight}}%):</label>
+              <input 
+                class="grow"
+                type="range"
+                min="50" max="90"
+								step="5"
+                value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
+                
+            </div>
+
+						<div  class="flex gap-1">
+							<label class="text-base py-2">Start Date:</label>
+							<input type="date"
+                class="form-border font-mono px-1"
+								valueAsDate:bind="this.startDate"/>
+						</div>
+            <div>
+              {{# if(this.issueUpdates.isPending) }}
+                <button disabled>Saving ...</button>
+              {{ else }}
+                <button class="btn-primary"
+                  on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+              {{/ if }}
+            </div>
+            {{/ not }}
+        {{ else }}
+          <div>Loading issues</div>
+        {{/ if }}
+      </div>-->
+
+
+
+
+      INSIDE MAIN
+
+          <!--
+		<jira-teams
+			class="py-2"
+			teams:from="this.teams"
+			dayWidth:from="this.dayWidth"
+			tooltip:from="this.tooltip"
+			getVelocityForTeam:from="this.getVelocityForTeam"
+			updateVelocity:from="this.updateVelocity"
+			startDate:from="this.startDate"
+			addWorkPlanForTeam:from="this.addWorkPlanForTeam"
+			removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
+			></jira-teams>-->
+
+
+
+
+DETAILS
+
+
+<details class="border-yellow-500 border-solid border bg-white mt-4" open="true">
       <summary class="text-base p-3 bg-yellow-500 cursor-pointer">
         Advanced Configuration
       </summary>
@@ -190,123 +217,3 @@ class JiraConfigureCSV extends StacheElement {
       </div>
 
   </details>
-
-    
-  `;
-  static props = {
-    rawIssues: type.Any,
-    config: type.Any,
-    _showTypeInfo: {Type: Boolean, default: false},
-		
-  }
-  /*{
-      value({resolve, lastSet, listenTo}) {
-        if (lastSet.value) {
-            resolve(lastSet.value)
-        } else {
-            const parsed = JSON.parse( new URL(window.location).searchParams.get(key) || defaultJSON );
-            if(parsed && dateMatch.test(parsed)) {
-              resolve( new Date(parsed) );
-            } else {
-              resolve( parsed );
-            }
-        }
-
-        listenTo(lastSet, (value) => {
-            const newUrl = new URL(window.location);
-            const valueJSON = JSON.stringify(value);
-            if(valueJSON !== defaultJSON) {
-              newUrl.searchParams.set(key, valueJSON );
-            } else {
-              newUrl.searchParams.delete(key );
-            }
-            history.pushState({}, '', newUrl);
-            resolve(value);
-        })
-
-
-        // calculate the default from fields 
-        const findDefaults = (allFields)=> {
-  
-           allFields.filter( f => {
-            const lowerFieldName = f.toLowerCase();
-            return lowerFieldName.includes("story") && lowerFieldName.includes("points") && 
-             ( lowerFieldName.includes("median") || lowerFieldName.includes("average") )
-          })
-        }
-        
-        listenTo("fields",({value})=>{
-
-        })
-
-        
-      }*/
-
-
-  get issuesByType(){
-    return groupByKey(this.rawIssues || [], "Issue Type");
-  }
-  get issueTypes(){
-    return Object.keys(this.issuesByType);
-  }
-  // {Epic: {key: "Story Points": values: [10,20]}}
-  get issueTypesKeysWithValues(){
-    const types = {};
-    for(let type in this.issuesByType) {
-      const keyMap = {};
-      for(let issue of this.issuesByType[type]) {
-        for(let key in issue) {
-
-          if( isMeaningfulData( issue[key] ) )  {
-            if(!keyMap[key]) {
-              keyMap[key] = new Set();
-            }
-            keyMap[key].add( getMeaningfulData(issue[key]) );
-          }
-        }
-      }
-      types[type] = Object.keys(keyMap).map( (key)=> {
-          const values = [...keyMap[key]];
-          return {
-            key: key,
-            values: values,
-            example: values[0],
-          }
-      })
-    }
-    return types;
-  }
-
-  connected(){
-
-  }
-
-  changeParentKey(){
-
-  }
-  showTypeInfo(){
-    this._showTypeInfo = true;
-  }
-
-}
-customElements.define("jira-configure-csv", JiraConfigureCSV);
-
-
-function isMeaningfulData(value) {
-  if(value === "") {
-    return false;
-  }
-
-  if(Array.isArray(value)) {
-    return value.some( isMeaningfulData )
-  }
-  return /\S/.test(value);
-}
-
-function getMeaningfulData(value){
-  if(Array.isArray(value)) {
-    return value.find( isMeaningfulData )
-  } else {
-    return value;
-  }
-}

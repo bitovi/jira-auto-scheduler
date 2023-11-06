@@ -6,7 +6,7 @@ class JiraConfigureJSONLogic extends StacheElement {
   static view = `
     <textarea value:from='this.currentJsonLogicJSON'
       on:input='this.updateJSON(scope.element.value)'
-      {{# if(this.unappliedChanges) }}class='dirty'{{/ if }}></textarea>
+      {{# if(this.unappliedChanges) }}class='dirty form-border'{{else}}class='form-border'{{/ if }}></textarea>
     <table>
       <tr><th>Summary</th><th>Result</th></tr>
       {{# for(example of this.examples)}}
@@ -16,12 +16,22 @@ class JiraConfigureJSONLogic extends StacheElement {
         </tr>
       {{/ }}
     </table>
-    <button on:click="this.applyLogic()">Apply</button>
+    <button on:click="this.applyLogic()" class="btn-secondary">Apply</button>
   `;
   static props = {
     rawIssues: type.Any,
     editorElement: type.Any,
-    currentJsonLogic: type.Any,
+    currentJsonLogic: {
+      value({resolve, listenTo, lastSet}){
+        resolve(lastSet.value);
+        listenTo(lastSet, (value)=>{
+          resolve(value);
+        })
+        listenTo("jsonLogic",({value})=>{
+          resolve(value);
+        })
+      }
+    },
     jsonLogic: type.Any
   };
 
@@ -58,12 +68,11 @@ class JiraConfigureJSONLogic extends StacheElement {
   }
 
   applyLogic(){
-    console.log("setting");
     this.jsonLogic = this.currentJsonLogic;
   }
 
   connected(){
-    this.currentJsonLogic = this.jsonLogic;
+
 
     /*const editor = new JSONEditor(this.editorElement, {
         onChange: ()=> {

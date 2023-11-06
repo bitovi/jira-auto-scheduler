@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start-local": "node server/server.js"
+    "start-local": "node server/server.js",
+    "fe:build": "npx tailwindcss -i ./public/jira-auto-scheduler.css -o ./public/production.css --watch --minify"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
     "oauth": "^0.10.0"
   },
   "devDependencies": {
-    "live-server": "^1.2.2"
+    "live-server": "^1.2.2",
+    "tailwindcss": "^3.3.3"
   }
 }

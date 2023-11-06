@@ -12,8 +12,8 @@ import {saveJSONToUrl} from "./shared/state-storage.js";
 import "./jira-team.js";
 import "./jira-teams.js";
 import "./jira-configure-csv.js";
-import "./simple-tooltip.js";
-import config from "./jira-config.js";
+import "./shared/simple-tooltip.js";
+import makeConfig from "./jira-config.js";
 import {getEndDateFromUTCStartDateAndBusinessDays, parseDateISOString} from "./shared/dateUtils.js";
 
 
@@ -29,49 +29,52 @@ class JiraAutoScheduler extends StacheElement {
   static view = `
     <simple-tooltip this:to='this.tooltip'></simple-tooltip>
 
-    <header>
+    <header class="sticky top-0 z-10 bg-white p2">
       <h1>Auto Scheduler for Jira</h1>
+      <details class="border-neutral-800 border-solid border rounded-lg bg-white" open="true">
+        <summary class="text-base p-3 bg-neutral-100 cursor-pointer rounded-lg">
+          Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.config.issueJQL}}</span></span>
+        </summary>
+          <jira-configure-csv 
+            rawIssues:from="this.rawIssues" config:from="this.config"/>
 
-      <form>
-      <div class="inline-grid">
+      </details>
+
+      <div class="flex rounded-lg border-neutral-800 border-solid border text-base p-3 gap-6">
         {{# if( this.rawIssues ) }}
-            <div>
-              <button on:click="this.configureCSV(scope.event)">
-                {{# if(this.configuringCSV) }}
-                  Back
-                {{ else }}
-                  Configure
-                {{/ }}
-              </button>
-            </div>
+            
 
             {{# not(this.configuringCSV) }}
-            <div>
-              <label>Zoom:</label>
-              <input type="range"
+            <div class="flex grow gap-1">
+              <label class="text-base py-2">Zoom:</label>
+              <input type="range" class="grow"
                 min="3" max="20"
                 value:from="this.dayWidth" on:change:value:to="this.dayWidth"/>
             </div>
 
-            <div>
-              <label>Likelihood:</label>
-              <input type="range"
+            <div class="flex grow gap-1">
+              <label class="text-base py-2">Likelihood ({{this.uncertaintyWeight}}%):</label>
+              <input 
+                class="grow"
+                type="range"
                 min="50" max="90"
 								step="5"
                 value:from="this.uncertaintyWeight" on:change:value:to="this.uncertaintyWeight"/>
-                ({{this.uncertaintyWeight}}%)
+                
             </div>
 
-						<div>
-							<label>Start Date:</label>
+						<div  class="flex gap-1">
+							<label class="text-base py-2">Start Date:</label>
 							<input type="date"
+                class="form-border font-mono px-1"
 								valueAsDate:bind="this.startDate"/>
 						</div>
             <div>
               {{# if(this.issueUpdates.isPending) }}
                 <button disabled>Saving ...</button>
               {{ else }}
-                <button on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+                <button class="btn-primary"
+                  on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
               {{/ if }}
             </div>
             {{/ not }}
@@ -79,14 +82,12 @@ class JiraAutoScheduler extends StacheElement {
           <div>Loading issues</div>
         {{/ if }}
       </div>
-      </form>
+      
     </header>
+  
 
     <main>
-    {{# if(this.configuringCSV) }}
-      <jira-configure-csv 
-      rawIssues:from="this.rawIssues" config:from="this.config" jiraHelpers:from="this.jiraHelpers"/>
-    {{ else }}
+
 
 
 		<jira-teams
@@ -101,7 +102,6 @@ class JiraAutoScheduler extends StacheElement {
 			removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
 			></jira-teams>
 
-      {{/}}
     </main>
     <div>
       <ul class="key">
@@ -123,8 +123,13 @@ class JiraAutoScheduler extends StacheElement {
     workByTeam: type.Any,
     tooltip: HTMLElement,
     configuringCSV: {Type: Boolean, value: false},
+    get configPromise(){
+      return makeConfig(this.jiraHelpers)
+    },
     config: {
-      default: config
+      async(resolve) {
+        this.configPromise.then(resolve);
+      }
     },
     velocities: {
       get default(){
@@ -134,7 +139,11 @@ class JiraAutoScheduler extends StacheElement {
       }
     },
 		rawIssues: {
-			async(resolve) {
+			async() {
+        if(!this.config) {
+          return Promise.resolve([]);
+        }
+
 				const serverInfoPromise = this.jiraHelpers.getServerInfo();
 
 		    const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
@@ -164,7 +173,9 @@ class JiraAutoScheduler extends StacheElement {
     },
 
 		get configuration(){
-
+      if(!this.config) {
+        return;
+      }
 			return {
 				getTeamKey: this.config.getTeamKey,
 				getDaysPerSprint: this.config.getDaysPerSprint,
@@ -216,6 +227,9 @@ class JiraAutoScheduler extends StacheElement {
 		//this.jiraHelpers
   }
   scheduleIssues() {
+    if(!this.configuration) {
+      return;
+    }
     this.workByTeam = null;
     scheduleIssues(this.rawIssues, {
       uncertaintyWeight: this.uncertaintyWeight,
