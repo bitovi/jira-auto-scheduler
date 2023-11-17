@@ -14,13 +14,20 @@ function toStandardDeviations({
 
 
 /**
- * Given an estimate, a confidence, and an uncertainty
+ * Given an estimate, a confidence, and an uncertainty, return the extra amount of time.
  */
 
 
 export function estimateExtraPoints(estimate, confidence, uncertaintyWeight) {
 	var std = toStandardDeviations({confidence});
 	return estimate * jStat.lognormal.inv( (uncertaintyWeight / 100) , 0, std) - estimate;
+}
+
+// will return negative numbers weirdly ... but I don't feel like changing all of this right now
+export function sampleExtraPoints(estimate, confidence) {
+	const std = toStandardDeviations({confidence});
+	const scale = jStat.lognormal.sample( 0, std );
+	return estimate * scale - estimate;
 }
 
 

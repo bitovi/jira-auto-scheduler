@@ -15,7 +15,7 @@ import "./jira-configure-csv.js";
 import "./shared/simple-tooltip.js";
 import makeConfig from "./jira-config.js";
 import {getEndDateFromUTCStartDateAndBusinessDays, parseDateISOString} from "./shared/dateUtils.js";
-
+import "./monte-carlo.js";
 
 const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the YYYY-MM-DD format
   year: 'numeric',
@@ -31,7 +31,7 @@ class JiraAutoScheduler extends StacheElement {
 
     
     <details class="border-neutral-800 border-solid border rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
-      <summary class="text-base p-3 bg-neutral-100 cursor-pointer rounded-lg">
+      <summary class="text-base p-3 bg-white cursor-pointer rounded-lg">
         Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.config.issueJQL}}</span></span>
       </summary>
         <jira-configure-csv 
@@ -42,12 +42,6 @@ class JiraAutoScheduler extends StacheElement {
     <div class=" z-10 right-0 flex rounded-t-lg border-neutral-800 border-solid border text-base p-2 gap-6 bg-white mt-2 mx-2 fullscreen-fixed-to-top fullscreen-m-0 fullscreen-round-none">
       {{# if( this.rawIssues ) }}
           {{# not(this.configuringCSV) }}
-          <div class="flex grow gap-1">
-            <label class="text-base py-1">Zoom:</label>
-            <input type="range" class="grow h-8"
-              min="3" max="20"
-              value:from="this.dayWidth" on:input:value:to="this.dayWidth"/>
-          </div>
 
           <div class="flex grow gap-1">
             <label class="text-base py-1">Likelihood ({{this.uncertaintyWeight}}%):</label>
@@ -93,7 +87,7 @@ class JiraAutoScheduler extends StacheElement {
       {{/ if }}
     </div>
       
-    <main class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
+    <!--<main class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
 
 
 
@@ -117,6 +111,20 @@ class JiraAutoScheduler extends StacheElement {
         <li><span class="chip chip--current">Current item</span></li>
         <li><span class="chip chip--blocked">Blocked by</span></li>
       </ul>
+    </div>-->
+    <div class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
+      <monte-carlo style="block"
+        configuration:from="this.configuration"
+        getVelocityForTeam:from="this.getVelocityForTeam"
+        updateVelocity:from="this.updateVelocity"
+        rawIssues:from="this.rawIssues"
+        getParallelWorkLimit:from="this.getParallelWorkLimit"
+        velocities:from="this.velocities"
+        addWorkPlanForTeam:from="this.addWorkPlanForTeam"
+        removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
+        startDate:from="this.startDate"
+        uncertaintyWeight:from="this.uncertaintyWeight"
+        ></div>
     </div>
   `;
   static props = {

@@ -7,7 +7,7 @@ import {
   stringToArray
 } from "./helpers.js";
 
-import {estimateExtraPoints} from "./shared/confidence.js";
+import {estimateExtraPoints, sampleExtraPoints} from "./shared/confidence.js";
 import {WorkPlans} from "./work-plans.js";
 
 export function prepareIssues(issuesSource, {
@@ -119,10 +119,12 @@ function createWork(issue, workByTeams,
 
     var pointsPerDay = team.velocity / getDaysPerSprint(teamKey)  / getParallelWorkLimit(teamKey);
 
-    var usedEstimate = (estimate != undefined ? estimate : team.velocity );
-    var usedConfidence = (confidence != undefined ? confidence : 50 );
+    const usedEstimate = (estimate != undefined ? estimate : team.velocity );
+    const usedConfidence = (confidence != undefined ? confidence : 50 );
 
-    var extraPoints = estimateExtraPoints(usedEstimate, usedConfidence, uncertaintyWeight);
+    const extraPoints = uncertaintyWeight === null ?
+      sampleExtraPoints(usedEstimate, usedConfidence):
+      estimateExtraPoints(usedEstimate, usedConfidence, uncertaintyWeight);
 
     var estimatedDaysOfWork =  Math.max( Math.round( (usedEstimate) / pointsPerDay), 1);
     var daysOfWork = Math.max( Math.round( (usedEstimate + extraPoints) / pointsPerDay), 1);
@@ -224,7 +226,7 @@ function associateParentAndChildren(issues, getParentKey, issuesByKey) {
         epic._children = issuesForEpics[epicKey];
         epic._children.forEach( child => child._parent = epic );
       } else {
-        console.log("Unable to find epic", epicKey, "perhaps it is marked as done but has an issue not done");
+        //console.log("Unable to find epic", epicKey, "perhaps it is marked as done but has an issue not done");
       }
 
     }

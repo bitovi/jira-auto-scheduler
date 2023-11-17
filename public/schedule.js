@@ -25,7 +25,6 @@ export function scheduleIssues(issues, options){
   // Sorts by the items that has the most work
   preparedIssues.sort((iA, iB) => iB.blocksWorkDepth - iA.blocksWorkDepth);
 
-	console.log("sorted by depth", preparedIssues)
   // starting with the issue that blocks the most work
   preparedIssues.forEach( (issue)=> {
     // plan that issue out
@@ -96,7 +95,7 @@ function scheduleIssue(work, firstDayWorkCouldStartOn) {
 		//}
 
 		team.workPlans.sheduleWork(work, firstDayWorkCouldStartOn);
-		console.log(new Array(Math.ceil(work.startDay / 2)).join(" "), work.startDay, work.issue.Summary)
+		//console.log(new Array(Math.ceil(work.startDay / 2)).join(" "), work.startDay, work.issue.Summary)
 		return work;
 }
 
