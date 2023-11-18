@@ -50,6 +50,27 @@ class SimpleTooltip extends HTMLElement {
             this.style.display = "";
         }
     }
+    centeredBelowElement(element, html) {
+      if(arguments.length > 1) {
+        this.innerHTML = html;
+        
+        this.style.top = "-1000px";
+        this.style.left = "-1000px";
+
+        this.style.display = "";
+        const tooltipRect = this.getBoundingClientRect();
+
+        this.style.display = "";
+        var rect = element.getBoundingClientRect();
+
+
+
+        this.style.top = (window.scrollY + rect.bottom)+"px";
+        this.style.left = (window.scrollX + rect.left + (rect.width / 2) - (tooltipRect.width / 2)) +"px";
+
+        
+      }
+    }
     leftElement(event) {
       this.style.display = "none";
     }

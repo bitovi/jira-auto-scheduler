@@ -46,7 +46,7 @@ class WorkItem extends ObservableObject {
         dueDateTop: 0,
         dueDateTop90: 0,
         dueDateTop95: 0,
-        uncertaintyWeight: 90,
+        uncertaintyWeight: {type: type.Any, default: 90},
         startDateValues: {get default(){ return []}},
         dueDateValues: {get default(){ return []}},
 
@@ -71,16 +71,25 @@ class WorkItem extends ObservableObject {
         this.dueDateValues.push(...this._holdingDueDates);
         this.dueDateValues.sort(compareNumbers);
         this._holdingDueDates = [];
+        
+        this.startDateMedian = average(this.startDateValues);
+        this.dueDateMedian = average(this.dueDateValues);
+
         const length = this.startDateValues.length;
+        if(typeof this.uncertaintyWeight === "number"){
+            this.startDateBottom = this.startDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) /100), length - 1) ];
+            this.dueDateTop = this.dueDateValues[Math.min( Math.round(length *this.uncertaintyWeight / 100 ), length - 1) ];
+        } else if(this.uncertaintyWeight === "average") {
+            this.startDateBottom = this.startDateMedian;
+            this.dueDateTop = this.dueDateMedian;
+        }
 
         this.startDateBottom10 = this.startDateValues[Math.min( Math.round(length * 10 /100), length - 1) ];
-        this.startDateBottom = this.startDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) /100), length - 1) ];
-        this.dueDateTop = this.dueDateValues[Math.min( Math.round(length *this.uncertaintyWeight / 100 ), length - 1) ];
+        
         this.dueDateTop90 = this.dueDateValues[Math.min( Math.round(length * 90 / 100 ), length - 1) ];
         this.dueDateTop95 = this.dueDateValues[Math.min( Math.round(length * 95 / 100 ), length - 1) ];
 
-        this.startDateMedian = average(this.startDateValues);
-        this.dueDateMedian = average(this.dueDateValues);
+        
     }
 
 }
@@ -159,10 +168,10 @@ class MonteCarlo extends StacheElement {
 
                     {{# for(work of track.works) }}
                         <div 
-                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center"
+                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-1"
                             style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
                             >
-                            {{work.work.issue.Summary}}
+                            <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
                         </div>
                         <simulation-data
                             class="relative block" 

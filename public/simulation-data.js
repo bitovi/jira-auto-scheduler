@@ -2,6 +2,8 @@ import { StacheElement, type, ObservableObject, fromAttribute, queues } from "//
 import {bestFitRanges, getUTCEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js"
 import SimpleTooltip from "./shared/simple-tooltip.js";
 
+import {estimateExtraPoints} from "./shared/confidence.js";
+
 const TOOLTIP = new SimpleTooltip();
 
 document.body.append(TOOLTIP);
@@ -25,10 +27,9 @@ class SimulationData extends StacheElement {
         </div>
     {{/ if }}
     
-    <div class="relative py-1 cursor-pointer z-50"
+    <div class="relative py-1 z-50"
         on:click="this.toggleShowingExtraData()"
-        on:mouseenter="this.showProbabilitySumary(scope.event)"
-        on:mouseleave="this.hideProbabilityData()">
+        >
 
         <!--<div 
             class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-45% to-55% h-1 top-2.5 border-box" 
@@ -47,7 +48,9 @@ class SimulationData extends StacheElement {
             style="left: {{this.percent(work.startDateBottom10)}}; width: {{this.percentWidth(work.startDateBottom10, work.dueDateTop90)}}"></div>
 
         <div id="{{work.work.issue["Issue key"]}}"
-            class="work-item border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
+            on:mouseenter="this.showProbabilitySumary(scope.event)"
+            on:mouseleave="this.hideProbabilityData()"
+            class="work-item cursor-pointer border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
             style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>
     </div>
     {{# if(this.showingData) }}
@@ -109,32 +112,59 @@ class SimulationData extends StacheElement {
         const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
         const startDateBottom = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateBottom);
+        const startDateBottom10 = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateBottom10);
         const startDateMedian = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateMedian);
 
         const dueDateTop = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateTop);
+        const dueDateTop90 = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateTop90);
         const dueDateMedian = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateMedian);
+        
+        const additionalPoints = estimateExtraPoints(this.work.work.usedEstimate, this.work.work.usedConfidence, this.uncertaintyWeight );
 
-        TOOLTIP.enteredElement(event, `
-            <p>Start Dates</p>
-            <ul class="list-disc text-2xl pl-5">
-                <li class="text-blue-200"><span class="text-black text-base">
-                    10% chance starts before ${monthDateFormatter.format(startDateBottom)}
-                </span></li>
-                <li class="text-blue-500"><span class="text-black text-base">
-                    Average start date is ${monthDateFormatter.format(startDateMedian)}
-                </span></li>
-            </ul>
+        let rangeStartChance, 
+            rangeStartDate,
+            rangeEndChance,
+            rangeEndDate;
+        if(this.work.uncertaintyWeight === "average") {
+            rangeStartChance = rangeEndChance = "On average";
+            rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateMedian);
+            rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateMedian);
+        } else {
+            rangeStartChance = rangeEndChance = `${100 - this.work.uncertaintyWeight}% chance`;
+            rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateBottom);
+            rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateTop);
+        }
 
-            <p>End Dates</p>
-            <ul class="list-disc text-2xl pl-5">
-                <li class="text-green-500"><span class="text-black text-base">
-                    Average end date is ${monthDateFormatter.format(dueDateMedian)}
-                </span></li>
-                <li class="text-green-200"><span class="text-black text-base">
-                    10% chance end after ${monthDateFormatter.format(dueDateTop)}
-                </span></li>
-                
-            </ul>
+        TOOLTIP.centeredBelowElement(event.currentTarget, `
+            <div class="p-2">
+                <div class="flex gap-2">
+                    <div class="bg-blue-200 rounded text-center p-1">
+                        <h5>10% chance</h5>
+                        <p class="text-sm">epic starts before</p>
+                        <p>${monthDateFormatter.format(startDateBottom10)}</p>
+                    </div>
+                    <div class="bg-blue-500 rounded text-white text-center p-1">
+                        <h5>${rangeStartChance}</h5>
+                        <p class="text-sm">epic starts before</p>
+                        <p>${monthDateFormatter.format(rangeStartDate)}</p>
+                    </div>
+                    <div class="bg-green-500 rounded text-white text-center p-1">
+                        <h5>${rangeEndChance}</h5>
+                        <p class="text-sm">epic ends after</p>
+                        <p>${monthDateFormatter.format(rangeEndDate)}</p>
+                    </div>
+                    <div class="bg-green-200 rounded text-center p-1">
+                        <h5>10% chance</h5>
+                        <p class="text-sm">epic ends after</p>
+                        <p>${monthDateFormatter.format(dueDateTop90)}</p>
+                    </div>
+                </div>
+                <div class="bg-neutral-200 rounded text-white mt-2">
+                    <p>Median Estimate: ${this.work.work.estimate}, Confidence: ${this.work.work.confidence}</p>
+                    
+                    <p>Median Days of Work: ${this.work.work.estimatedDaysOfWork}, Adjusted Days of Work: ${this.work.dueDateTop - this.work.startDateBottom}</p>
+                </div>
+            </div>
         `)
     }
     plus(a, b){

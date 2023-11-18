@@ -43,14 +43,31 @@ class JiraAutoScheduler extends StacheElement {
       {{# if( this.rawIssues ) }}
           {{# not(this.configuringCSV) }}
 
-          <div class="flex grow gap-1">
-            <label class="text-base py-1">Likelihood ({{this.uncertaintyWeight}}%):</label>
-            <input 
-              class="grow h-8"
-              type="range"
-              min="50" max="90"
-              step="5"
-              value:from="this.uncertaintyWeight" on:input:value:to="this.uncertaintyWeight"/>
+          <div class="flex grow gap-2">
+            <label class="text-base py-1">Date Thresholds:</label>
+            <div class="grow relative">
+              <input 
+                class="w-full"
+                type="range"
+                min="50" max="90" step="5"
+                value:from="this.dateThresholds" 
+                on:input:value:to="this.dateThresholds"
+                list="range-values"/>
+                <datalist id="range-values" w="1206px" l="-59px"
+                  style="width: calc( (100% - 15px) * 10.115/9); left: calc(7.5px -  (100% - 15px) * 10.115/9/18 ); grid-template-columns: repeat(9, 1fr); grid-template-rows: auto;"
+                  class="grid font-mono absolute top-6">
+                  <option value="50" class="text-center text-xs">Median</option>
+                  <option value="55" class="text-center text-xs">Average</option>
+                  <option value="60" class="text-center text-xs">60%</option>
+                  <option value="65" class="text-center text-xs">65%</option>
+                  <option value="70" class="text-center text-xs">70%</option>
+                  <option value="75" class="text-center text-xs">75%</option>
+                  <option value="80" class="text-center text-xs">80%</option>
+                  <option value="85" class="text-center text-xs">85%</option>
+                  <option value="90" class="text-center text-xs">90%</option>
+                </datalist>
+            </div>
+            
               
           </div>
 
@@ -73,7 +90,7 @@ class JiraAutoScheduler extends StacheElement {
             {{/ if }}
           </div>
           {{/ not }}
-          <div>
+          <!-- <div>
             <button on:click="this.toggleFullscreen(scope.event)" title="Show Full Screen">
               {{# if(this.showingFullscreen) }}
                 <img src="./images/arrows-pointing-in.svg" width="32px" height="32px"/>
@@ -81,37 +98,12 @@ class JiraAutoScheduler extends StacheElement {
                 <img src="./images/arrows-pointing-out.svg" width="32px" height="32px"/>
               {{/ if }}
             </button>
-          </div>
+          </div> -->
       {{ else }}
         <div>Loading issues</div>
       {{/ if }}
     </div>
       
-    <!--<main class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
-
-
-
-      <jira-teams
-        class="bg-white"
-        teams:from="this.teams"
-        dayWidth:from="this.dayWidth"
-        tooltip:from="this.tooltip"
-        getVelocityForTeam:from="this.getVelocityForTeam"
-        updateVelocity:from="this.updateVelocity"
-        startDate:from="this.startDate"
-        addWorkPlanForTeam:from="this.addWorkPlanForTeam"
-        removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
-        ></jira-teams>
-
-    </main>
-    <div class="p-2 hide-on-fullscreen">
-      <ul class="key">
-        <li><span class="text-white">Key:</span></li>
-        <li><span class="chip chip--blocking">Blocking</span></li>
-        <li><span class="chip chip--current">Current item</span></li>
-        <li><span class="chip chip--blocked">Blocked by</span></li>
-      </ul>
-    </div>-->
     <div class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
       <monte-carlo style="block"
         configuration:from="this.configuration"
@@ -132,7 +124,15 @@ class JiraAutoScheduler extends StacheElement {
     jiraHelpers: {type: type.Any},
     issueUpdates: {type: type.Any},
     dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
-    uncertaintyWeight: saveJSONToUrl("weight",90,type.maybeConvert(Number)),
+    get uncertaintyWeight(){
+      const dateThreshold = this.dateThresholds;
+      if(dateThreshold == 55) {
+        return "average";
+      } else {
+        return dateThreshold;
+      }
+    },
+    dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",null,type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
     //rawIssues: type.Any,
