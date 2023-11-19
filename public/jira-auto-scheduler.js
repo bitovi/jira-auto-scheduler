@@ -17,6 +17,14 @@ import makeConfig from "./jira-config.js";
 import {getEndDateFromUTCStartDateAndBusinessDays, parseDateISOString} from "./shared/dateUtils.js";
 import "./monte-carlo.js";
 
+const updateEpicsPromise = new Promise((resolve, reject)=>{
+  setTimeout(function(){
+    import("./update-epics.js").then(resolve, reject);
+  },500);
+})
+
+
+
 const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the YYYY-MM-DD format
   year: 'numeric',
   month: '2-digit', // '2-digit' will ensure month is always represented with two digits
@@ -44,7 +52,7 @@ class JiraAutoScheduler extends StacheElement {
           {{# not(this.configuringCSV) }}
 
           <div class="flex grow gap-2">
-            <label class="text-base py-1">Date Thresholds:</label>
+            <label class="text-base py-1">Probability Thresholds:</label>
             <div class="grow relative">
               <input 
                 class="w-full"
@@ -83,7 +91,7 @@ class JiraAutoScheduler extends StacheElement {
             {{/ if }}
             {{# or(this.issueUpdates.isResolved, not(this.issueUpdates)) }}
               <button class="btn-primary"
-                on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+                on:click="this.startSaveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
             {{/ if }}
             {{# if(this.issueUpdates.isRejected) }}
               ERROR! Check Logs!
@@ -116,7 +124,9 @@ class JiraAutoScheduler extends StacheElement {
         removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
         startDate:from="this.startDate"
         uncertaintyWeight:from="this.uncertaintyWeight"
-        ></div>
+
+        allWorkItems:to="this.workItems"
+        ></monte-carlo>
     </div>
   `;
   static props = {
@@ -136,7 +146,7 @@ class JiraAutoScheduler extends StacheElement {
 		startDate: saveJSONToUrl("startDate",null,type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
     //rawIssues: type.Any,
-    workByTeam: type.Any,
+    workItems: type.Any,
     tooltip: HTMLElement,
     configuringCSV: {Type: Boolean, value: false},
     get configPromise(){
@@ -180,14 +190,14 @@ class JiraAutoScheduler extends StacheElement {
     get velocitiesJSON(){
       return this.velocities.serialize();
     },
-
+    /*
     get teams(){
       const workByTeams = this.workByTeam;
       return Object.keys(this.workByTeam || {}).map( (key)=> {
         return workByTeams[key];
       })
     },
-
+    */
 		get configuration(){
       if(!this.config) {
         return;
@@ -209,7 +219,7 @@ class JiraAutoScheduler extends StacheElement {
     //this.scheduleCSV(results);
 
     // reschedule when confidence changes
-    this.listenTo("uncertaintyWeight", ()=> {
+    /*this.listenTo("uncertaintyWeight", ()=> {
       this.scheduleIssues();
     })
     this.listenTo("configuration", ()=> {
@@ -226,7 +236,7 @@ class JiraAutoScheduler extends StacheElement {
     this.listenTo("velocitiesJSON", ({value}) => {
       localStorage.setItem("team-velocities", JSON.stringify(value) );
       this.scheduleIssues();
-    });
+    });*/
 
     // redraw lines when zoom changes
     //this.listenTo("dayWidth", ()=> {
@@ -243,7 +253,7 @@ class JiraAutoScheduler extends StacheElement {
 		//this.jiraHelpers
   }
   scheduleIssues() {
-    if(!this.configuration || !this.rawIssues.length) {
+    /*if(!this.configuration || !this.rawIssues.length) {
       return;
     }
     this.workByTeam = null;
@@ -262,7 +272,7 @@ class JiraAutoScheduler extends StacheElement {
       getParentKey: this.configuration.getParentKey,
 			getConfidence: this.configuration.getConfidence,
 			getParallelWorkLimit: this.getParallelWorkLimit.bind(this)
-    })
+    })*/
   }
   configureCSV(event){
     event.preventDefault();
@@ -304,11 +314,21 @@ class JiraAutoScheduler extends StacheElement {
       return {storyPoints , startDate, dueDate};
     }
   }
-  saveDates(event){
+  startSaveDates(event){
     // we can calculate how much changed work there is and show the button then ...
     event.preventDefault();
-    console.log(this.workByTeam, this.config.storyPointField, this.config.startDateField, this.config.dueDateField );
     
+    updateEpicsPromise.then((module)=>{
+      const updateEpics = new module.default().initialize({
+        workItems: Object.values( this.workItems ),
+        storyPointField: this.config.storyPointField[0],
+        startDateField: this.config.startDateField[0],
+        dueDateField: this.config.dueDateField[0],
+        startDate: this.startDate
+      });
+      this.tooltip.topRightOnElementBottomRight(event.currentTarget, updateEpics);
+    })
+    return;
     const updateFields = this.updateFields;
     if(!updateFields) {
       this.issueUpdates = Promise.reject({message: "Missing an output field. Check your configuration"});

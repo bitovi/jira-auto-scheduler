@@ -16,16 +16,26 @@ import {saveJSONToUrl} from "./shared/state-storage.js";
 
 class JiraConfigureCSV extends StacheElement {
   static view = `
-    <h2 class="text-lg font-bold">Issue JQL</h2>
+    <h2 class="text-lg font-bold">Overview</h2>
+    <p class=" pb-2">The Statistical AutoScheduler schedules Jira epics using story point estimates, confidences 
+    and blockers between epics. By default, the AutoScheduler works with the setup described in 
+    <a href="https://www.bitovi.com/academy/learn-agile-program-management-with-jira.html">Learn Agile Program Management with Jira</a>. 
+    If your Jira instance is different, you can make those changes here. 
+    </p>
+    <p  class=" pb-4">All configuration changes are saved to the URL. Remember to bookmark this page after your setup is complete.</p>
+    <h2 class="text-lg font-bold">Epic JQL</h2>
     <div class="flex gap-6 flex-wrap pb-4">
       <div class="grow">
         
-        <p class="text-base my-1">What issues do you want to load?</p>
+        <p class="text-base my-1">Specify a <a href="https://www.atlassian.com/software/jira/guides/jql/overview">JQL</a> used to load the epics you 
+        want to schedule.</p>
         <p><input value:bind="this.config.issueJQL" class="w-full text-base form-border"/></p>
         <p class="text-sm text-right">Loaded {{this.rawIssues.length}} issues.</p>
       </div>
       <div class="lg:w-112 bg-neutral-30 p-1 w-full">
-        <p class="my-1 text-sm">Use <code class="inline-code  whitespace-nowrap">issuekey in portfolioChildIssuesOf("KEY")</code> to load all issues for a single initiative.</p>
+        <p class="my-1 text-sm">
+        JQL is a SQL-like syntax used to load issues. For more information, read <a href="https://www.atlassian.com/software/jira/guides/jql/overview">JQL Overview</a>.
+        Use <code class="inline-code  whitespace-nowrap">issuekey in portfolioChildIssuesOf("KEY")</code> to load all issues for a single initiative.</p>
       </div>
     </div>
     <h2 class="text-lg font-bold">Median Estimate Field(s)</h2>

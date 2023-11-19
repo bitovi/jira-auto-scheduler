@@ -8,20 +8,21 @@ const TOOLTIP = new SimpleTooltip();
 
 document.body.append(TOOLTIP);
 
+
 class SimulationData extends StacheElement {
     static view = `
 
     {{# if(this.showingData) }}
-        <div class="grid transition-all ease-in-out duration-300 h-0 box-border top-3 relative" 
+        <div class="grid transition-all ease-in-out duration-300 h-0 box-border top-3 relative hover:bg-neutral-10 transition-colors" 
             style="grid-template-columns: repeat({{plus(this.lastDueDay, 1)}}, 1fr); grid-template-rows: auto;">
                 
             {{# for( column of this.startColumns ) }}
                 <div 
                     on:mouseenter="this.showProbabilityData(scope.event, column)" 
                     on:mouseleave="this.hideProbabilityData()"
-                    class="flex h-full group">
+                    class="flex h-full group hover:bg-neutral-30 transition-colors">
                     <div
-                        class="self-end bg-blue-100 w-full group-hover:bg-blue-500" style="height: {{column.percentValue}}%"></div>
+                        class="self-end bg-blue-100 w-full group-hover:bg-blue-200 transition-colors" style="height: {{column.percentValue}}%"></div>
                 </div>
             {{/ }}
         </div>
@@ -54,16 +55,16 @@ class SimulationData extends StacheElement {
             style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>
     </div>
     {{# if(this.showingData) }}
-        <div class="grid transition-all ease-in-out duration-300 h-0 box-border pb-1 relative -top-3" 
-            style="grid-template-columns: repeat({{this.lastDueDay}}, 1fr); grid-template-rows: auto;">
+        <div class="grid transition-all ease-in-out duration-300 h-0 box-border pb-1 relative -top-3  hover:bg-neutral-10 transition-colors" 
+            style="grid-template-columns: repeat({{ plus(this.lastDueDay, 1) }}, 1fr); grid-template-rows: auto;">
                 
             {{# for( column of this.endColumns ) }}
                 <div 
                     on:mouseenter="this.showProbabilityData(scope.event, column)" 
                     on:mouseleave="this.hideProbabilityData()"
-                    class="flex h-full">
+                    class="flex h-full group hover:bg-neutral-30 transition-colors">
                     <div
-                        class="self-start bg-green-100 w-full" style="height: {{column.percentValue}}%"></div>
+                        class="self-start bg-green-100 w-full group-hover:bg-green-300 transition-colors" style="height: {{column.percentValue}}%"></div>
                 </div>
                 
             {{/ }}
@@ -93,15 +94,24 @@ class SimulationData extends StacheElement {
         });
         const cumulativeProbability = (index === -1 ? values.length : index) / values.length;
 
-        const timingName = column.type === "startDate" ? "starting before" : "ending after";
+        const timingName = column.type === "startDate" ? "starts before or on" : "ends after or on";
         const pastTenseName = column.type === "startDate" ? "started" : "ended";
         let probability = column.type === "startDate" ? cumulativeProbability*100 : (1-cumulativeProbability)* 100;
+        const color = column.type === "startDate" ? "bg-blue-500" : "bg-green-500";
+        
 
-        TOOLTIP.enteredElement(event, `
-            <p>${monthDateFormatter.format(date)}</p>
-            <p>There is a ${Math.round( probability )}% likelihood of ${timingName} or on this day.</p>
-            <p>In ${column.totalCount } of ${this.work[column.type+"Values"].length} simulations, the work ${pastTenseName} on this day.</p>
-            
+        TOOLTIP.centeredBelowElement(event.currentTarget, `
+            <div class="p-2">
+                <div class="${color} rounded text-white text-center p-1">
+                    <h5>${toFixed(probability,1)}% chance</h5>
+                    <p class="text-sm">epic ${timingName}</p>
+                    <p>${monthDateFormatter.format(date)}.</p>
+                </div>
+                <div class="bg-neutral-200 rounded text-white mt-2 p-1 text-center">
+                    <h5> ${toFixed( 100*  column.totalCount / this.work[column.type+"Values"].length, 1 )}% of the time,</h5>
+                    <p>the work ${pastTenseName} this day.</p>
+                </div>
+            </div>
         `)
     }
     hideProbabilityData(){
@@ -110,29 +120,21 @@ class SimulationData extends StacheElement {
     showProbabilitySumary(event) {
         
         const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+        const dates = getDatesFromWork(this.work,this.startDate);
 
-        const startDateBottom = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateBottom);
-        const startDateBottom10 = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateBottom10);
-        const startDateMedian = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateMedian);
-
-        const dueDateTop = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateTop);
-        const dueDateTop90 = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateTop90);
-        const dueDateMedian = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateMedian);
         
-        const additionalPoints = estimateExtraPoints(this.work.work.usedEstimate, this.work.work.usedConfidence, this.uncertaintyWeight );
-
+        const startDateBottom10 = dates.startDate10;
+  
+        const dueDateTop90 = dates.dueDate90; 
+ 
         let rangeStartChance, 
-            rangeStartDate,
+            rangeStartDate = dates.startDate,
             rangeEndChance,
-            rangeEndDate;
+            rangeEndDate = dates.dueDate;
         if(this.work.uncertaintyWeight === "average") {
             rangeStartChance = rangeEndChance = "On average";
-            rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateMedian);
-            rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateMedian);
         } else {
             rangeStartChance = rangeEndChance = `${100 - this.work.uncertaintyWeight}% chance`;
-            rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.startDateBottom);
-            rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, this.work.dueDateTop);
         }
 
         TOOLTIP.centeredBelowElement(event.currentTarget, `
@@ -159,11 +161,17 @@ class SimulationData extends StacheElement {
                         <p>${monthDateFormatter.format(dueDateTop90)}</p>
                     </div>
                 </div>
-                <div class="bg-neutral-200 rounded text-white mt-2">
-                    <p>Median Estimate: ${this.work.work.estimate}, Confidence: ${this.work.work.confidence}</p>
-                    
-                    <p>Median Days of Work: ${this.work.work.estimatedDaysOfWork}, Adjusted Days of Work: ${this.work.dueDateTop - this.work.startDateBottom}</p>
-                </div>
+                <dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid"
+                    style="grid-template-columns: repeat(4, auto);">
+                    <dt>Median Estimate</dt>
+                    <dd>${this.work.work.estimate}</dd>
+                    <dt>Confidence</dt>
+                    <dd>${this.work.work.confidence}</dd>
+                    <dt>Median Days of Work</dt>
+                    <dd>${this.work.work.estimatedDaysOfWork}</dd>
+                    <dt>Adjusted Days of Work</dt>
+                    <dd>${Math.round(this.work.dueDateTop - this.work.startDateBottom) }</dd>
+                </dl>
             </div>
         `)
     }
@@ -195,13 +203,44 @@ class SimulationData extends StacheElement {
         return ((value / this.lastDueDay)* 100 )+"%";
     }
     percentWidth(start, end){
-        return (((end - start + 1) / this.lastDueDay)* 100 )+"%";
+        return (((end - start ) / this.lastDueDay)* 100 )+"%";
     }
     toggleShowingExtraData(){
         this.showingData = !this.showingData
     }
 }
 
+
+export function getDatesFromWork(work,startDate){
+    
+    const additionalPoints = estimateExtraPoints(work.work.usedEstimate, work.work.usedConfidence, work.uncertaintyWeight );
+
+    let rangeStartDate,
+        rangeEndDate;
+    if(work.uncertaintyWeight === "average") {
+        rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateMedian);
+        rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateMedian);
+    } else {
+        rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateBottom);
+        rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateTop);
+    }
+
+    return {
+        additionalPoints,
+        totalPoints: work.work.usedEstimate + additionalPoints,
+        startDate: rangeStartDate,
+        dueDate: rangeEndDate,
+        startDate10: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateBottom10),
+        dueDate90: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateTop90),
+        startDateMedian: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateMedian),
+        dueDateMedian: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateMedian)
+    }
+}
+
+
+function toFixed( num, precision ) {
+    return (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+}
 
 function createColumnData(values, days, type) {
     const columnData = [];

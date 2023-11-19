@@ -52,23 +52,39 @@ class SimpleTooltip extends HTMLElement {
     }
     centeredBelowElement(element, html) {
       if(arguments.length > 1) {
-        this.innerHTML = html;
-        
         this.style.top = "-1000px";
         this.style.left = "-1000px";
-
+        
+        this.innerHTML = html;
+        
         this.style.display = "";
         const tooltipRect = this.getBoundingClientRect();
 
-        this.style.display = "";
         var rect = element.getBoundingClientRect();
-
-
-
         this.style.top = (window.scrollY + rect.bottom)+"px";
         this.style.left = (window.scrollX + rect.left + (rect.width / 2) - (tooltipRect.width / 2)) +"px";
+      }
+    }
+    topRightOnElementBottomRight(element, html) {
+      if(arguments.length > 1) {
+        this.style.top = "-1000px";
+        this.style.left = "-1000px";
 
+        if(typeof html === "string") {
+          this.innerHTML = html;
+        } else {
+          this.innerHTML = "";
+          this.appendChild(html);
+        }
         
+        
+        this.style.display = "";
+
+        const tooltipRect = this.getBoundingClientRect();
+        const rect = element.getBoundingClientRect();
+
+        this.style.top = (window.scrollY + rect.bottom)+"px";
+        this.style.left = (window.scrollX + rect.left + (rect.width) - (tooltipRect.width)) +"px";
       }
     }
     leftElement(event) {

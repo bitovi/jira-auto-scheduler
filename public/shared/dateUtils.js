@@ -190,7 +190,7 @@ function countBusinessDays(startDate, endDate) {
         }
 
         // Move to the next day
-        currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
 
     return count;
@@ -287,8 +287,8 @@ const ranges = [
         // dec 5 -> Jan 1st, 19 days
         // jan 1, feb 1, 23
         getStartOfNextRange(date){
-            var year = date.getFullYear();
-            var month = date.getMonth();
+            var year = date.getUTCFullYear();
+            var month = date.getUTCMonth();
         
             month++;
         
@@ -297,7 +297,7 @@ const ranges = [
                 year++;
             }
         
-            return new Date(year, month, 1);
+            return new Date(Date.UTC(year, month, 1));
         },
         prettyDate(date){
             return monthDateFormatter.format(date);
@@ -305,7 +305,14 @@ const ranges = [
     },
     {
         name: "quarters",
-        aveDays: 91
+        aveDays: 91,
+        dateRanges: makeDateRanges,
+        prettyDate(date){
+            return monthDateFormatter.format(date);
+        },
+        getStartOfNextRange(date){
+            return getStartOfNextQuarter(date);
+        }
     },
     {
         name: "years",

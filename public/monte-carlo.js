@@ -60,10 +60,11 @@ class WorkItem extends ObservableObject {
         //}
         this._holdingStartDates.push(work.startDay);
         this._holdingDueDates.push(work.startDay + work.daysOfWork);
-        this.startDateValues.push(work.startDay);
-        this.dueDateValues.push(work.startDay + work.daysOfWork);
+        //this.startDateValues.push(work.startDay);
+        //this.dueDateValues.push(work.startDay + work.daysOfWork);
     }
     updateStats(){
+        
         this.startDateValues.push(...this._holdingStartDates);
         this.startDateValues.sort(compareNumbers);
         this._holdingStartDates = [];
@@ -176,8 +177,8 @@ class MonteCarlo extends StacheElement {
                         <simulation-data
                             class="relative block" 
                             style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column: 2 / span {{this.gridNumberOfDays}}"
-                            on:mouseenter="this.showDependencies(work)"
-                            on:mouseleave="this.hideDependencies(work)"
+                            on:el:mouseenter="this.showDependencies(work)"
+                            on:el:mouseleave="this.hideDependencies(work)"
                             on:resized="this.insertBlockers()"
                             id="{{work.work.issue["Issue key"]}}-timeline"
                             lastDueDay:from="this.lastDueDay"
@@ -220,11 +221,9 @@ class MonteCarlo extends StacheElement {
     }
     get timeRanges(){
         const gridDays = this.gridNumberOfDays;
-        console.log("GridDays", this.gridNumberOfDays);
         // add an extra day to include the full range
         const endDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, gridDays + 1);
-        const ranges = bestFitRanges(this.startDate, endDate, 10);
-        console.log(ranges);
+        const ranges = bestFitRanges(this.startDate, endDate, 12);
         return ranges;
     }
     // High level ... we listen to a "computed" run of `scheduleIssues`,
@@ -297,6 +296,7 @@ class MonteCarlo extends StacheElement {
 
         // runs a batch of tests
         const runBatch = (remainingSimulations, syncRuns = 50) => {
+            console.log("Running Batch", syncRuns)
             for(let i = 0; i < syncRuns; i++) {
                 this.runOneSimulation(addResults);
             }
