@@ -1,5 +1,5 @@
 // TODO: document
-const CACHE_FETCH = true;
+const CACHE_FETCH = false;
 
 function responseToJSON(response) {
 	if(!response.ok) {

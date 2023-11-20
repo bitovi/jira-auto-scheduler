@@ -213,7 +213,7 @@ class SimulationData extends StacheElement {
 
 export function getDatesFromWork(work,startDate){
     
-    const additionalPoints = estimateExtraPoints(work.work.usedEstimate, work.work.usedConfidence, work.uncertaintyWeight );
+    let additionalPoints = estimateExtraPoints(work.work.usedEstimate, work.work.usedConfidence, work.uncertaintyWeight );
 
     let rangeStartDate,
         rangeEndDate;

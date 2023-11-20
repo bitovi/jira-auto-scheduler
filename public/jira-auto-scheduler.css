@@ -4,10 +4,10 @@
 
 @layer components {
   .btn-primary {
-    @apply cursor-pointer py-1 px-2 bg-blue-300 text-white font-semibold rounded-lg shadow-md hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    @apply cursor-pointer py-1 px-2 bg-blue-300 text-white font-semibold rounded shadow-md hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 disabled:opacity-75 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply cursor-pointer py-1 px-2 bg-neutral-40 text-black font-semibold rounded-lg  hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:bg-neutral-50 focus:ring-opacity-75;
+    @apply cursor-pointer py-1 px-2 bg-neutral-40 text-black font-semibold rounded  hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:bg-neutral-50 focus:ring-opacity-75;
   }
   .btn-secondary-sm {
     @apply cursor-pointer py-0 px-1 bg-neutral-40 text-black rounded-sm  hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:bg-neutral-50 focus:ring-opacity-75 border border-solid border-neutral-50;

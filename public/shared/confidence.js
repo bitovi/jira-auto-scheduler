@@ -20,7 +20,12 @@ function toStandardDeviations({
 
 export function estimateExtraPoints(estimate, confidence, uncertaintyWeight) {
 	var std = toStandardDeviations({confidence});
-	return estimate * jStat.lognormal.inv( (uncertaintyWeight / 100) , 0, std) - estimate;
+	if(uncertaintyWeight === "average") {
+		return estimate * jStat.lognormal.mean( 0, std) - estimate;
+	} else {
+		return estimate * jStat.lognormal.inv( (uncertaintyWeight / 100) , 0, std) - estimate;
+	}
+	
 }
 
 // will return negative numbers weirdly ... but I don't feel like changing all of this right now

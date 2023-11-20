@@ -36,7 +36,21 @@ const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the
 class JiraAutoScheduler extends StacheElement {
   static view = `
     <simple-tooltip this:to='this.tooltip'></simple-tooltip>
-
+    {{# if(this.showSavingModal)}}
+      <dialog>
+        <update-epics
+          workItems:from="this.workItems"
+          storyPointField:from="this.config.storyPointField[0]"
+          startDateField:from="this.config.startDateField[0]"
+          dueDateField:from="this.config.dueDateField[0]"
+          startDate:from="this.startDate"
+          jiraHelpers:from="this.jiraHelpers"
+          
+          on:click="this.closeModalAndRefreshIssues()"
+          >
+        </update-epics>
+      </dialog>
+    {{/ }}
     
     <details class="border-neutral-800 border-solid border rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
       <summary class="text-base p-3 bg-white cursor-pointer rounded-lg">
@@ -91,7 +105,7 @@ class JiraAutoScheduler extends StacheElement {
             {{/ if }}
             {{# or(this.issueUpdates.isResolved, not(this.issueUpdates)) }}
               <button class="btn-primary"
-                on:click="this.startSaveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
+                on:click="this.showSavingModal = true" disabled:from="not(this.startDate)">Update Epic Dates</button>
             {{/ if }}
             {{# if(this.issueUpdates.isRejected) }}
               ERROR! Check Logs!
@@ -130,6 +144,7 @@ class JiraAutoScheduler extends StacheElement {
     </div>
   `;
   static props = {
+    showSavingModal: false,
     showingFullscreen: {type: Boolean, default: false},
     jiraHelpers: {type: type.Any},
     issueUpdates: {type: type.Any},
@@ -148,6 +163,7 @@ class JiraAutoScheduler extends StacheElement {
     //rawIssues: type.Any,
     workItems: type.Any,
     tooltip: HTMLElement,
+    dialog: HTMLElement,
     configuringCSV: {Type: Boolean, value: false},
     get configPromise(){
       return makeConfig(this.jiraHelpers)
@@ -169,7 +185,8 @@ class JiraAutoScheduler extends StacheElement {
         if(!this.config) {
           return Promise.resolve([]);
         }
-
+        // do this for side-effects
+        this.hackToRefreshIssues;
 				const serverInfoPromise = this.jiraHelpers.getServerInfo();
 
 		    const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
@@ -185,7 +202,9 @@ class JiraAutoScheduler extends StacheElement {
 		    }).catch(function(){
           return [];
         })
-			}
+			},
+      // raw issues should derive from events, will change later!
+      hackToRefreshIssues: type.Any
 		},
     get velocitiesJSON(){
       return this.velocities.serialize();
@@ -215,68 +234,11 @@ class JiraAutoScheduler extends StacheElement {
   // hooks
   async connected() {
 
-    //const results = await getCSVResultsFromUrl("./tb-r2a.csv");
-    //this.scheduleCSV(results);
 
-    // reschedule when confidence changes
-    /*this.listenTo("uncertaintyWeight", ()=> {
-      this.scheduleIssues();
-    })
-    this.listenTo("configuration", ()=> {
-      this.scheduleIssues();
-    });
-		this.listenTo("rawIssues", ()=> {
-      this.scheduleIssues();
-    });
-
-		this.listenTo("workLimit", ()=> {
-      this.scheduleIssues();
-    });
-
-    this.listenTo("velocitiesJSON", ({value}) => {
-      localStorage.setItem("team-velocities", JSON.stringify(value) );
-      this.scheduleIssues();
-    });*/
-
-    // redraw lines when zoom changes
-    //this.listenTo("dayWidth", ()=> {
-    //  this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
-    //})
-
-
-
-
-		// temp
-
-
-
-		//this.jiraHelpers
   }
-  scheduleIssues() {
-    /*if(!this.configuration || !this.rawIssues.length) {
-      return;
-    }
-    this.workByTeam = null;
-    scheduleIssues(this.rawIssues, {
-      uncertaintyWeight: this.uncertaintyWeight,
-      onPlannedIssues: (workByTeam) => {
-        this.workByTeam = workByTeam;
-      },
-      getVelocity: this.getVelocityForTeam.bind(this),
-      onIgnoredIssues: function(ignored, reason){
-        console.log(ignored, reason);
-      },
-      // Overwrite for EB
-      getEstimate: this.configuration.getEstimate,
-      getTeamKey: this.configuration.getTeamKey,
-      getParentKey: this.configuration.getParentKey,
-			getConfidence: this.configuration.getConfidence,
-			getParallelWorkLimit: this.getParallelWorkLimit.bind(this)
-    })*/
-  }
-  configureCSV(event){
-    event.preventDefault();
-    this.configuringCSV = !this.configuringCSV;
+  closeModalAndRefreshIssues(){
+    this.showSavingModal = false;
+    this.hackToRefreshIssues = {};
   }
   getVelocityForTeam(teamKey) {
     return this.velocities[teamKey] || 21;
@@ -319,49 +281,16 @@ class JiraAutoScheduler extends StacheElement {
     event.preventDefault();
     
     updateEpicsPromise.then((module)=>{
-      const updateEpics = new module.default().initialize({
-        workItems: Object.values( this.workItems ),
-        storyPointField: this.config.storyPointField[0],
-        startDateField: this.config.startDateField[0],
-        dueDateField: this.config.dueDateField[0],
-        startDate: this.startDate
-      });
-      this.tooltip.topRightOnElementBottomRight(event.currentTarget, updateEpics);
-    })
-    return;
-    const updateFields = this.updateFields;
-    if(!updateFields) {
-      this.issueUpdates = Promise.reject({message: "Missing an output field. Check your configuration"});
-      return;
-    }
-    
-    const allWork = Object.values(this.workByTeam)
-      .map( team => team.workPlans.plans ).flat()
-      .map( plans => plans.work ).flat()
-      .map( work => {
-        return {
-          ...work,
-          updates: {
-            [updateFields.startDate]: jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay) ),
-            [updateFields.dueDate]: jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork) ),
-            [updateFields.storyPoints]: Math.round( work.estimate + work.extraPoints )
-          }
-        };
-      });
 
-    const changedWork = allWork/*.filter((work) => {
-      return work.issue["Start date"] !== work.updates["Start date"]  
-        || work.issue["Due date"] !== work.updates["Due date"] 
-        || work.issue["Story points"] !== work.updates["Story points"];
-    });*/
-    
-    const updates = changedWork.map( work => {
-      return jiraHelpers.editJiraIssueWithNamedFields(work.issue["Issue key"], work.updates)
+      this.dialog.innerHTML = "";
+      const updateEpics = new module.default().initialize({
+       
+      });
+      this.dialog.appendChild(updateEpics);
+      this.dialog.showModal();
+      
     })
-    this.issueUpdates = Promise.allSettled(updates);
-    this.issueUpdates.catch(e => {
-      console.log(e)
-    })
+
   }
   toggleFullscreen(event){
     event.preventDefault();
