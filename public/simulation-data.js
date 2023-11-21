@@ -51,7 +51,7 @@ class SimulationData extends StacheElement {
         <div id="{{work.work.issue["Issue key"]}}"
             on:mouseenter="this.showProbabilitySumary(scope.event)"
             on:mouseleave="this.hideProbabilityData()"
-            class="work-item cursor-pointer border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
+            class="work-item cursor-pointer {{ this.rangeBorderClasses() }} relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
             style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>
     </div>
     {{# if(this.showingData) }}
@@ -77,7 +77,7 @@ class SimulationData extends StacheElement {
         showingData: {default: false},
         startDate: Date
     };
-
+    
     get startColumns(){
         return createColumnData(this.work.startDateValues, this.lastDueDay+1, "startDate");
     }
@@ -161,19 +161,38 @@ class SimulationData extends StacheElement {
                         <p>${monthDateFormatter.format(dueDateTop90)}</p>
                     </div>
                 </div>
-                <dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid"
+                <dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid gap-2"
                     style="grid-template-columns: repeat(4, auto);">
                     <dt>Median Estimate</dt>
-                    <dd>${this.work.work.estimate}</dd>
+                    <dd class="${this.work.work.estimate === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.estimate}</dd>
                     <dt>Confidence</dt>
-                    <dd>${this.work.work.confidence}</dd>
+                    <dd class="${this.work.work.confidence === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.confidence}</dd>
+                    
+                    ${
+                        this.work.work.estimate === null || this.work.work.confidence === null ? 
+                        `
+                        <dt>Default Estimate</dt>
+                        <dd class="text-right">${this.work.work.usedEstimate}</dd>
+                        <dt>Default Confidence</dt>
+                        <dd class="text-right">${this.work.work.usedConfidence}</dd>
+                        ` :
+                        ""
+                    }
+                    
                     <dt>Median Days of Work</dt>
-                    <dd>${this.work.work.estimatedDaysOfWork}</dd>
+                    <dd class="text-right">${this.work.work.estimatedDaysOfWork}</dd>
                     <dt>Adjusted Days of Work</dt>
-                    <dd>${Math.round(this.work.dueDateTop - this.work.startDateBottom) }</dd>
+                    <dd class="text-right">${Math.round(this.work.dueDateTop - this.work.startDateBottom) }</dd>
                 </dl>
             </div>
         `)
+    }
+    rangeBorderClasses() {
+        if(this.work.work.estimate === null || this.work.work.confidence === null) {
+            return "border-solid border-2 border-yellow-500";
+        } else {
+            return "border-solid border";
+        }
     }
     plus(a, b){
         return a+b;

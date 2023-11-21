@@ -98,7 +98,7 @@ class WorkItem extends ObservableObject {
 class MonteCarlo extends StacheElement {
     static view = `
         <div class="absolute h-1 bg-orange-400 transition-opacity duration-500 {{# eq(this.simulationPercentComplete, 100) }}opacity-0{{/ eq }}" 
-            style="width: {{this.simulationPercentComplete}}%; top: -2px;"></div>
+            style="width: {{this.simulationPercentComplete}}%; top: -7px;"></div>
         <div class="grid bg-white" 
             style="grid-template-columns: [what] auto repeat({{this.gridNumberOfDays}}, 1fr); grid-template-rows: auto repeat({{this.workPlans.gridRowSpan}}, auto) auto">
             <div 
@@ -111,7 +111,7 @@ class MonteCarlo extends StacheElement {
                     
                 </svg>
             </div>
-            <div class=""
+            <div class="text-xs"
             style="grid-row: 1 / span 1; grid-column: 1 / span 1"
             >
             &nbsp; <!-- gives size to the top row -->
@@ -120,7 +120,7 @@ class MonteCarlo extends StacheElement {
             </div>
             {{# for( timeRange of this.timeRanges) }}
                 <div
-                    class="border-neutral-30 border-solid border px-1"
+                    class="border-neutral-30 border-solid border-x px-1 text-xs"
                     style="grid-row: 1 / span {{plus(this.workPlans.gridRowSpan, 2)}}; grid-column: {{plus(timeRange.startDay, 1)}} / span {{timeRange.days}}"
                     >{{timeRange.prettyStart}}</div>
             {{/ for }}
@@ -132,7 +132,7 @@ class MonteCarlo extends StacheElement {
                     class="pl-2 pt-2 pb-1 pr-1 flex"
                     style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column-start: what">
                     <div class="text-base grow font-semibold">{{workPlan.teamKey}}</div>
-                    <div><button
+                    <div class="flex flex-col justify-around"><button
                         title="Add a parallel work track for this team."
                         on:click="this.addWorkPlanForTeam(workPlan.teamKey)" 
                         class="btn-secondary-sm shrink text-xs font-mono">+</button></div>
@@ -142,14 +142,14 @@ class MonteCarlo extends StacheElement {
                     class="flex flex-row-reverse  pt-2 z-20 pr-2"
                     style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 2 / span {{this.gridNumberOfDays}}">
                     
-                    <div class="tezt-xs">
+                    <div class="text-sm">
                         Velocity: 
                         
                         <input
                             type="number"
                             value:from='this.getVelocityForTeam(workPlan.teamKey)'
                             on:change='this.updateVelocity(workPlan.teamKey, scope.element.valueAsNumber)'
-                            class="form-border w-10 tezt-xs text-center" />
+                            class="form-border w-10 text-sm text-center" />
                         </div>
                     
                 </div>
@@ -169,7 +169,7 @@ class MonteCarlo extends StacheElement {
 
                     {{# for(work of track.works) }}
                         <div 
-                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-1"
+                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2"
                             style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
                             >
                             <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
@@ -204,7 +204,7 @@ class MonteCarlo extends StacheElement {
         workPlans: type.Any,
         lastDueDay: {default: 1},
         allWorkItems: type.Any,
-        totalSimulationsToRun: {default: 1000},
+        totalSimulationsToRun: {default: 5000},
         totalSyncSimulations: {default: 50},
         simulationPercentComplete: {default: 0},
         velocities: type.Any,
@@ -214,7 +214,7 @@ class MonteCarlo extends StacheElement {
                 this.runOneSimulation(resolve);
             }
         },
-        startDate: Date
+        startDate: type.maybeConvert(Date)
     };
     get gridNumberOfDays(){
         return this.lastDueDay + 1
@@ -296,7 +296,6 @@ class MonteCarlo extends StacheElement {
 
         // runs a batch of tests
         const runBatch = (remainingSimulations, syncRuns = 50) => {
-            console.log("Running Batch", syncRuns)
             for(let i = 0; i < syncRuns; i++) {
                 this.runOneSimulation(addResults);
             }
