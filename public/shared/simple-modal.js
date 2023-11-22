@@ -1,4 +1,4 @@
-class SimpleTooltip extends HTMLElement {
+class SimpleModal extends HTMLElement {
     static get observedAttributes() { return ['for']; }
     attributeChangedCallback(name, oldValue, newValue) {
   
@@ -7,9 +7,15 @@ class SimpleTooltip extends HTMLElement {
       this.enteredElement = this.enteredElement.bind(this);
       this.leftElement = this.leftElement.bind(this);
       this.forElement = this.getAttribute("for");
-      this.style.display = "none";
-  
-      this.style.position = "absolute";
+      this.innerHTML = `<div></div>`
+      Object.extend(this.style,{
+        display: "none",
+        position: "fixed",
+        left: "20%",
+        right: "20%",
+        top: "20%",
+        bottom: "20%"
+      });
     }
     disconnectedCallback(){
       if(this._forElement) {
@@ -91,5 +97,5 @@ class SimpleTooltip extends HTMLElement {
       this.style.display = "none";
     }
   }
-  customElements.define("simple-tooltip", SimpleTooltip);
-  export default SimpleTooltip;
+  customElements.define("simple-modal", SimpleModal);
+  export default SimpleModal;

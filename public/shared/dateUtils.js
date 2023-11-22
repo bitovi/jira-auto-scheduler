@@ -1,3 +1,4 @@
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 function getQuarter(date) {
     const month = date.getMonth();
@@ -83,6 +84,35 @@ export function getEndDateFromStartDateAndBusinessDays(startDate, businessDays){
 	return curDate;
 }
 
+// 
+export function getUTCEndDateFromStartDateAndBusinessDays(startDate, businessDays){
+	const curDate = new Date(startDate.getTime());
+	const startDay = curDate.getUTCDay();
+
+	// move to Monday ...
+	if(startDay === 0 ) { // sunday
+		curDate.setUTCDate(curDate.getUTCDate() + 1 );
+	} else if(startDay === 6) { // saturday
+		curDate.setUTCDate(curDate.getUTCDate() + 2 );
+	}
+
+	const weeksToMoveForward = Math.floor(businessDays / 5);
+	const remainingDays =  businessDays % 5;
+
+	curDate.setUTCDate(curDate.getUTCDate() + weeksToMoveForward*7 + remainingDays );
+
+	const endDay = curDate.getUTCDay();
+
+	// move to Monday ...
+	if(endDay === 0 ) { // sunday
+		curDate.setUTCDate(curDate.getUTCDate() + 1 );
+	} else if(endDay === 6) { // saturday
+		curDate.setUTCDate(curDate.getUTCDate() + 2 );
+	}
+
+	return curDate;
+}
+
 export function getEndDateFromUTCStartDateAndBusinessDays(startDate, businessDays){
 	const currentDate = new Date(startDate.getTime());
 	const startingDate = startDate.getUTCDate();
@@ -110,4 +140,222 @@ export function parseDateISOString(s) {
     let ds = s.split(/\D/).map(s => parseInt(s));
     ds[1] = ds[1] - 1; // adjust month
     return new Date(...ds);
+}
+
+// ranges are [,)
+const makeDateRanges = function(startDate, endDate) {
+    const ranges = [];
+    // this should be the first day of the range
+    let cur = startDate;
+    // this is the 1st calendar day of the next range
+    
+    while(cur <= endDate) {
+        let end = this.getStartOfNextRange(cur);
+        const suggestedEndOfRange = end,
+            endOfRange = end > endDate ? endDate : suggestedEndOfRange,
+            startDay = countBusinessDays(startDate, cur), // n^2
+            endDay = countBusinessDays(startDate, endOfRange), // n^2
+            startBusinessDay = getFirstBusinessDay(cur),
+            endBusinessDay = getLastBusinessDay(endOfRange);
+
+        ranges.push({
+            start: cur,
+            startBusinessDay,
+            prettyStart: this.prettyDate(startBusinessDay),
+            end: endOfRange,
+            endBusinessDay,
+            prettyEnd: this.prettyDate(endBusinessDay),
+            type: this.name,
+            startDay,
+            endDay,
+            days:  endDay - startDay,
+            businessDays: countBusinessDays(startBusinessDay,  endBusinessDay)
+        });
+        cur = end;
+    }
+    return ranges;
+};
+
+function countBusinessDays(startDate, endDate) {
+    var count = 0;
+    var currentDate = new Date(startDate);
+
+    // Loop over each day from startDate to endDate
+    while (currentDate <= endDate) {
+        var dayOfWeek = currentDate.getUTCDay();
+
+        // Check if it's a weekday (Monday = 1, ..., Friday = 5)
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+            count++;
+        }
+
+        // Move to the next day
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+    }
+
+    return count;
+}
+
+function getNextBusinessDay(date){
+    // Create a new date object to avoid modifying the original date
+    var nextDay = new Date(date);
+
+
+    // Set time to the end of the current day
+    nextDay.setUTCHours(23, 59, 59, 999);
+
+    // Add 1 millisecond to move to the start of the next day
+    nextDay.setTime(nextDay.getTime() + 1);
+    if(nextDay.getUTCDay() === 0 || nextDay.getUTCDay() === 6) {
+        return getNextBusinessDay(nextDay)
+    }
+    return nextDay;
+}
+function getFirstBusinessDay(date){
+    if(date.getUTCDay() !== 0 && date.getUTCDay() !== 6) {
+        return date;
+    } else {
+        return getNextBusinessDay(date);
+    }
+}
+
+function getPreviousBusinessDay(date){
+    // Create a new date object to avoid modifying the original date
+    var nextDay = new Date(date);
+
+    // Set time to the end of the current day
+    nextDay.setUTCHours(0, 0, 0, 0);
+
+    // Remove 1 millisecond to move to the start of the previous next day
+    nextDay.setTime(nextDay.getTime() - 1);
+    if(nextDay.getUTCDay() === 0 || nextDay.getUTCDay() === 6) {
+        return getPreviousBusinessDay(nextDay)
+    }
+    return nextDay;
+}
+
+function getLastBusinessDay(date){
+    if(date.getUTCDay() !== 0 && date.getUTCDay() !== 6) {
+        return date;
+    } else {
+        return getPreviousBusinessDay(date);
+    }
+}
+
+const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+const ranges = [
+    {
+        name: "days",
+        aveDays: 1,
+        getStartOfNextRange: getNextBusinessDay,
+        dateRanges: makeDateRanges,
+        prettyDate(date){
+            return monthDateFormatter.format(date);
+        }
+    },
+    {
+        name: "weeks",
+        aveDays: 7,
+        getStartOfNextRange(date) {
+            // WHole: M->M
+            // Fractional: Th: Th-M
+
+            var nextMonday = new Date(date);
+
+            // Calculate how many days to add to get to the next Monday
+            // Day of the week is represented as 0 (Sunday) to 6 (Saturday)
+            var daysToAdd = (8 - nextMonday.getDay()) % 7;
+            if (daysToAdd === 0) {
+                daysToAdd = 7; // If today is Monday, move to the next Monday
+            }
+
+            // Add the required number of days
+            nextMonday.setDate(nextMonday.getDate() + daysToAdd);
+
+            return nextMonday;
+        },
+        dateRanges: makeDateRanges,
+        prettyDate(date){
+            return monthDateFormatter.format(date);
+        }
+    },
+    {
+        name: "months",
+        aveDays: 30,
+        dateRanges: makeDateRanges,
+        // dec 5 -> Jan 1st, 19 days
+        // jan 1, feb 1, 23
+        getStartOfNextRange(date){
+            var year = date.getUTCFullYear();
+            var month = date.getUTCMonth();
+        
+            month++;
+        
+            if (month > 11) {
+                month = 0;
+                year++;
+            }
+        
+            return new Date(Date.UTC(year, month, 1));
+        },
+        prettyDate(date){
+            return monthDateFormatter.format(date);
+        }
+    },
+    {
+        name: "quarters",
+        aveDays: 91,
+        dateRanges: makeDateRanges,
+        prettyDate(date){
+            return monthDateFormatter.format(date);
+        },
+        getStartOfNextRange(date){
+            return getStartOfNextQuarter(date);
+        }
+    },
+    {
+        name: "years",
+        aveDays: 365
+    }
+];
+
+export function bestFitRange(daysApart, maxBuckets) {
+    // which range is closest
+    const buckets = ranges.map( range => daysApart / range.aveDays); // 10 , 1.4, .3
+
+    const tooHighIndex = buckets.findLastIndex( bucket => (bucket >  maxBuckets));
+
+    let range
+    if(tooHighIndex === -1) {
+        range = ranges[0]
+    }
+    else if(tooHighIndex + 1 === ranges.length) {
+        range = ranges[tooHighIndex];
+    } 
+    else {
+        range = ranges[tooHighIndex + 1]
+    }
+    return range;
+}
+
+function toUTCStartOfDay(date) {
+    // Create a new date object to avoid modifying the original date
+    var utcDate = new Date(date);
+
+    // Set the time to the start of the day in UTC
+    utcDate.setUTCHours(0, 0, 0, 0);
+
+    return utcDate;
+}
+
+export function bestFitRanges(startDate, endDate, maxBuckets){
+    const startUTC = toUTCStartOfDay(startDate);
+	const endUTC = toUTCStartOfDay(endDate);
+
+    const daysApart = (endUTC - startUTC) / DAY_IN_MS;
+    
+    const range = bestFitRange(daysApart, maxBuckets)
+
+    return range.dateRanges(startUTC, endUTC);
 }

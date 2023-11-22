@@ -13,7 +13,17 @@ module.exports = {
                 500: '#0747A6',
                 400: '#0052CC', // primary color
                 300: '#0065FF', // this is what we use
+                200: '#4C9AFF',
+                // 100: '#4C9AFF',
                 75: '#B3D4FF' // highlight effect
+            },
+            green: {
+              500: '#006644',
+              400: '#00875A',
+              300: '#36B37E',
+              200: '#57D9A3',
+              // 100: '#79F2C0',
+              75:  '#ABF5D1'
             },
             red: {
               500: '#BF2600'
@@ -24,9 +34,15 @@ module.exports = {
             },
             neutral: {
                 800: '#172B4D',
-                40: '#DFE1E6',
-                30: '#EBECF0', // secondary buttton color
-                10: '#FAFBFC'
+                600: '#344563',
+                200: '#6B778C',
+                100: '#7A869A',
+                80: '#97A0AF',
+                50: '#C1C7D0',
+                40: '#DFE1E6', // secondary buttton color
+                30: '#EBECF0', 
+                20: '#F4F5F7', // stripe color
+                10: '#FAFBFC' //
             },
             orange: {
               400: '#F5532D' // Bitovi color

@@ -13,8 +13,17 @@ import "./jira-team.js";
 import "./jira-teams.js";
 import "./jira-configure-csv.js";
 import "./shared/simple-tooltip.js";
-import makeConfig from "./jira-config.js";
+import {Configure} from "./jira-config.js";
 import {getEndDateFromUTCStartDateAndBusinessDays, parseDateISOString} from "./shared/dateUtils.js";
+import "./monte-carlo.js";
+import {nativeFetchJSON} from "./jira-oidc-helpers.js";
+
+const updateEpicsPromise = new Promise((resolve, reject)=>{
+  setTimeout(function(){
+    import("./update-epics.js").then(resolve, reject);
+  },500);
+})
+
 
 
 const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the YYYY-MM-DD format
@@ -28,35 +37,70 @@ const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the
 class JiraAutoScheduler extends StacheElement {
   static view = `
     <simple-tooltip this:to='this.tooltip'></simple-tooltip>
+    {{# if(this.showSavingModal)}}
+      <dialog>
+        <update-epics
+          workItems:from="this.workItems"
+          storyPointField:from="this.config.storyPointField[0]"
+          startDateField:from="this.config.startDateField[0]"
+          dueDateField:from="this.config.dueDateField[0]"
+          startDate:from="this.startDate"
+          jiraHelpers:from="this.jiraHelpers"
+          
+          on:el:click="this.closeModalAndRefreshIssues()"
+          >
+        </update-epics>
+      </dialog>
+    {{/ }}
+    
+    {{# if(this.loginComponent.isLoggedIn) }}
 
     
-    <details class="border-neutral-800 border-solid border rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
-      <summary class="text-base p-3 bg-neutral-100 cursor-pointer rounded-lg">
-        Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.config.issueJQL}}</span></span>
-      </summary>
+      <details class=" rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
+        <summary class="text-base p-3 bg-white cursor-pointer rounded-lg">
+          Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.issueJQL}}</span></span>
+        </summary>
         <jira-configure-csv 
-          rawIssues:from="this.rawIssues" config:from="this.config"/>
+          rawIssues:from="this.rawIssues" 
+          config:from="this.config"
+          issueJQL:bind="this.issueJQL"/>
 
     </details>
+    {{ else }}
+      <div class=" rounded-lg m-2 drop-shadow-md hide-on-fullscreen bg-yellow-300 p-4">
+        The following is a sample plan. Learn more about it in the 
+          "<a class="text-blue-400" href="https://www.bitovi.com/academy/learn-agile-program-management-with-jira/estimating.html">Agile Program Management with Jira</a>" 
+          training. Click "Connect to Jira" to load your own data.
+      </div>
+    {{/ if }}
 
-    <div class=" z-10 right-0 flex rounded-t-lg border-neutral-800 border-solid border text-base p-2 gap-6 bg-white mt-2 mx-2 fullscreen-fixed-to-top fullscreen-m-0 fullscreen-round-none">
+    <div class=" z-10 right-0 flex rounded-t-lg  text-base p-2 gap-6 bg-white mt-2 mx-2 fullscreen-fixed-to-top fullscreen-m-0 fullscreen-round-none">
       {{# if( this.rawIssues ) }}
-          {{# not(this.configuringCSV) }}
-          <div class="flex grow gap-1">
-            <label class="text-base py-1">Zoom:</label>
-            <input type="range" class="grow h-8"
-              min="3" max="20"
-              value:from="this.dayWidth" on:input:value:to="this.dayWidth"/>
-          </div>
-
-          <div class="flex grow gap-1">
-            <label class="text-base py-1">Likelihood ({{this.uncertaintyWeight}}%):</label>
-            <input 
-              class="grow h-8"
-              type="range"
-              min="50" max="90"
-              step="5"
-              value:from="this.uncertaintyWeight" on:input:value:to="this.uncertaintyWeight"/>
+          <div class="flex grow gap-2">
+            <label class="text-base py-1">Probability Thresholds:</label>
+            <div class="grow relative -top-1">
+              <input 
+                class="w-full"
+                type="range"
+                min="50" max="90" step="5"
+                value:from="this.dateThresholds" 
+                on:input:value:to="this.dateThresholds"
+                list="range-values"/>
+                <datalist id="range-values" w="1206px" l="-59px"
+                  style="width: calc( (100% - 15px) * 10.115/9); left: calc(7.5px -  (100% - 15px) * 10.115/9/18 ); grid-template-columns: repeat(9, 1fr); grid-template-rows: auto;"
+                  class="grid absolute top-6">
+                  <option value="50" class="text-center text-xs relative left-3">Median</option>
+                  <option value="55" class="text-center text-xs">Average</option>
+                  <option value="60" class="text-center text-xs">60%</option>
+                  <option value="65" class="text-center text-xs">65%</option>
+                  <option value="70" class="text-center text-xs">70%</option>
+                  <option value="75" class="text-center text-xs">75%</option>
+                  <option value="80" class="text-center text-xs">80%</option>
+                  <option value="85" class="text-center text-xs">85%</option>
+                  <option value="90" class="text-center text-xs">90%</option>
+                </datalist>
+            </div>
+            
               
           </div>
 
@@ -66,79 +110,93 @@ class JiraAutoScheduler extends StacheElement {
               class="form-border font-mono px-1 py-0 text-sm h-8"
               valueAsDate:bind="this.startDate"/>
           </div>
-          <div>
-            {{# if(this.issueUpdates.isPending) }}
-              <button disabled>Saving ...</button>
-            {{/ if }}
-            {{# or(this.issueUpdates.isResolved, not(this.issueUpdates)) }}
+          {{# if(this.loginComponent.isLoggedIn) }}
+            <div>
               <button class="btn-primary"
-                on:click="this.saveDates(scope.event)" disabled:from="not(this.startDate)">Update Epic Dates</button>
-            {{/ if }}
-            {{# if(this.issueUpdates.isRejected) }}
-              ERROR! Check Logs!
-            {{/ if }}
-          </div>
-          {{/ not }}
-          <div>
-            <button on:click="this.toggleFullscreen(scope.event)" title="Show Full Screen">
-              {{# if(this.showingFullscreen) }}
-                <img src="./images/arrows-pointing-in.svg" width="32px" height="32px"/>
-              {{ else }}
-                <img src="./images/arrows-pointing-out.svg" width="32px" height="32px"/>
-              {{/ if }}
-            </button>
-          </div>
+                on:click="this.showSavingModal = true" disabled:from="not(this.startDate)">Update Epic Dates</button>
+            </div>
+          {{/ if }}
       {{ else }}
-        <div>Loading issues</div>
+        <div class="font-lg bg-yellow-500">Loading issues</div>
       {{/ if }}
     </div>
       
-    <main class="mx-2 border-neutral-800 border-solid border drop-shadow-md border-t-0 fullscreen-pt-14 fullscreen-m-0">
+    <div class="fullscreen-pt-14 fullscreen-m-0 bg-white pt-1 mx-2">
+      {{# and(this.rawIssuesPromise.isResolved, this.startDate) }}
+        <monte-carlo class="block relative"
+          configuration:from="this.configuration"
+          getVelocityForTeam:from="this.getVelocityForTeam"
+          updateVelocity:from="this.updateVelocity"
+          rawIssues:from="this.rawIssues"
+          getParallelWorkLimit:from="this.getParallelWorkLimit"
+          velocities:from="this.velocities"
+          addWorkPlanForTeam:from="this.addWorkPlanForTeam"
+          removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
+          startDate:from="this.startDate"
+          uncertaintyWeight:from="this.uncertaintyWeight"
 
-
-
-      <jira-teams
-        class="bg-white"
-        teams:from="this.teams"
-        dayWidth:from="this.dayWidth"
-        tooltip:from="this.tooltip"
-        getVelocityForTeam:from="this.getVelocityForTeam"
-        updateVelocity:from="this.updateVelocity"
-        startDate:from="this.startDate"
-        addWorkPlanForTeam:from="this.addWorkPlanForTeam"
-        removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
-        ></jira-teams>
-
-    </main>
-    <div class="p-2 hide-on-fullscreen">
-      <ul class="key">
-        <li><span class="text-white">Key:</span></li>
-        <li><span class="chip chip--blocking">Blocking</span></li>
-        <li><span class="chip chip--current">Current item</span></li>
-        <li><span class="chip chip--blocked">Blocked by</span></li>
-      </ul>
+          allWorkItems:to="this.workItems"
+          ></monte-carlo>
+      {{/ and }}
+      {{# if(this.rawIssuesPromise.isRejected) }}
+        <div class="text-lg bg-yellow-500 p-4">
+          <p>There was an error loading from Jira!</p>
+          <p>Error message: {{this.rawIssuesPromise.reason.errorMessages[0]}}</p>
+          <p>Please check your JQL is correct!</p>
+        </div>
+      {{/ }}
+      {{# if(this.rawIssuesPromise.isPending) }}
+        <div class="p-4 text-lg text-center">
+          <svg class="animate-spin -ml-0.5 -mt-0.5 mr-1 h-e w-4 text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg> Loading Issues
+        </div>
+        
+      {{/ }}
     </div>
   `;
   static props = {
+    showSavingModal: false,
     showingFullscreen: {type: Boolean, default: false},
     jiraHelpers: {type: type.Any},
     issueUpdates: {type: type.Any},
-    dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
-    uncertaintyWeight: saveJSONToUrl("weight",90,type.maybeConvert(Number)),
-		startDate: saveJSONToUrl("startDate",null,type.maybeConvert(Date)),
+    // dayWidth: saveJSONToUrl("dayWidth",5,type.maybeConvert(Number)),
+    get uncertaintyWeight(){
+      const dateThreshold = this.dateThresholds;
+      if(dateThreshold == 55) {
+        return "average";
+      } else {
+        return dateThreshold;
+      }
+    },
+    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
+    dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
+		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
     //rawIssues: type.Any,
-    workByTeam: type.Any,
+    workItems: type.Any,
     tooltip: HTMLElement,
-    configuringCSV: {Type: Boolean, value: false},
+    dialog: HTMLElement,
+    loginComponent: HTMLElement,
     get configPromise(){
-      return makeConfig(this.jiraHelpers)
+      let fieldsPromise;
+      if(this.issueJQL === "promotions example" || this.loginComponent.isLoggedIn === false) {
+        fieldsPromise =  nativeFetchJSON("./examples/default-fields.json");
+      } else {
+        fieldsPromise =  jiraHelpers.fieldsRequest;
+      }
+      
+      return fieldsPromise.then((fields)=>{
+        return new Configure({fields})
+      })
     },
     config: {
       async(resolve) {
         this.configPromise.then(resolve);
       }
     },
+    
     velocities: {
       get default(){
         return new ObservableObject(
@@ -146,40 +204,55 @@ class JiraAutoScheduler extends StacheElement {
         );
       }
     },
-		rawIssues: {
-			async() {
-        if(!this.config) {
-          return Promise.resolve([]);
-        }
+    get rawIssuesPromise(){
+      if(!this.config) {
+        return Promise.resolve([]);
+      }
 
-				const serverInfoPromise = this.jiraHelpers.getServerInfo();
+      // do this for side-effects
+      this.hackToRefreshIssues;
 
-		    const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
-		        jql: this.config.issueJQL,//this.jql,
-		        fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
-		    });
+      if(this.login === "promotions example" || this.loginComponent.isLoggedIn === false) {
+        return nativeFetchJSON("./examples/promotions.json");
+      } else {
+        const serverInfoPromise = this.jiraHelpers.getServerInfo();
 
-		    return Promise.all([
-		        issuesPromise, serverInfoPromise
-		    ]).then(([issues, serverInfo]) => {
-						const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
-						return raw;
-		    }).catch(function(){
-          return [];
+        const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
+            jql: this.issueJQL,//this.jql,
+            fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
+        });
+
+        return Promise.all([
+            issuesPromise, serverInfoPromise
+        ]).then(([issues, serverInfo]) => {
+            const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+            return raw;
         })
+      }
+      
+    },
+		rawIssues: {
+			async(resolve) {
+        if(!this.rawIssuesPromise) {
+          resolve(null)
+        } else {
+          this.rawIssuesPromise.then(resolve);
+        }
 			}
 		},
+    // raw issues should derive from events, will change later!
+    hackToRefreshIssues: type.Any,
     get velocitiesJSON(){
       return this.velocities.serialize();
     },
-
+    /*
     get teams(){
       const workByTeams = this.workByTeam;
       return Object.keys(this.workByTeam || {}).map( (key)=> {
         return workByTeams[key];
       })
     },
-
+    */
 		get configuration(){
       if(!this.config) {
         return;
@@ -197,68 +270,11 @@ class JiraAutoScheduler extends StacheElement {
   // hooks
   async connected() {
 
-    //const results = await getCSVResultsFromUrl("./tb-r2a.csv");
-    //this.scheduleCSV(results);
 
-    // reschedule when confidence changes
-    this.listenTo("uncertaintyWeight", ()=> {
-      this.scheduleIssues();
-    })
-    this.listenTo("configuration", ()=> {
-      this.scheduleIssues();
-    });
-		this.listenTo("rawIssues", ()=> {
-      this.scheduleIssues();
-    });
-
-		this.listenTo("workLimit", ()=> {
-      this.scheduleIssues();
-    });
-
-    this.listenTo("velocitiesJSON", ({value}) => {
-      localStorage.setItem("team-velocities", JSON.stringify(value) );
-      this.scheduleIssues();
-    });
-
-    // redraw lines when zoom changes
-    //this.listenTo("dayWidth", ()=> {
-    //  this.querySelector(".team-table").style.backgroundSize = this.dayWidth + "px";
-    //})
-
-
-
-
-		// temp
-
-
-
-		//this.jiraHelpers
   }
-  scheduleIssues() {
-    if(!this.configuration || !this.rawIssues.length) {
-      return;
-    }
-    this.workByTeam = null;
-    scheduleIssues(this.rawIssues, {
-      uncertaintyWeight: this.uncertaintyWeight,
-      onPlannedIssues: (workByTeam) => {
-        this.workByTeam = workByTeam;
-      },
-      getVelocity: this.getVelocityForTeam.bind(this),
-      onIgnoredIssues: function(ignored, reason){
-        console.log(ignored, reason);
-      },
-      // Overwrite for EB
-      getEstimate: this.configuration.getEstimate,
-      getTeamKey: this.configuration.getTeamKey,
-      getParentKey: this.configuration.getParentKey,
-			getConfidence: this.configuration.getConfidence,
-			getParallelWorkLimit: this.getParallelWorkLimit.bind(this)
-    })
-  }
-  configureCSV(event){
-    event.preventDefault();
-    this.configuringCSV = !this.configuringCSV;
+  closeModalAndRefreshIssues(){
+    this.showSavingModal = false;
+    this.hackToRefreshIssues = {};
   }
   getVelocityForTeam(teamKey) {
     return this.velocities[teamKey] || 21;
@@ -296,44 +312,21 @@ class JiraAutoScheduler extends StacheElement {
       return {storyPoints , startDate, dueDate};
     }
   }
-  saveDates(event){
+  startSaveDates(event){
     // we can calculate how much changed work there is and show the button then ...
     event.preventDefault();
-    console.log(this.workByTeam, this.config.storyPointField, this.config.startDateField, this.config.dueDateField );
     
-    const updateFields = this.updateFields;
-    if(!updateFields) {
-      this.issueUpdates = Promise.reject({message: "Missing an output field. Check your configuration"});
-      return;
-    }
-    
-    const allWork = Object.values(this.workByTeam)
-      .map( team => team.workPlans.plans ).flat()
-      .map( plans => plans.work ).flat()
-      .map( work => {
-        return {
-          ...work,
-          updates: {
-            [updateFields.startDate]: jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay) ),
-            [updateFields.dueDate]: jiraDataFormatter.format( getEndDateFromUTCStartDateAndBusinessDays(this.startDate, work.startDay+work.daysOfWork) ),
-            [updateFields.storyPoints]: Math.round( work.estimate + work.extraPoints )
-          }
-        };
-      });
+    updateEpicsPromise.then((module)=>{
 
-    const changedWork = allWork/*.filter((work) => {
-      return work.issue["Start date"] !== work.updates["Start date"]  
-        || work.issue["Due date"] !== work.updates["Due date"] 
-        || work.issue["Story points"] !== work.updates["Story points"];
-    });*/
-    
-    const updates = changedWork.map( work => {
-      return jiraHelpers.editJiraIssueWithNamedFields(work.issue["Issue key"], work.updates)
+      this.dialog.innerHTML = "";
+      const updateEpics = new module.default().initialize({
+       
+      });
+      this.dialog.appendChild(updateEpics);
+      this.dialog.showModal();
+      
     })
-    this.issueUpdates = Promise.allSettled(updates);
-    this.issueUpdates.catch(e => {
-      console.log(e)
-    })
+
   }
   toggleFullscreen(event){
     event.preventDefault();
@@ -350,7 +343,16 @@ customElements.define("jira-auto-scheduler", JiraAutoScheduler);
 
 const DEFAULT_VELOCITY = 21;
 
+function nowUTC(){
+  let now = new Date();
 
+  let year = now.getUTCFullYear();
+  let month = now.getUTCMonth();
+  let day = now.getUTCDate();
+
+  // Create a new Date object using UTC components
+  return new Date(Date.UTC(year, month, day));
+}
 
 
 

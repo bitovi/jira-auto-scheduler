@@ -39,7 +39,7 @@ function makeLogicAndFunctionDefinitionSaveToUrl(key, defaultValue){
 }
 
 
-class Configure extends ObservableObject {
+export class Configure extends ObservableObject {
   static props = {
 		fields: {type: type.Any},
     get sortedFieldNames(){
@@ -105,7 +105,7 @@ class Configure extends ObservableObject {
       },
       type.Any),
 
-    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
+    // we need to know this right away
     get issueFields(){
       return ["Summary", "Issue Type","status","Linked Issues", 
         this.startDateField, this.dueDateField,
@@ -144,11 +144,6 @@ class Configure extends ObservableObject {
 
 
 
-export default (jiraHelpers) => {
-  return jiraHelpers.fieldsRequest.then((fields)=>{
-    return new Configure({fields})
-  })
-};
 /*
 {
       "or": [

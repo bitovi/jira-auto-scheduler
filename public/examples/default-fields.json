@@ -1,0 +1,1592 @@
+{
+    "list": [
+        {
+            "id": "customfield_10009",
+            "key": "customfield_10009",
+            "name": "Actual end",
+            "untranslatedName": "Actual end",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "Actual end",
+                "Actual end[Time stamp]",
+                "cf[10009]"
+            ],
+            "schema": {
+                "type": "datetime",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:datetime",
+                "customId": 10009
+            }
+        },
+        {
+            "id": "customfield_10008",
+            "key": "customfield_10008",
+            "name": "Actual start",
+            "untranslatedName": "Actual start",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "Actual start",
+                "Actual start[Time stamp]",
+                "cf[10008]"
+            ],
+            "schema": {
+                "type": "datetime",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:datetime",
+                "customId": 10008
+            }
+        },
+        {
+            "id": "versions",
+            "key": "versions",
+            "name": "Affects versions",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "affectedVersion"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "version",
+                "system": "versions"
+            }
+        },
+        {
+            "id": "customfield_10003",
+            "key": "customfield_10003",
+            "name": "Approvers",
+            "untranslatedName": "Approvers",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "Approvers",
+                "Approvers[User Picker (multiple users)]",
+                "cf[10003]"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "user",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker",
+                "customId": 10003
+            }
+        },
+        {
+            "id": "assignee",
+            "key": "assignee",
+            "name": "Assignee",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "assignee"
+            ],
+            "schema": {
+                "type": "user",
+                "system": "assignee"
+            }
+        },
+        {
+            "id": "attachment",
+            "key": "attachment",
+            "name": "Attachment",
+            "custom": false,
+            "orderable": true,
+            "navigable": false,
+            "searchable": true,
+            "clauseNames": [
+                "attachments"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "attachment",
+                "system": "attachment"
+            }
+        },
+        {
+            "id": "customfield_10033",
+            "key": "customfield_10033",
+            "name": "Category",
+            "untranslatedName": "Category",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "Category[Category]",
+                "cf[10033]"
+            ],
+            "schema": {
+                "type": "option",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:jwm-category",
+                "customId": 10033
+            }
+        },
+        {
+            "id": "customfield_10007",
+            "key": "customfield_10007",
+            "name": "Change reason",
+            "untranslatedName": "Change reason",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10007]",
+                "Change reason",
+                "Change reason[Dropdown]"
+            ],
+            "schema": {
+                "type": "option",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:select",
+                "customId": 10007
+            }
+        },
+        {
+            "id": "customfield_10006",
+            "key": "customfield_10006",
+            "name": "Change risk",
+            "untranslatedName": "Change risk",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10006]",
+                "Change risk",
+                "Change risk[Dropdown]"
+            ],
+            "schema": {
+                "type": "option",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:select",
+                "customId": 10006
+            }
+        },
+        {
+            "id": "customfield_10005",
+            "key": "customfield_10005",
+            "name": "Change type",
+            "untranslatedName": "Change type",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10005]",
+                "Change type",
+                "Change type[Dropdown]"
+            ],
+            "schema": {
+                "type": "option",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:select",
+                "customId": 10005
+            }
+        },
+        {
+            "id": "comment",
+            "key": "comment",
+            "name": "Comment",
+            "custom": false,
+            "orderable": true,
+            "navigable": false,
+            "searchable": true,
+            "clauseNames": [
+                "comment"
+            ],
+            "schema": {
+                "type": "comments-page",
+                "system": "comment"
+            }
+        },
+        {
+            "id": "customfield_10026",
+            "key": "61de211f-8732-44ee-ace2-490fbca80575__PRODUCTION__compass-jira-integration-custom-field",
+            "name": "Compass",
+            "untranslatedName": "Compass",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10026]",
+                "Compass"
+            ],
+            "schema": {
+                "type": "string",
+                "custom": "ari:cloud:ecosystem::extension/61de211f-8732-44ee-ace2-490fbca80575/b77371bd-a301-42b5-bc21-691f2b6dd5c7/static/compass-jira-integration-custom-field",
+                "customId": 10026,
+                "configuration": {
+                    "customRenderer": true,
+                    "readOnly": false,
+                    "environment": "PRODUCTION"
+                }
+            }
+        },
+        {
+            "id": "components",
+            "key": "components",
+            "name": "Components",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "component"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "component",
+                "system": "components"
+            }
+        },
+        {
+            "id": "created",
+            "key": "created",
+            "name": "Created",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "created",
+                "createdDate"
+            ],
+            "schema": {
+                "type": "datetime",
+                "system": "created"
+            }
+        },
+        {
+            "id": "creator",
+            "key": "creator",
+            "name": "Creator",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "creator"
+            ],
+            "schema": {
+                "type": "user",
+                "system": "creator"
+            }
+        },
+        {
+            "id": "description",
+            "key": "description",
+            "name": "Description",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "description"
+            ],
+            "schema": {
+                "type": "string",
+                "system": "description"
+            }
+        },
+        {
+            "id": "customfield_10000",
+            "key": "customfield_10000",
+            "name": "Development",
+            "untranslatedName": "development",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10000]",
+                "development"
+            ],
+            "schema": {
+                "type": "any",
+                "custom": "com.atlassian.jira.plugins.jira-development-integration-plugin:devsummarycf",
+                "customId": 10000
+            }
+        },
+        {
+            "id": "duedate",
+            "key": "duedate",
+            "name": "Due date",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "due",
+                "duedate"
+            ],
+            "schema": {
+                "type": "date",
+                "system": "duedate"
+            }
+        },
+        {
+            "id": "environment",
+            "key": "environment",
+            "name": "Environment",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "environment"
+            ],
+            "schema": {
+                "type": "string",
+                "system": "environment"
+            }
+        },
+        {
+            "id": "customfield_10013",
+            "key": "customfield_10013",
+            "name": "Epic Color",
+            "untranslatedName": "Epic Color",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10013]",
+                "Epic Color"
+            ],
+            "schema": {
+                "type": "string",
+                "custom": "com.pyxis.greenhopper.jira:gh-epic-color",
+                "customId": 10013
+            }
+        },
+        {
+            "id": "customfield_10014",
+            "key": "customfield_10014",
+            "name": "Epic Link",
+            "untranslatedName": "Epic Link",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10014]",
+                "Epic Link"
+            ],
+            "schema": {
+                "type": "any",
+                "custom": "com.pyxis.greenhopper.jira:gh-epic-link",
+                "customId": 10014
+            }
+        },
+        {
+            "id": "customfield_10011",
+            "key": "customfield_10011",
+            "name": "Epic Name",
+            "untranslatedName": "Epic Name",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10011]",
+                "Epic Name"
+            ],
+            "schema": {
+                "type": "string",
+                "custom": "com.pyxis.greenhopper.jira:gh-epic-label",
+                "customId": 10011
+            }
+        },
+        {
+            "id": "customfield_10012",
+            "key": "customfield_10012",
+            "name": "Epic Status",
+            "untranslatedName": "Epic Status",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10012]",
+                "Epic Status"
+            ],
+            "schema": {
+                "type": "option",
+                "custom": "com.pyxis.greenhopper.jira:gh-epic-status",
+                "customId": 10012
+            }
+        },
+        {
+            "id": "fixVersions",
+            "key": "fixVersions",
+            "name": "Fix versions",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "fixVersion"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "version",
+                "system": "fixVersions"
+            }
+        },
+        {
+            "id": "customfield_10021",
+            "key": "customfield_10021",
+            "name": "Flagged",
+            "untranslatedName": "Flagged",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10021]",
+                "Flagged",
+                "Flagged[Checkboxes]"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "option",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes",
+                "customId": 10021
+            }
+        },
+        {
+            "id": "thumbnail",
+            "key": "thumbnail",
+            "name": "Images",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": []
+        },
+        {
+            "id": "customfield_10004",
+            "key": "customfield_10004",
+            "name": "Impact",
+            "untranslatedName": "Impact",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10004]",
+                "Impact",
+                "Impact[Dropdown]"
+            ],
+            "schema": {
+                "type": "option",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:select",
+                "customId": 10004
+            }
+        },
+        {
+            "id": "issuetype",
+            "key": "issuetype",
+            "name": "Issue Type",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "issuetype",
+                "type"
+            ],
+            "schema": {
+                "type": "issuetype",
+                "system": "issuetype"
+            }
+        },
+        {
+            "id": "customfield_10017",
+            "key": "customfield_10017",
+            "name": "Issue color",
+            "untranslatedName": "Issue color",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10017]",
+                "Issue color"
+            ],
+            "schema": {
+                "type": "string",
+                "custom": "com.pyxis.greenhopper.jira:jsw-issue-color",
+                "customId": 10017
+            }
+        },
+        {
+            "id": "issuekey",
+            "key": "issuekey",
+            "name": "Key",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "id",
+                "issue",
+                "issuekey",
+                "key"
+            ]
+        },
+        {
+            "id": "labels",
+            "key": "labels",
+            "name": "Labels",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "labels"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "string",
+                "system": "labels"
+            }
+        },
+        {
+            "id": "lastViewed",
+            "key": "lastViewed",
+            "name": "Last Viewed",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "lastViewed"
+            ],
+            "schema": {
+                "type": "datetime",
+                "system": "lastViewed"
+            }
+        },
+        {
+            "id": "issuelinks",
+            "key": "issuelinks",
+            "name": "Linked Issues",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "issueLink"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "issuelinks",
+                "system": "issuelinks"
+            }
+        },
+        {
+            "id": "customfield_10027",
+            "key": "customfield_10027",
+            "name": "Locked forms",
+            "untranslatedName": "Locked forms",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10027]",
+                "Locked forms"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugins.proforma-managed-fields:forms-locked-field-cftype",
+                "customId": 10027
+            }
+        },
+        {
+            "id": "worklog",
+            "key": "worklog",
+            "name": "Log Work",
+            "custom": false,
+            "orderable": true,
+            "navigable": false,
+            "searchable": true,
+            "clauseNames": [],
+            "schema": {
+                "type": "array",
+                "items": "worklog",
+                "system": "worklog"
+            }
+        },
+        {
+            "id": "customfield_10028",
+            "key": "customfield_10028",
+            "name": "Open forms",
+            "untranslatedName": "Open forms",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10028]",
+                "Open forms"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugins.proforma-managed-fields:forms-open-field-cftype",
+                "customId": 10028
+            }
+        },
+        {
+            "id": "customfield_10002",
+            "key": "customfield_10002",
+            "name": "Organizations",
+            "untranslatedName": "Organizations",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10002]",
+                "Organizations"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "sd-customerorganization",
+                "custom": "com.atlassian.servicedesk:sd-customer-organizations",
+                "customId": 10002
+            }
+        },
+        {
+            "id": "timeoriginalestimate",
+            "key": "timeoriginalestimate",
+            "name": "Original estimate",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "originalEstimate",
+                "timeoriginalestimate"
+            ],
+            "schema": {
+                "type": "number",
+                "system": "timeoriginalestimate"
+            }
+        },
+        {
+            "id": "parent",
+            "key": "parent",
+            "name": "Parent",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "parent"
+            ]
+        },
+        {
+            "id": "customfield_10018",
+            "key": "customfield_10018",
+            "name": "Parent Link",
+            "untranslatedName": "Parent Link",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10018]",
+                "Parent Link"
+            ],
+            "schema": {
+                "type": "any",
+                "custom": "com.atlassian.jpo:jpo-custom-field-parent",
+                "customId": 10018
+            }
+        },
+        {
+            "id": "priority",
+            "key": "priority",
+            "name": "Priority",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "priority"
+            ],
+            "schema": {
+                "type": "priority",
+                "system": "priority"
+            }
+        },
+        {
+            "id": "progress",
+            "key": "progress",
+            "name": "Progress",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "progress"
+            ],
+            "schema": {
+                "type": "progress",
+                "system": "progress"
+            }
+        },
+        {
+            "id": "project",
+            "key": "project",
+            "name": "Project",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "project"
+            ],
+            "schema": {
+                "type": "project",
+                "system": "project"
+            }
+        },
+        {
+            "id": "customfield_10019",
+            "key": "customfield_10019",
+            "name": "Rank",
+            "untranslatedName": "Rank",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10019]",
+                "Rank"
+            ],
+            "schema": {
+                "type": "any",
+                "custom": "com.pyxis.greenhopper.jira:gh-lexo-rank",
+                "customId": 10019
+            }
+        },
+        {
+            "id": "timeestimate",
+            "key": "timeestimate",
+            "name": "Remaining Estimate",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "remainingEstimate",
+                "timeestimate"
+            ],
+            "schema": {
+                "type": "number",
+                "system": "timeestimate"
+            }
+        },
+        {
+            "id": "reporter",
+            "key": "reporter",
+            "name": "Reporter",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "reporter"
+            ],
+            "schema": {
+                "type": "user",
+                "system": "reporter"
+            }
+        },
+        {
+            "id": "customfield_10010",
+            "key": "customfield_10010",
+            "name": "Request Type",
+            "untranslatedName": "Request Type",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10010]",
+                "Request Type"
+            ],
+            "schema": {
+                "type": "sd-customerrequesttype",
+                "custom": "com.atlassian.servicedesk:vp-origin",
+                "customId": 10010
+            }
+        },
+        {
+            "id": "resolution",
+            "key": "resolution",
+            "name": "Resolution",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "resolution"
+            ],
+            "schema": {
+                "type": "resolution",
+                "system": "resolution"
+            }
+        },
+        {
+            "id": "resolutiondate",
+            "key": "resolutiondate",
+            "name": "Resolved",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "resolutiondate",
+                "resolved"
+            ],
+            "schema": {
+                "type": "datetime",
+                "system": "resolutiondate"
+            }
+        },
+        {
+            "id": "issuerestriction",
+            "key": "issuerestriction",
+            "name": "Restrict to",
+            "custom": false,
+            "orderable": true,
+            "navigable": false,
+            "searchable": true,
+            "clauseNames": [],
+            "schema": {
+                "type": "issuerestriction",
+                "system": "issuerestriction"
+            }
+        },
+        {
+            "id": "security",
+            "key": "security",
+            "name": "Security Level",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "level"
+            ],
+            "schema": {
+                "type": "securitylevel",
+                "system": "security"
+            }
+        },
+        {
+            "id": "customfield_10020",
+            "key": "customfield_10020",
+            "name": "Sprint",
+            "untranslatedName": "Sprint",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10020]",
+                "Sprint"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "json",
+                "custom": "com.pyxis.greenhopper.jira:gh-sprint",
+                "customId": 10020
+            }
+        },
+        {
+            "id": "customfield_10015",
+            "key": "customfield_10015",
+            "name": "Start date",
+            "untranslatedName": "Start date",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10015]",
+                "Start date",
+                "Start date[Date]"
+            ],
+            "schema": {
+                "type": "date",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:datepicker",
+                "customId": 10015
+            }
+        },
+        {
+            "id": "status",
+            "key": "status",
+            "name": "Status",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "status"
+            ],
+            "schema": {
+                "type": "status",
+                "system": "status"
+            }
+        },
+        {
+            "id": "statusCategory",
+            "key": "statusCategory",
+            "name": "Status Category",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "statusCategory"
+            ]
+        },
+        {
+            "id": "statuscategorychangedate",
+            "key": "statuscategorychangedate",
+            "name": "Status Category Changed",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "statusCategoryChangedDate"
+            ],
+            "schema": {
+                "type": "datetime",
+                "system": "statuscategorychangedate"
+            }
+        },
+        {
+            "id": "customfield_10016",
+            "key": "customfield_10016",
+            "name": "Story point estimate",
+            "untranslatedName": "Story point estimate",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10016]",
+                "Story point estimate"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.pyxis.greenhopper.jira:jsw-story-points",
+                "customId": 10016
+            }
+        },
+        {
+            "id": "customfield_10034",
+            "key": "customfield_10034",
+            "name": "Story points",
+            "untranslatedName": "Story points",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10034]",
+                "Story points",
+                "Story points[Number]"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+                "customId": 10034
+            }
+        },
+        {
+            "id": "customfield_10069",
+            "key": "customfield_10069",
+            "name": "Story points confidence",
+            "untranslatedName": "Story points confidence",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10069]",
+                "Story points confidence",
+                "Story points confidence[Number]"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+                "customId": 10069
+            }
+        },
+        {
+            "id": "customfield_10070",
+            "key": "customfield_10070",
+            "name": "Story points median",
+            "untranslatedName": "Story points median",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10070]",
+                "Story points median",
+                "Story points median[Number]"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+                "customId": 10070
+            }
+        },
+        {
+            "id": "subtasks",
+            "key": "subtasks",
+            "name": "Sub-tasks",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "subtasks"
+            ],
+            "schema": {
+                "type": "array",
+                "items": "issuelinks",
+                "system": "subtasks"
+            }
+        },
+        {
+            "id": "customfield_10029",
+            "key": "customfield_10029",
+            "name": "Submitted forms",
+            "untranslatedName": "Submitted forms",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10029]",
+                "Submitted forms"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugins.proforma-managed-fields:forms-submitted-field-cftype",
+                "customId": 10029
+            }
+        },
+        {
+            "id": "summary",
+            "key": "summary",
+            "name": "Summary",
+            "custom": false,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "summary"
+            ],
+            "schema": {
+                "type": "string",
+                "system": "summary"
+            }
+        },
+        {
+            "id": "customfield_10023",
+            "key": "customfield_10023",
+            "name": "Target end",
+            "untranslatedName": "Target end",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10023]",
+                "Target end"
+            ],
+            "schema": {
+                "type": "date",
+                "custom": "com.atlassian.jpo:jpo-custom-field-baseline-end",
+                "customId": 10023
+            }
+        },
+        {
+            "id": "customfield_10022",
+            "key": "customfield_10022",
+            "name": "Target start",
+            "untranslatedName": "Target start",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10022]",
+                "Target start"
+            ],
+            "schema": {
+                "type": "date",
+                "custom": "com.atlassian.jpo:jpo-custom-field-baseline-start",
+                "customId": 10022
+            }
+        },
+        {
+            "id": "customfield_10001",
+            "key": "customfield_10001",
+            "name": "Team",
+            "untranslatedName": "Team",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10001]",
+                "Team",
+                "Team[Team]"
+            ],
+            "schema": {
+                "type": "any",
+                "custom": "com.atlassian.teams:rm-teams-custom-field-team",
+                "customId": 10001,
+                "configuration": {
+                    "com.atlassian.jira.plugin.system.customfieldtypes:atlassian-team": true
+                }
+            }
+        },
+        {
+            "id": "timespent",
+            "key": "timespent",
+            "name": "Time Spent",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "timespent"
+            ],
+            "schema": {
+                "type": "number",
+                "system": "timespent"
+            }
+        },
+        {
+            "id": "timetracking",
+            "key": "timetracking",
+            "name": "Time tracking",
+            "custom": false,
+            "orderable": true,
+            "navigable": false,
+            "searchable": true,
+            "clauseNames": [],
+            "schema": {
+                "type": "timetracking",
+                "system": "timetracking"
+            }
+        },
+        {
+            "id": "customfield_10030",
+            "key": "customfield_10030",
+            "name": "Total forms",
+            "untranslatedName": "Total forms",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10030]",
+                "Total forms"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugins.proforma-managed-fields:forms-total-field-cftype",
+                "customId": 10030
+            }
+        },
+        {
+            "id": "updated",
+            "key": "updated",
+            "name": "Updated",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "updated",
+                "updatedDate"
+            ],
+            "schema": {
+                "type": "datetime",
+                "system": "updated"
+            }
+        },
+        {
+            "id": "customfield_10068",
+            "key": "customfield_10068",
+            "name": "Value",
+            "untranslatedName": "Value",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10068]",
+                "Value",
+                "Value[Number]"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+                "customId": 10068
+            }
+        },
+        {
+            "id": "customfield_10067",
+            "key": "customfield_10067",
+            "name": "Value Confidence",
+            "untranslatedName": "Value Confidence",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "cf[10067]",
+                "Value Confidence",
+                "Value Confidence[Number]"
+            ],
+            "schema": {
+                "type": "number",
+                "custom": "com.atlassian.jira.plugin.system.customfieldtypes:float",
+                "customId": 10067
+            }
+        },
+        {
+            "id": "votes",
+            "key": "votes",
+            "name": "Votes",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "votes"
+            ],
+            "schema": {
+                "type": "votes",
+                "system": "votes"
+            }
+        },
+        {
+            "id": "watches",
+            "key": "watches",
+            "name": "Watchers",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [
+                "watchers"
+            ],
+            "schema": {
+                "type": "watches",
+                "system": "watches"
+            }
+        },
+        {
+            "id": "workratio",
+            "key": "workratio",
+            "name": "Work Ratio",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "workratio"
+            ],
+            "schema": {
+                "type": "number",
+                "system": "workratio"
+            }
+        },
+        {
+            "id": "customfield_10024",
+            "key": "customfield_10024",
+            "name": "[CHART] Date of First Response",
+            "untranslatedName": "[CHART] Date of First Response",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "[CHART] Date of First Response",
+                "[CHART] Date of First Response[Date of first response]",
+                "cf[10024]"
+            ],
+            "schema": {
+                "type": "datetime",
+                "custom": "com.atlassian.jira.ext.charting:firstresponsedate",
+                "customId": 10024
+            }
+        },
+        {
+            "id": "customfield_10025",
+            "key": "customfield_10025",
+            "name": "[CHART] Time in Status",
+            "untranslatedName": "[CHART] Time in Status",
+            "custom": true,
+            "orderable": true,
+            "navigable": true,
+            "searchable": true,
+            "clauseNames": [
+                "[CHART] Time in Status",
+                "[CHART] Time in Status[Time in Status]",
+                "cf[10025]"
+            ],
+            "schema": {
+                "type": "any",
+                "custom": "com.atlassian.jira.ext.charting:timeinstatus",
+                "customId": 10025
+            }
+        },
+        {
+            "id": "aggregatetimeoriginalestimate",
+            "key": "aggregatetimeoriginalestimate",
+            "name": "Σ Original Estimate",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [],
+            "schema": {
+                "type": "number",
+                "system": "aggregatetimeoriginalestimate"
+            }
+        },
+        {
+            "id": "aggregateprogress",
+            "key": "aggregateprogress",
+            "name": "Σ Progress",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [],
+            "schema": {
+                "type": "progress",
+                "system": "aggregateprogress"
+            }
+        },
+        {
+            "id": "aggregatetimeestimate",
+            "key": "aggregatetimeestimate",
+            "name": "Σ Remaining Estimate",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [],
+            "schema": {
+                "type": "number",
+                "system": "aggregatetimeestimate"
+            }
+        },
+        {
+            "id": "aggregatetimespent",
+            "key": "aggregatetimespent",
+            "name": "Σ Time Spent",
+            "custom": false,
+            "orderable": false,
+            "navigable": true,
+            "searchable": false,
+            "clauseNames": [],
+            "schema": {
+                "type": "number",
+                "system": "aggregatetimespent"
+            }
+        }
+    ],
+    "nameMap": {
+        "Status Category Changed": "statuscategorychangedate",
+        "Issue Type": "issuetype",
+        "Parent": "parent",
+        "Story points median": "customfield_10070",
+        "Time Spent": "timespent",
+        "Total forms": "customfield_10030",
+        "Project": "project",
+        "Category": "customfield_10033",
+        "Fix versions": "fixVersions",
+        "Story points": "customfield_10034",
+        "Σ Time Spent": "aggregatetimespent",
+        "Status Category": "statusCategory",
+        "Resolution": "resolution",
+        "Locked forms": "customfield_10027",
+        "Open forms": "customfield_10028",
+        "Submitted forms": "customfield_10029",
+        "Resolved": "resolutiondate",
+        "Work Ratio": "workratio",
+        "Restrict to": "issuerestriction",
+        "Last Viewed": "lastViewed",
+        "Watchers": "watches",
+        "Images": "thumbnail",
+        "Created": "created",
+        "Sprint": "customfield_10020",
+        "Flagged": "customfield_10021",
+        "Target start": "customfield_10022",
+        "Target end": "customfield_10023",
+        "Value Confidence": "customfield_10067",
+        "Priority": "priority",
+        "Value": "customfield_10068",
+        "[CHART] Date of First Response": "customfield_10024",
+        "Story points confidence": "customfield_10069",
+        "[CHART] Time in Status": "customfield_10025",
+        "Compass": "customfield_10026",
+        "Labels": "labels",
+        "Story point estimate": "customfield_10016",
+        "Issue color": "customfield_10017",
+        "Parent Link": "customfield_10018",
+        "Rank": "customfield_10019",
+        "Remaining Estimate": "timeestimate",
+        "Σ Original Estimate": "aggregatetimeoriginalestimate",
+        "Affects versions": "versions",
+        "Linked Issues": "issuelinks",
+        "Assignee": "assignee",
+        "Updated": "updated",
+        "Status": "status",
+        "Components": "components",
+        "Key": "issuekey",
+        "Original estimate": "timeoriginalestimate",
+        "Description": "description",
+        "Request Type": "customfield_10010",
+        "Epic Name": "customfield_10011",
+        "Epic Status": "customfield_10012",
+        "Epic Color": "customfield_10013",
+        "Epic Link": "customfield_10014",
+        "Time tracking": "timetracking",
+        "Start date": "customfield_10015",
+        "Change type": "customfield_10005",
+        "Change risk": "customfield_10006",
+        "Change reason": "customfield_10007",
+        "Security Level": "security",
+        "Actual start": "customfield_10008",
+        "Attachment": "attachment",
+        "Actual end": "customfield_10009",
+        "Σ Remaining Estimate": "aggregatetimeestimate",
+        "Summary": "summary",
+        "Creator": "creator",
+        "Sub-tasks": "subtasks",
+        "Reporter": "reporter",
+        "Development": "customfield_10000",
+        "Σ Progress": "aggregateprogress",
+        "Team": "customfield_10001",
+        "Organizations": "customfield_10002",
+        "Approvers": "customfield_10003",
+        "Impact": "customfield_10004",
+        "Environment": "environment",
+        "Due date": "duedate",
+        "Progress": "progress",
+        "Comment": "comment",
+        "Votes": "votes",
+        "Log Work": "worklog"
+    },
+    "idMap": {
+        "statuscategorychangedate": "Status Category Changed",
+        "issuetype": "Issue Type",
+        "parent": "Parent",
+        "customfield_10070": "Story points median",
+        "timespent": "Time Spent",
+        "customfield_10030": "Total forms",
+        "project": "Project",
+        "customfield_10033": "Category",
+        "fixVersions": "Fix versions",
+        "customfield_10034": "Story points",
+        "aggregatetimespent": "Σ Time Spent",
+        "statusCategory": "Status Category",
+        "resolution": "Resolution",
+        "customfield_10027": "Locked forms",
+        "customfield_10028": "Open forms",
+        "customfield_10029": "Submitted forms",
+        "resolutiondate": "Resolved",
+        "workratio": "Work Ratio",
+        "issuerestriction": "Restrict to",
+        "lastViewed": "Last Viewed",
+        "watches": "Watchers",
+        "thumbnail": "Images",
+        "created": "Created",
+        "customfield_10020": "Sprint",
+        "customfield_10021": "Flagged",
+        "customfield_10022": "Target start",
+        "customfield_10023": "Target end",
+        "customfield_10067": "Value Confidence",
+        "priority": "Priority",
+        "customfield_10068": "Value",
+        "customfield_10024": "[CHART] Date of First Response",
+        "customfield_10069": "Story points confidence",
+        "customfield_10025": "[CHART] Time in Status",
+        "customfield_10026": "Compass",
+        "labels": "Labels",
+        "customfield_10016": "Story point estimate",
+        "customfield_10017": "Issue color",
+        "customfield_10018": "Parent Link",
+        "customfield_10019": "Rank",
+        "timeestimate": "Remaining Estimate",
+        "aggregatetimeoriginalestimate": "Σ Original Estimate",
+        "versions": "Affects versions",
+        "issuelinks": "Linked Issues",
+        "assignee": "Assignee",
+        "updated": "Updated",
+        "status": "Status",
+        "components": "Components",
+        "issuekey": "Key",
+        "timeoriginalestimate": "Original estimate",
+        "description": "Description",
+        "customfield_10010": "Request Type",
+        "customfield_10011": "Epic Name",
+        "customfield_10012": "Epic Status",
+        "customfield_10013": "Epic Color",
+        "customfield_10014": "Epic Link",
+        "timetracking": "Time tracking",
+        "customfield_10015": "Start date",
+        "customfield_10005": "Change type",
+        "customfield_10006": "Change risk",
+        "customfield_10007": "Change reason",
+        "security": "Security Level",
+        "customfield_10008": "Actual start",
+        "attachment": "Attachment",
+        "customfield_10009": "Actual end",
+        "aggregatetimeestimate": "Σ Remaining Estimate",
+        "summary": "Summary",
+        "creator": "Creator",
+        "subtasks": "Sub-tasks",
+        "reporter": "Reporter",
+        "customfield_10000": "Development",
+        "aggregateprogress": "Σ Progress",
+        "customfield_10001": "Team",
+        "customfield_10002": "Organizations",
+        "customfield_10003": "Approvers",
+        "customfield_10004": "Impact",
+        "environment": "Environment",
+        "duedate": "Due date",
+        "progress": "Progress",
+        "comment": "Comment",
+        "votes": "Votes",
+        "worklog": "Log Work"
+    }
+}
