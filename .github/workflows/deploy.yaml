@@ -27,5 +27,8 @@ jobs:
         aws_r53_sub_domain_name: auto-scheduler
         aws_elb_app_port: 3000
 
+        docker_cloudwatch_enable: true
+        docker_cloudwatch_retention_days: 7
+        
         tf_stack_destroy:
         tf_state_bucket_destroy: true
