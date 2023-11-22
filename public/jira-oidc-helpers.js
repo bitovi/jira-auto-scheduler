@@ -25,7 +25,7 @@ function responseToText(response) {
 }
 
 
-function nativeFetchJSON(url, options) {
+export function nativeFetchJSON(url, options) {
 	return fetch(url, options).then(responseToJSON)
 }
 
@@ -333,6 +333,10 @@ export default function JiraOIDCHelpers({
 			} else {
 				return jiraHelpers.fetchFromLocalStorage("accessToken");
 			}
+		},
+		// if someone was ever logged in
+		hasAccessToken: function(){
+			return !! jiraHelpers.fetchFromLocalStorage("accessToken");
 		},
 		hasValidAccessToken: function () {
 			const accessToken = jiraHelpers.fetchFromLocalStorage("accessToken");

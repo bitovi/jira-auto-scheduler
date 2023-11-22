@@ -1,0 +1,738 @@
+[
+    {
+        "Summary": "Verify promotion is available",
+        "Issue Type": "Epic",
+        "Story points median": 5,
+        "Due date": "2023-12-14",
+        "Linked Issues": [
+            {
+                "id": "10102",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10102",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "10155",
+                    "key": "ORDER-23",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10155",
+                    "fields": {
+                        "summary": "Add promotion to cart",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            },
+            {
+                "id": "10101",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10101",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "inwardIssue": {
+                    "id": "10154",
+                    "key": "STORE-17",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10154",
+                    "fields": {
+                        "summary": "Create a promotion",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 5,
+        "Story points confidence": 70,
+        "Status": "To Do",
+        "Start date": "2023-12-12",
+        "Project key": "STORE",
+        "Issue key": "STORE-18",
+        "url": "https://bitovi-training.atlassian.net/browse/STORE-18",
+        "linkedIssues": {
+            "blocks": [
+                "ORDER-23"
+            ]
+        },
+        "workingBusinessDays": 3
+    },
+    {
+        "Summary": "Create a promotion",
+        "Issue Type": "Epic",
+        "Story points median": 10,
+        "Due date": "2023-12-12",
+        "Linked Issues": [
+            {
+                "id": "10103",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10103",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "10156",
+                    "key": "MARKETING-5",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10156",
+                    "fields": {
+                        "summary": "Create promotion",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            },
+            {
+                "id": "10101",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10101",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "10158",
+                    "key": "STORE-18",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10158",
+                    "fields": {
+                        "summary": "Verify promotion is available",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 11,
+        "Story points confidence": 70,
+        "Status": "To Do",
+        "Start date": "2023-12-05",
+        "Project key": "STORE",
+        "Issue key": "STORE-17",
+        "url": "https://bitovi-training.atlassian.net/browse/STORE-17",
+        "linkedIssues": {
+            "blocks": [
+                "MARKETING-5",
+                "STORE-18"
+            ]
+        },
+        "workingBusinessDays": 6
+    },
+    {
+        "Summary": "Wrong promotion entered",
+        "Issue Type": "Epic",
+        "Story points median": 10,
+        "Due date": "2024-01-19",
+        "Linked Issues": [
+            {
+                "id": "10105",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10105",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "inwardIssue": {
+                    "id": "10155",
+                    "key": "ORDER-23",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10155",
+                    "fields": {
+                        "summary": "Add promotion to cart",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 10,
+        "Story points confidence": 80,
+        "Status": "To Do",
+        "Start date": "2024-01-15",
+        "Project key": "ORDER",
+        "Issue key": "ORDER-26",
+        "url": "https://bitovi-training.atlassian.net/browse/ORDER-26",
+        "linkedIssues": {
+            "blocks": []
+        },
+        "workingBusinessDays": 4
+    },
+    {
+        "Summary": "Remove promotion from cart",
+        "Issue Type": "Epic",
+        "Story points median": 5,
+        "Due date": "2024-01-24",
+        "Linked Issues": [
+            {
+                "id": "10106",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10106",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "inwardIssue": {
+                    "id": "10155",
+                    "key": "ORDER-23",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10155",
+                    "fields": {
+                        "summary": "Add promotion to cart",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 5,
+        "Story points confidence": 80,
+        "Status": "To Do",
+        "Start date": "2024-01-22",
+        "Project key": "ORDER",
+        "Issue key": "ORDER-25",
+        "url": "https://bitovi-training.atlassian.net/browse/ORDER-25",
+        "linkedIssues": {
+            "blocks": []
+        },
+        "workingBusinessDays": 2
+    },
+    {
+        "Summary": "Promotion end-date error handling",
+        "Issue Type": "Epic",
+        "Story points median": 5,
+        "Due date": "2024-01-23",
+        "Linked Issues": [
+            {
+                "id": "10104",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10104",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "inwardIssue": {
+                    "id": "10155",
+                    "key": "ORDER-23",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10155",
+                    "fields": {
+                        "summary": "Add promotion to cart",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 6,
+        "Story points confidence": 50,
+        "Status": "To Do",
+        "Start date": "2024-01-18",
+        "Project key": "ORDER",
+        "Issue key": "ORDER-24",
+        "url": "https://bitovi-training.atlassian.net/browse/ORDER-24",
+        "linkedIssues": {
+            "blocks": []
+        },
+        "workingBusinessDays": 4
+    },
+    {
+        "Summary": "Add promotion to cart",
+        "Issue Type": "Epic",
+        "Story points median": 30,
+        "Due date": "2024-01-11",
+        "Linked Issues": [
+            {
+                "id": "10104",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10104",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "10159",
+                    "key": "ORDER-24",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10159",
+                    "fields": {
+                        "summary": "Promotion end-date error handling",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            },
+            {
+                "id": "10106",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10106",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "10160",
+                    "key": "ORDER-25",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10160",
+                    "fields": {
+                        "summary": "Remove promotion from cart",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            },
+            {
+                "id": "10105",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10105",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "10161",
+                    "key": "ORDER-26",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10161",
+                    "fields": {
+                        "summary": "Wrong promotion entered",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            },
+            {
+                "id": "10102",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10102",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "inwardIssue": {
+                    "id": "10158",
+                    "key": "STORE-18",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10158",
+                    "fields": {
+                        "summary": "Verify promotion is available",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 39,
+        "Story points confidence": 50,
+        "Start date": "2023-12-14",
+        "Status": "To Do",
+        "Project key": "ORDER",
+        "Issue key": "ORDER-23",
+        "url": "https://bitovi-training.atlassian.net/browse/ORDER-23",
+        "linkedIssues": {
+            "blocks": [
+                "ORDER-24",
+                "ORDER-25",
+                "ORDER-26"
+            ]
+        },
+        "workingBusinessDays": 21
+    },
+    {
+        "Summary": "Create and publish ad",
+        "Issue Type": "Epic",
+        "Story points median": null,
+        "Due date": "2024-01-09",
+        "Linked Issues": [],
+        "Story points": 27,
+        "Story points confidence": null,
+        "Status": "To Do",
+        "Start date": "2023-12-21",
+        "Project key": "MARKETING",
+        "Issue key": "MARKETING-6",
+        "url": "https://bitovi-training.atlassian.net/browse/MARKETING-6",
+        "linkedIssues": {
+            "blocks": []
+        },
+        "workingBusinessDays": 14
+    },
+    {
+        "Summary": "Create promotion",
+        "Issue Type": "Epic",
+        "Story points median": null,
+        "Due date": "2024-01-02",
+        "Linked Issues": [
+            {
+                "id": "10103",
+                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLink/10103",
+                "type": {
+                    "id": "10000",
+                    "name": "Blocks",
+                    "inward": "is blocked by",
+                    "outward": "blocks",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issueLinkType/10000"
+                },
+                "inwardIssue": {
+                    "id": "10154",
+                    "key": "STORE-17",
+                    "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issue/10154",
+                    "fields": {
+                        "summary": "Create a promotion",
+                        "status": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/status/10003",
+                            "description": "",
+                            "iconUrl": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/",
+                            "name": "To Do",
+                            "id": "10003",
+                            "statusCategory": {
+                                "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/priority/3",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/priorities/medium.svg",
+                            "name": "Medium",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://api.atlassian.com/ex/jira/74eb923a-a968-44b2-8b4c-5b69e7266b8c/rest/api/3/issuetype/10000",
+                            "id": "10000",
+                            "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+                            "iconUrl": "https://bitovi-training.atlassian.net/images/icons/issuetypes/epic.svg",
+                            "name": "Epic",
+                            "subtask": false,
+                            "hierarchyLevel": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "Story points": 27,
+        "Story points confidence": null,
+        "Start date": "2023-12-14",
+        "Status": "To Do",
+        "Project key": "MARKETING",
+        "Issue key": "MARKETING-5",
+        "url": "https://bitovi-training.atlassian.net/browse/MARKETING-5",
+        "linkedIssues": {
+            "blocks": []
+        },
+        "workingBusinessDays": 14
+    }
+]

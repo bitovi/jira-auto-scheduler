@@ -28,20 +28,15 @@ module.exports = function (env) {
 							>by <img src="./images/bitovi-logo.png" class="inline align-baseline"/></a>
 					</li>
 				</ul>
-				<div>
-					<button id="logout" 
-						class="p-1 block pointer bg-orange-400 text-white rounded-lg font-bitovipoppins font-lg font-bold"
-						style="border: none">Log out</button>
+				<div id="login">
+					
 				</div>
 			</div>
 		</nav>
 	</div>	
 		<div id="mainElement">Loading ... </div>
 		<script>
-		logout.onclick = function(){
-			localStorage.clear();
-			window.location.reload();
-		}
+		
 		</script>
 		<script type="module">
 			import JiraOIDCHelpers from "./jira-oidc-helpers.js";

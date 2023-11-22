@@ -29,7 +29,7 @@ class JiraConfigureCSV extends StacheElement {
         
         <p class="text-base my-1">Specify a <a href="https://www.atlassian.com/software/jira/guides/jql/overview">JQL</a> used to load the epics you 
         want to schedule.</p>
-        <p><input value:bind="this.config.issueJQL" class="w-full text-base form-border"/></p>
+        <p><input value:bind="this.issueJQL" class="w-full text-base form-border"/></p>
         <p class="text-sm text-right">Loaded {{this.rawIssues.length}} issues.</p>
       </div>
       <div class="lg:w-112 bg-neutral-30 p-1 w-full">

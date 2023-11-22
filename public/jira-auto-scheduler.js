@@ -13,9 +13,10 @@ import "./jira-team.js";
 import "./jira-teams.js";
 import "./jira-configure-csv.js";
 import "./shared/simple-tooltip.js";
-import makeConfig from "./jira-config.js";
+import {Configure} from "./jira-config.js";
 import {getEndDateFromUTCStartDateAndBusinessDays, parseDateISOString} from "./shared/dateUtils.js";
 import "./monte-carlo.js";
+import {nativeFetchJSON} from "./jira-oidc-helpers.js";
 
 const updateEpicsPromise = new Promise((resolve, reject)=>{
   setTimeout(function(){
@@ -46,20 +47,33 @@ class JiraAutoScheduler extends StacheElement {
           startDate:from="this.startDate"
           jiraHelpers:from="this.jiraHelpers"
           
-          on:click="this.closeModalAndRefreshIssues()"
+          on:el:click="this.closeModalAndRefreshIssues()"
           >
         </update-epics>
       </dialog>
     {{/ }}
     
-    <details class=" rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
-      <summary class="text-base p-3 bg-white cursor-pointer rounded-lg">
-        Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.config.issueJQL}}</span></span>
-      </summary>
+    {{# if(this.loginComponent.isLoggedIn) }}
+
+    
+      <details class=" rounded-lg bg-white m-2 drop-shadow-md hide-on-fullscreen">
+        <summary class="text-base p-3 bg-white cursor-pointer rounded-lg">
+          Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.issueJQL}}</span></span>
+        </summary>
         <jira-configure-csv 
-          rawIssues:from="this.rawIssues" config:from="this.config"/>
+          rawIssues:from="this.rawIssues" 
+          config:from="this.config"
+          issueJQL:bind="this.issueJQL"/>
 
     </details>
+    {{ else }}
+      <div class=" rounded-lg m-2 drop-shadow-md hide-on-fullscreen bg-yellow-300 p-4">
+        The following is a sample plan. Learn more about it in the 
+          "<a class="text-blue-400" href="https://www.bitovi.com/academy/learn-agile-program-management-with-jira/estimating.html">Agile Program Management with Jira</a>" 
+          training. Click "Connect to Jira" to load your own data.
+      </div>
+    {{/ if }}
+
     <div class=" z-10 right-0 flex rounded-t-lg  text-base p-2 gap-6 bg-white mt-2 mx-2 fullscreen-fixed-to-top fullscreen-m-0 fullscreen-round-none">
       {{# if( this.rawIssues ) }}
           <div class="flex grow gap-2">
@@ -96,12 +110,12 @@ class JiraAutoScheduler extends StacheElement {
               class="form-border font-mono px-1 py-0 text-sm h-8"
               valueAsDate:bind="this.startDate"/>
           </div>
-          <div>
-
-            <button class="btn-primary"
-              on:click="this.showSavingModal = true" disabled:from="not(this.startDate)">Update Epic Dates</button>
-
-          </div>
+          {{# if(this.loginComponent.isLoggedIn) }}
+            <div>
+              <button class="btn-primary"
+                on:click="this.showSavingModal = true" disabled:from="not(this.startDate)">Update Epic Dates</button>
+            </div>
+          {{/ if }}
       {{ else }}
         <div class="font-lg bg-yellow-500">Loading issues</div>
       {{/ if }}
@@ -123,7 +137,7 @@ class JiraAutoScheduler extends StacheElement {
 
           allWorkItems:to="this.workItems"
           ></monte-carlo>
-      {{/ if }}
+      {{/ and }}
       {{# if(this.rawIssuesPromise.isRejected) }}
         <div class="text-lg bg-yellow-500 p-4">
           <p>There was an error loading from Jira!</p>
@@ -156,6 +170,7 @@ class JiraAutoScheduler extends StacheElement {
         return dateThreshold;
       }
     },
+    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
@@ -163,14 +178,25 @@ class JiraAutoScheduler extends StacheElement {
     workItems: type.Any,
     tooltip: HTMLElement,
     dialog: HTMLElement,
+    loginComponent: HTMLElement,
     get configPromise(){
-      return makeConfig(this.jiraHelpers)
+      let fieldsPromise;
+      if(this.issueJQL === "promotions example" || this.loginComponent.isLoggedIn === false) {
+        fieldsPromise =  nativeFetchJSON("./examples/default-fields.json");
+      } else {
+        fieldsPromise =  jiraHelpers.fieldsRequest;
+      }
+      
+      return fieldsPromise.then((fields)=>{
+        return new Configure({fields})
+      })
     },
     config: {
       async(resolve) {
         this.configPromise.then(resolve);
       }
     },
+    
     velocities: {
       get default(){
         return new ObservableObject(
@@ -182,21 +208,28 @@ class JiraAutoScheduler extends StacheElement {
       if(!this.config) {
         return Promise.resolve([]);
       }
+
       // do this for side-effects
       this.hackToRefreshIssues;
-      const serverInfoPromise = this.jiraHelpers.getServerInfo();
 
-      const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
-          jql: this.config.issueJQL,//this.jql,
-          fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
-      });
+      if(this.login === "promotions example" || this.loginComponent.isLoggedIn === false) {
+        return nativeFetchJSON("./examples/promotions.json");
+      } else {
+        const serverInfoPromise = this.jiraHelpers.getServerInfo();
 
-      return Promise.all([
-          issuesPromise, serverInfoPromise
-      ]).then(([issues, serverInfo]) => {
-          const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
-          return raw;
-      })
+        const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
+            jql: this.issueJQL,//this.jql,
+            fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
+        });
+
+        return Promise.all([
+            issuesPromise, serverInfoPromise
+        ]).then(([issues, serverInfo]) => {
+            const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+            return raw;
+        })
+      }
+      
     },
 		rawIssues: {
 			async(resolve) {
