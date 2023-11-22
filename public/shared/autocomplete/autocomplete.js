@@ -1,4 +1,4 @@
-import { StacheElement, type, ObservableObject, fromAttribute } from "//unpkg.com/can@6/core.mjs";
+import { StacheElement, type, ObservableObject, fromAttribute } from "../../can.js";
 import SimpleTooltip from "../simple-tooltip.js";
 
 // create global tooltip reference

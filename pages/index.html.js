@@ -5,11 +5,14 @@ module.exports = function (env) {
 	<!DOCTYPE html>
 	<html lang="en">
 	<head>
+			<script>
+				console.time("start");
+			</script>
 			<meta charset="UTF-8">
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>Jira Auto Scheduler</title>
-			<link rel="stylesheet" href="./production.css">
+			<link rel="stylesheet" href="./dist/production.css">
 			<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
 	</head>
 	<body class="bg-slate-400">
@@ -39,10 +42,8 @@ module.exports = function (env) {
 		
 		</script>
 		<script type="module">
-			import JiraOIDCHelpers from "./jira-oidc-helpers.js";
-			import main from "./main.js";
-			const jiraHelpers = JiraOIDCHelpers(${JSON.stringify(getSafeEnv())});
-			main(jiraHelpers);
+			import main from "./dist/main.js";
+			main( ${JSON.stringify(getSafeEnv())} );
 		</script>
 	</body>
 	</html>

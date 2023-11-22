@@ -1,4 +1,4 @@
-import { StacheElement, type, ObservableObject, fromAttribute, queues } from "//unpkg.com/can@6/core.mjs";
+import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./can.js";
 import {scheduleIssues } from "./schedule.js";
 import {bestFitRanges, getUTCEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js"
 

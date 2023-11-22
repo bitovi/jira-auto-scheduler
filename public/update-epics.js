@@ -1,4 +1,4 @@
-import { StacheElement, type, ObservableObject, fromAttribute, queues } from "//unpkg.com/can@6/core.mjs";
+import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./can.js";
 import {getDatesFromWork} from "./simulation-data.js";
 
 const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the YYYY-MM-DD format
