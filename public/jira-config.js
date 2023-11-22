@@ -1,4 +1,4 @@
-import { ObservableObject, type } from "//unpkg.com/can@6/core.mjs";
+import { ObservableObject, type } from "./can.js";
 
 import jsonLogic from "./json-logic/json-logic.js";
 import {saveJSONToUrl, saveToLocalStorage} from "./shared/state-storage.js";

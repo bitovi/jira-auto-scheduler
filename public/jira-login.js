@@ -1,4 +1,4 @@
-import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
+import { StacheElement, type } from "./can.js";
 
 export default class JiraLogin extends StacheElement {
     static view = `

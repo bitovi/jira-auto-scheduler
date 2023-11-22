@@ -1,4 +1,4 @@
-import { StacheElement, type } from "//unpkg.com/can@6/core.mjs";
+import { StacheElement, type } from "./can.js";
 import {
   makeObjectMapByKey,
   makeFilterByPropertyNotEqualToOneOfValues,
