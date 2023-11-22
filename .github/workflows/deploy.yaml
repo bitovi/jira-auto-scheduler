@@ -25,3 +25,5 @@ jobs:
         domain_name: bitovi-jira.com
         sub_domain: auto-scheduler
         app_port: 3000
+
+        stack_destroy: true
