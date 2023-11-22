@@ -13,17 +13,19 @@ jobs:
     steps:
     - id: deploy
       name: Deploy
-      uses: bitovi/github-actions-deploy-docker-to-ec2@v0.5.2
+      uses: bitovi/github-actions-deploy-docker-to-ec2@v1.0.0
       with:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_JIRA_INTEGRATIONS}}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_JIRA_INTEGRATIONS}}
         aws_default_region: us-east-1
 
         # Provide a secret called `DOT_ENV` to append environment variables to the .env file
-        dot_env: ${{ secrets.DOT_ENV }}
+        env_ghs: ${{ secrets.DOT_ENV }}
 
-        domain_name: bitovi-jira.com
-        sub_domain: auto-scheduler
-        app_port: 3000
+        aws_r53_enable: true
+        aws_r53_domain_name: bitovi-jira.com
+        aws_r53_sub_domain_name: auto-scheduler
+        aws_elb_app_port: 3000
 
-        stack_destroy: true
+        tf_stack_destroy:
+        tf_state_bucket_destroy: true
