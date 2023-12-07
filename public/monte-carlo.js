@@ -42,6 +42,9 @@ class WorkItem extends ObservableObject {
         startDateBottom10: 0, 
         startDateMedian: 0,
 
+
+        dueDateBottom10: 0,
+        dueDateBottom: 0,
         dueDateMedian: 0,
         dueDateTop: 0,
         dueDateTop90: 0,
@@ -79,14 +82,15 @@ class WorkItem extends ObservableObject {
         const length = this.startDateValues.length;
         if(typeof this.uncertaintyWeight === "number"){
             this.startDateBottom = this.startDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) /100), length - 1) ];
+            this.dueDateBottom = this.dueDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) / 100 ), length - 1) ];
             this.dueDateTop = this.dueDateValues[Math.min( Math.round(length *this.uncertaintyWeight / 100 ), length - 1) ];
         } else if(this.uncertaintyWeight === "average") {
             this.startDateBottom = this.startDateMedian;
-            this.dueDateTop = this.dueDateMedian;
+            this.dueDateBottom = this.dueDateTop = this.dueDateMedian;
         }
 
         this.startDateBottom10 = this.startDateValues[Math.min( Math.round(length * 10 /100), length - 1) ];
-        
+        this.dueDateBottom10 = this.dueDateValues[Math.min( Math.round(length * 10 / 100 ), length - 1) ];
         this.dueDateTop90 = this.dueDateValues[Math.min( Math.round(length * 90 / 100 ), length - 1) ];
         this.dueDateTop95 = this.dueDateValues[Math.min( Math.round(length * 95 / 100 ), length - 1) ];
 
@@ -132,39 +136,43 @@ class MonteCarlo extends StacheElement {
                     class="pl-2 pt-2 pb-1 pr-1 flex"
                     style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column-start: what">
                     <div class="text-base grow font-semibold">{{workPlan.teamKey}}</div>
+                    {{# not(workPlan.disableVelocity) }}
                     <div class="flex flex-col justify-around"><button
                         title="Add a parallel work track for this team."
                         on:click="this.addWorkPlanForTeam(workPlan.teamKey)" 
                         class="btn-secondary-sm shrink text-xs font-mono">+</button></div>
+                    {{/ }}
                 </div>
                 
                 <div
                     class="flex flex-row-reverse  pt-2 z-20 pr-2"
                     style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 2 / span {{this.gridNumberOfDays}}">
-                    
-                    <div class="text-sm">
-                        Velocity: 
-                        
-                        <input
-                            type="number"
-                            value:from='this.getVelocityForTeam(workPlan.teamKey)'
-                            on:change='this.updateVelocity(workPlan.teamKey, scope.element.valueAsNumber)'
-                            class="form-border w-10 text-sm text-center" />
+                    {{# not(workPlan.disableVelocity) }}
+                        <div class="text-sm">
+                            Velocity: 
+                            
+                            <input
+                                type="number"
+                                value:from='this.getVelocityForTeam(workPlan.teamKey)'
+                                on:change='this.updateVelocity(workPlan.teamKey, scope.element.valueAsNumber)'
+                                class="form-border w-10 text-sm text-center" />
                         </div>
-                    
+                    {{/ not}}
                 </div>
-
                 {{# for(track of workPlan.tracks) }}
+
                     <div
                         class="pl-4 flex pt-0.5 pr-1" 
                         style="grid-row: {{track.gridRowStart}} / span 1; grid-column-start: what">
-                        <div class="text-xs grow ">Track {{track.name}}</div>
-                        {{# if( this.canRemoveTrack(scope.index, workPlan.tracks.length) ) }}
-                            <button 
-                                title="Remove a work track for this team."
-                                on:click="this.removeWorkPlanForTeam(workPlan.teamKey)"
-                                class="btn-secondary-sm shrink text-xs font-mono">-</button>
-                        {{/ if }}
+                        {{# not(workPlan.disableTracks) }}
+                            <div class="text-xs grow ">Track {{track.name}}</div>
+                            {{# if( this.canRemoveTrack(scope.index, workPlan.tracks.length) ) }}
+                                <button 
+                                    title="Remove a work track for this team."
+                                    on:click="this.removeWorkPlanForTeam(workPlan.teamKey)"
+                                    class="btn-secondary-sm shrink text-xs font-mono">-</button>
+                            {{/ if }}
+                        {{/ not}}
                     </div>
 
                     {{# for(work of track.works) }}
@@ -172,7 +180,11 @@ class MonteCarlo extends StacheElement {
                             class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2"
                             style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
                             >
-                            <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
+                            {{# if(work.work.issue.url) }}
+                                <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
+                            {{ else }}
+                                <span>{{work.work.issue.Summary}}</span>
+                            {{/ if}}
                         </div>
                         <simulation-data
                             class="relative block" 
@@ -214,7 +226,8 @@ class MonteCarlo extends StacheElement {
                 this.runOneSimulation(resolve);
             }
         },
-        startDate: type.maybeConvert(Date)
+        startDate: type.maybeConvert(Date),
+        endDateWorkItem: null
     };
     get gridNumberOfDays(){
         return this.lastDueDay + 1
@@ -243,6 +256,8 @@ class MonteCarlo extends StacheElement {
                 work.uncertaintyWeight = value;
                 work.updateStats();
             }
+            this.endDateWorkItem.uncertaintyWeight = value;
+            this.endDateWorkItem.updateStats()
             queues.batch.stop();
             this.insertBlockers();
         })
@@ -271,6 +286,18 @@ class MonteCarlo extends StacheElement {
         if(!workPlans) {
             return;
         }
+        // tracks the end date stats
+        const endDateWorkItem = this.endDateWorkItem = new WorkItem({
+            work: {
+                issue: {
+                    Summary: "Due Date", "Issue key": "Due Date", 
+                    blocks: [], 
+                    blocking: []
+                }
+            },
+            uncertaintyWeight: this.uncertaintyWeight,
+            dueDatesOnly: true
+        });
         // a mapping to the "work stats" for each item
         const allWorkItems = this.allWorkItems = {};
 
@@ -279,14 +306,12 @@ class MonteCarlo extends StacheElement {
             let largest = 0;
             queues.batch.start();
             for(let prop in allWorkItems) {
-                //if(prop === "STORE-2") {
-                //    debugger;
-                //}
                 const work = allWorkItems[prop];
                 work.updateStats();
                 largest = Math.max( work.dueDateTop95, largest)
             }
             this.lastDueDay = largest + 2; // 2 extra days for margin
+            endDateWorkItem.updateStats();
             queues.batch.stop();
         }
 
@@ -312,28 +337,42 @@ class MonteCarlo extends StacheElement {
         }
         // Helper function for adding results of a simulation into "work stats"
         function addResults(teamWork) {
+            let lastDay = 0,
+                lastWork = null;
             for(let prop in teamWork) {
                 const tracks = teamWork[prop].workPlans.plans;
                 for( const track of tracks ) {
                     for( const work of track.work ) {
                         allWorkItems[work.issue["Issue key"]].addWork(work);
+                        const endDay = work.startDay + work.daysOfWork;
+                        if(endDay > lastDay) {
+                            lastDay = endDay;
+                            lastWork = work;
+                        }
                     }
                 }   
             }
+            endDateWorkItem.addWork(lastWork);
         }
 
         // Here we take the first runs result and create the "amoritized" stats
         // objects for each issue
+        let lastDay = 0,
+            lastWork = null;
         const baseWorkPlans = Object.values(workPlans).map( ({teamKey, velocity, workPlans}) => {
             const tracks = workPlans.plans.map( (trackPlan)=> {
                 const track = {works: [], workMap: {}};
                 for( const work of trackPlan.work){
-                    const workItem = new WorkItem({work, uncertaintyWeight: this.uncertaintyWeight});
+                    const workItem = new WorkItem({work, uncertaintyWeight: this.uncertaintyWeight, dueDatesOnly: false});
                     track.workMap[work.issue["Issue key"]] = workItem;
                     track.works.push(workItem);
                     workItem.addWork(work);
                     allWorkItems[work.issue["Issue key"]] = workItem;
-
+                    const endDay = work.startDay + work.daysOfWork;
+                    if(endDay > lastDay) {
+                        lastDay = endDay;
+                        lastWork = work;
+                    }
                 }
                 return track
             });
@@ -341,9 +380,21 @@ class MonteCarlo extends StacheElement {
             return {
                 teamKey,
                 velocity,
-                tracks: tracks
+                tracks: tracks,
+                disableTracks: false,
+                disableVelocity: false
             }
         });
+        endDateWorkItem.addWork(lastWork);
+        baseWorkPlans.unshift({
+            teamKey: "Summary",
+            velocity: null,
+            tracks: [
+                {works: [endDateWorkItem], workMap: {"SUMMARY": endDateWorkItem}}
+            ],
+            disableVelocity: true,
+            disableTracks: true
+        })
 
         updateAllStats();
         // Save a nice representation for the grid
@@ -373,10 +424,14 @@ class MonteCarlo extends StacheElement {
 
         const elementsAndWorkMap = {};
         [...this.getElementsByClassName("work-item")].forEach( (element) => {
-            elementsAndWorkMap[element.id] = {
-                element,
-                work: this.allWorkItems[element.id]
-            };
+            // the summary isn't part of allWorkItems
+            if(this.allWorkItems[element.id]) {
+                elementsAndWorkMap[element.id] = {
+                    element,
+                    work: this.allWorkItems[element.id]
+                };
+            }
+
         });
 
         for(const {element, work} of Object.values(elementsAndWorkMap)) {
