@@ -101,12 +101,15 @@ class JiraAutoScheduler extends StacheElement {
               class="form-border font-mono px-1 py-0 text-sm h-8"
               valueAsDate:bind="this.startDate"/>
           </div>
-          {{# if(this.loginComponent.isLoggedIn) }}
             <div>
               <button class="btn-primary"
-                on:click="this.showSavingModal = true" disabled:from="not(this.startDate)">Update Epic Dates</button>
+                {{# if(this.loginComponent.isLoggedIn) }}
+                title="Save dates to Jira"
+                {{ else }}
+                title="Connect to save dates to Jira"
+                {{/ if }}
+                on:click="this.showSavingModal = true" disabled:from="or( not(this.startDate), not(this.loginComponent.isLoggedIn) )">Update Epic Dates</button>
             </div>
-          {{/ if }}
       {{ else }}
         <div class="font-lg bg-yellow-500">Loading issues</div>
       {{/ if }}

@@ -12,7 +12,7 @@ document.body.append(TOOLTIP);
 class SimulationData extends StacheElement {
     static view = `
 
-    {{# if(this.showingData) }}
+    {{# and(this.showingData, not(this.work.dueDatesOnly)) }}
         <div class="grid transition-all ease-in-out duration-300 h-0 box-border top-3 relative hover:bg-neutral-10 transition-colors" 
             style="grid-template-columns: repeat({{plus(this.lastDueDay, 1)}}, 1fr); grid-template-rows: auto;">
                 
@@ -31,19 +31,17 @@ class SimulationData extends StacheElement {
     <div class="relative py-1 z-50"
         on:click="this.toggleShowingExtraData()"
         >
+        {{# if(this.work.dueDatesOnly)}}
+            <div 
+                class="absolute bg-gradient-to-r from-green-200 to-green-200 from-45% to-55% h-1 top-2.5 border-box" 
+                style="left: {{this.percent(work.dueDateBottom10)}}; width: {{this.percentWidth(work.dueDateBottom10, work.dueDateTop90)}}"></div>
 
-        <!--<div 
-            class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-45% to-55% h-1 top-2.5 border-box" 
-            style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>-->
-
-        <!--<div 
-            class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-45% to-55% h-2 top-2 border-box rounded-sm" 
-            style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>-->
-
-        <!--<div id="{{work.work.issue["Issue key"]}}"
-            class="work-item border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
-            style="left: {{this.percent(work.startDateMedian)}}; width: {{this.percentWidth(work.startDateMedian, work.dueDateMedian)}}"></div>-->
-
+            <div id="{{work.work.issue["Issue key"]}}"
+                on:mouseenter="this.showProbabilitySumary(scope.event)"
+                on:mouseleave="this.hideProbabilityData()"
+                class="work-item cursor-pointer {{ this.rangeBorderClasses() }} relative bg-gradient-to-r from-green-400 to-green-400 from-45% to-55% h-4 border-box rounded" 
+                style="left: {{this.percent(work.dueDateBottom)}}; width: {{this.percentWidth(work.dueDateBottom, work.dueDateTop)}}"></div>
+        {{ else }}
         <div 
             class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-45% to-55% h-1 top-2.5 border-box" 
             style="left: {{this.percent(work.startDateBottom10)}}; width: {{this.percentWidth(work.startDateBottom10, work.dueDateTop90)}}"></div>
@@ -53,6 +51,7 @@ class SimulationData extends StacheElement {
             on:mouseleave="this.hideProbabilityData()"
             class="work-item cursor-pointer {{ this.rangeBorderClasses() }} relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
             style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>
+        {{/ }}
     </div>
     {{# if(this.showingData) }}
         <div class="grid transition-all ease-in-out duration-300 h-0 box-border pb-1 relative -top-3  hover:bg-neutral-10 transition-colors" 
@@ -121,7 +120,7 @@ class SimulationData extends StacheElement {
         
         const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
         const dates = getDatesFromWork(this.work,this.startDate);
-
+        const dueDatesOnly = this.work.dueDatesOnly;
         
         const startDateBottom10 = dates.startDate10;
   
@@ -140,28 +139,35 @@ class SimulationData extends StacheElement {
         TOOLTIP.centeredBelowElement(event.currentTarget, `
             <div class="p-2">
                 <div class="flex gap-2">
-                    <div class="bg-blue-200 rounded text-center p-1">
+                    <div class="${ dueDatesOnly ? "bg-green-200" : "bg-blue-200"} rounded text-center p-1">
                         <h5>10% chance</h5>
-                        <p class="text-sm">epic starts before</p>
-                        <p>${monthDateFormatter.format(startDateBottom10)}</p>
+                        ${
+                            dueDatesOnly ?
+                            `<p class="text-sm">work ends before</p>
+                            <p>${monthDateFormatter.format(dates.dueDate10)}</p>` :
+                            `<p class="text-sm">epic starts before</p>
+                            <p>${monthDateFormatter.format(startDateBottom10)}</p>`
+                        }
+                        
                     </div>
-                    <div class="bg-blue-500 rounded text-white text-center p-1">
+                    <div class="${ dueDatesOnly ? "bg-green-500" : "bg-blue-500"} rounded text-white text-center p-1">
                         <h5>${rangeStartChance}</h5>
-                        <p class="text-sm">epic starts before</p>
-                        <p>${monthDateFormatter.format(rangeStartDate)}</p>
+                        <p class="text-sm"> ${dueDatesOnly ? "work ends before" : "epic starts before"}</p>
+                        <p>${monthDateFormatter.format(dueDatesOnly ? dates.dueDateBottom : rangeStartDate)}</p>
                     </div>
                     <div class="bg-green-500 rounded text-white text-center p-1">
                         <h5>${rangeEndChance}</h5>
-                        <p class="text-sm">epic ends after</p>
+                        <p class="text-sm"> ${dueDatesOnly ? "work ends after" : "epic ends after"}</p>
                         <p>${monthDateFormatter.format(rangeEndDate)}</p>
                     </div>
                     <div class="bg-green-200 rounded text-center p-1">
                         <h5>10% chance</h5>
-                        <p class="text-sm">epic ends after</p>
+                        <p class="text-sm">${dueDatesOnly ? "work ends after" : "epic ends after"}</p>
                         <p>${monthDateFormatter.format(dueDateTop90)}</p>
                     </div>
                 </div>
-                <dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid gap-2"
+                ${dueDatesOnly ? "" :
+                `<dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid gap-2"
                     style="grid-template-columns: repeat(4, auto);">
                     <dt>Median Estimate</dt>
                     <dd class="${this.work.work.estimate === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.estimate}</dd>
@@ -183,7 +189,9 @@ class SimulationData extends StacheElement {
                     <dd class="text-right">${this.work.work.estimatedDaysOfWork}</dd>
                     <dt>Adjusted Days of Work</dt>
                     <dd class="text-right">${Math.round(this.work.dueDateTop - this.work.startDateBottom) }</dd>
-                </dl>
+                </dl>`
+                }
+                
             </div>
         `)
     }
@@ -249,8 +257,11 @@ export function getDatesFromWork(work,startDate){
         totalPoints: work.work.usedEstimate + additionalPoints,
         startDate: rangeStartDate,
         dueDate: rangeEndDate,
+        
         startDate10: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateBottom10),
+        dueDate10: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateBottom10),
         dueDate90: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateTop90),
+        dueDateBottom: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateBottom),
         startDateMedian: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateMedian),
         dueDateMedian: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateMedian)
     }
