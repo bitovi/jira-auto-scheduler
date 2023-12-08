@@ -57,7 +57,7 @@ class UpdateEpics extends StacheElement {
                     <button class="btn-primary" on:click="this.save(scope.event)">
                         Save selected changes in Jira
                     </button>
-                {{/ if }}
+                {{/ or }}
                 {{# if(this.issueUpdates.isRejected) }}
                     ERROR! Check Logs!
                 {{/ if }}

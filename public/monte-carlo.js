@@ -184,7 +184,7 @@ class MonteCarlo extends StacheElement {
                                 <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
                             {{ else }}
                                 <span>{{work.work.issue.Summary}}</span>
-                            {{/ if}}
+                            {{/ if }}
                         </div>
                         <simulation-data
                             class="relative block" 
@@ -292,7 +292,8 @@ class MonteCarlo extends StacheElement {
                 issue: {
                     Summary: "Due Date", "Issue key": "Due Date", 
                     blocks: [], 
-                    blocking: []
+                    blocking: [],
+                    url: null
                 }
             },
             uncertaintyWeight: this.uncertaintyWeight,

@@ -26,7 +26,7 @@ class SimulationData extends StacheElement {
                 </div>
             {{/ }}
         </div>
-    {{/ if }}
+    {{/ and }}
     
     <div class="relative py-1 z-50"
         on:click="this.toggleShowingExtraData()"
