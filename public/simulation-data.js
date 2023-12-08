@@ -196,6 +196,11 @@ class SimulationData extends StacheElement {
         `)
     }
     rangeBorderClasses() {
+        // this.work.dueDatesOnly
+        // work.dueDateBottom, work.dueDateTop
+        if(this.work.dueDatesOnly && this.work.dueDateBottom === this.work.dueDateTop) {
+            return "border-solid border border-x-4 border-green-400"
+        }
         if(this.work.work.estimate === null || this.work.work.confidence === null) {
             return "border-solid border-2 border-yellow-500";
         } else {
