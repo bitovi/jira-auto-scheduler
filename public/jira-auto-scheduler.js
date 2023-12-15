@@ -29,7 +29,7 @@ class JiraAutoScheduler extends StacheElement {
   static view = `
     <simple-tooltip this:to='this.tooltip'></simple-tooltip>
     {{# if(this.showSavingModal)}}
-      <dialog>
+      <dialog on:close="this.showSavingModal = false">
         <update-epics
           workItems:from="this.workItems"
           storyPointField:from="this.config.storyPointField[0]"
@@ -37,8 +37,7 @@ class JiraAutoScheduler extends StacheElement {
           dueDateField:from="this.config.dueDateField[0]"
           startDate:from="this.startDate"
           jiraHelpers:from="this.jiraHelpers"
-          
-          on:el:click="this.closeModalAndRefreshIssues()"
+          on:saved="this.closeModalAndRefreshIssues()"
           >
         </update-epics>
       </dialog>
@@ -164,7 +163,7 @@ class JiraAutoScheduler extends StacheElement {
         return dateThreshold;
       }
     },
-    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic"),
+    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic and statusCategory != Done"),
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),

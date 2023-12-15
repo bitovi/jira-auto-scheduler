@@ -244,6 +244,8 @@ function getLastBusinessDay(date){
 
 const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
+const yearDateFormatter = new Intl.DateTimeFormat('en-US', { year: 'numeric', timeZone: 'UTC' });
+
 const ranges = [
     {
         name: "days",
@@ -316,7 +318,16 @@ const ranges = [
     },
     {
         name: "years",
-        aveDays: 365
+        aveDays: 365,
+        dateRanges: makeDateRanges,
+        prettyDate(date){
+            return yearDateFormatter.format(date);
+        },
+        getStartOfNextRange(date){
+            var year = date.getUTCFullYear();
+            year++;
+            return new Date(Date.UTC(year, 0, 1));
+        }
     }
 ];
 

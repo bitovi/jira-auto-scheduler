@@ -124,7 +124,7 @@ class MonteCarlo extends StacheElement {
             </div>
             {{# for( timeRange of this.timeRanges) }}
                 <div
-                    class="border-neutral-30 border-solid border-x px-1 text-xs"
+                    class="border-neutral-30 border-solid border-x px-1 text-xs truncate"
                     style="grid-row: 1 / span {{plus(this.workPlans.gridRowSpan, 2)}}; grid-column: {{plus(timeRange.startDay, 1)}} / span {{timeRange.days}}"
                     >{{timeRange.prettyStart}}</div>
             {{/ for }}
@@ -177,7 +177,7 @@ class MonteCarlo extends StacheElement {
 
                     {{# for(work of track.works) }}
                         <div 
-                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2"
+                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2 truncate max-w-sm"
                             style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
                             >
                             {{# if(work.work.issue.url) }}

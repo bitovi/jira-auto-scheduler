@@ -66,7 +66,12 @@ export class Configure extends ObservableObject {
           return lowerFieldName.includes("confidence")  
         });
         if(haveConfidence.length > 1) {
-          return haveConfidence.filter( field => field.toLowerCase().includes("story"))
+          const withStory = haveConfidence.filter( field => field.toLowerCase().includes("story"));
+          if(withStory.length > 1) {
+            return withStory;
+          } else {
+            return haveConfidence;
+          }
         } else {
           return haveConfidence;
         }
