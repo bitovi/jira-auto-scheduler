@@ -61,6 +61,11 @@
   stroke-dasharray: none;
   stroke-width: 1;
 }
+/* stuff tailwind doesn't do */
+dialog::backdrop {
+  background-color: rgba(122, 134, 154, 0.5);
+}
+
 
 body {
   box-sizing: border-box;

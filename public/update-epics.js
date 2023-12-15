@@ -1,4 +1,4 @@
-import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./can.js";
+import { StacheElement, type, ObservableObject, fromAttribute, stache } from "./can.js";
 import {getDatesFromWork} from "./simulation-data.js";
 
 const jiraDataFormatter = new Intl.DateTimeFormat('en-CA', { // 'en-CA' uses the YYYY-MM-DD format
@@ -58,13 +58,15 @@ class UpdateEpics extends StacheElement {
                         Save selected changes in Jira
                     </button>
                 {{/ or }}
-                {{# if(this.issueUpdates.isRejected) }}
-                    ERROR! Check Logs!
-                {{/ if }}
-            
                 
                 <button class="btn-secondary" value="cancel" formmethod="dialog">Cancel</button>
             </div>
+            {{# eq(this.issueUpdateOutcome.status, "rejected") }}
+            <div class="bg-yellow-500 p-4 mt-2">
+                <p class="text-lg">There was an error saving to Jira!</p>
+                <p>Error: {{this.issueUpdateOutcome.errorReasons[0]}}</p>
+            </div>
+            {{/ eq }}
         </form>
     `;
     static props = {
@@ -73,13 +75,43 @@ class UpdateEpics extends StacheElement {
         startDateField: String,
         dueDateField: String,
         startDate: Date,
-        updatePromises: type.Any,
         issueUpdates: type.Any,
-        jiraHelpers: type.Any
+        jiraHelpers: type.Any,
+
+        // {status: waiting|pending|rejected|fulfilled, errorReasons: []}
+        issueUpdateOutcome: {
+            value({listenTo, resolve}){
+                function updateFromPromise(updatePromises){
+                    if(!updatePromises) {
+                        resolve({errorReasons: [], status: "waiting"})
+                    } else {
+                        resolve({errorReasons: [], status: "pending"})
+                        updatePromises.then((outcomes)=>{
+                            const errors = outcomes.filter( outcome => outcome.status === "rejected");
+                            if(errors.length) {
+                                return resolve({errorReasons: getNiceReasonsMessages( errors.map(error => error.reason) ), status: "rejected"})
+                            } else {
+                                return resolve({errorReasons: [], status: "fulfilled"})
+                            }
+                        });
+                    }
+                }
+                listenTo("issueUpdates",({value})=>{
+                    updateFromPromise(value)
+                });
+                updateFromPromise(this.updatePromises);
+            }
+        }
     };
     connected(){
         // this isn't great, but easy
         this.parentElement.showModal();
+        this.listenTo("issueUpdateOutcome",({value})=>{
+            if(value.status === "fulfilled") {
+                this.issueUpdates = null;
+                this.dispatch("saved");
+            }
+        })
     }
     get workItemsWithDates(){
         return Object.values(this.workItems).map( (workItem)=> {
@@ -88,6 +120,7 @@ class UpdateEpics extends StacheElement {
             return clone;
         }) 
     }
+    
     jiraDates(date){
         return jiraDataFormatter.format(date)
     }
@@ -112,7 +145,6 @@ class UpdateEpics extends StacheElement {
 
     save(event){
         event.preventDefault();
-
         const allWork = this.workItemsWithDates.map( workItem => {
           return {
             ...workItem,
@@ -129,7 +161,6 @@ class UpdateEpics extends StacheElement {
           || work.issue["Due date"] !== work.updates["Due date"] 
           || work.issue["Story points"] !== work.updates["Story points"];
       });*/
-      console.log(allWork);
       const updates = changedWork.map( workItem => {
         return {
             ...workItem,
@@ -137,16 +168,43 @@ class UpdateEpics extends StacheElement {
         }
       })
       this.issueUpdates = Promise.allSettled(updates.map( update => update.updatePromise));
+      /*
       this.issueUpdates
-        .then(()=> {
-            console.log("SAVED");
+        .then((values)=> {
+            debugger;
+            console.log("SAVED", values);
+
+            if()
             this.dispatch("saved");
         })
         .catch(e => {
+            debugger;
             console.log(e)
-        })
+        })*/
     }
 }
+
+function getNiceReasonsMessages(reasons){
+    return reasons.map(getNiceReasonsMessage);
+}
+
+function getNiceReasonsMessage(reason){
+    if(Array.isArray( reason.errorMessages) && reason.errorMessages.length) {
+        return reason.errorMessages[0]
+    } else if(reason.errors ) {
+        const message = Object.values(reason.errors)[0];
+        if(message.includes("It is not on the appropriate screen, or unknown")) {
+            return stache.safeString("A field is not on the screen associated with the epic."+
+                " <a target='_blank' href='https://github.com/bitovi/jira-auto-scheduler/wiki/Troubleshooting#a-field-is-not-on-the-appropriate-screen'>Read how to fix it here.</a>")
+        } else {
+            return message;
+        }
+         
+    } else {
+        return reason.message;
+    }
+}
+
 
 export default UpdateEpics;
 
