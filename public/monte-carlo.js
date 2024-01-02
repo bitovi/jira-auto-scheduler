@@ -237,6 +237,7 @@ class MonteCarlo extends StacheElement {
         // add an extra day to include the full range
         const endDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, gridDays + 1);
         const ranges = bestFitRanges(this.startDate, endDate, 12);
+        
         return ranges;
     }
     // High level ... we listen to a "computed" run of `scheduleIssues`,
