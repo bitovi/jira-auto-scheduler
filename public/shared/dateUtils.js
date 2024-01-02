@@ -1,3 +1,4 @@
+const HOUR_IN_MS = 1000 * 60 * 60;
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 function getQuarter(date) {
@@ -148,7 +149,9 @@ const makeDateRanges = function(startDate, endDate) {
     // this should be the first day of the range
     let cur = startDate;
     // this is the 1st calendar day of the next range
-    
+    if(endDate.getTime() === 1707091200000) {
+        //debugger;
+    }
     while(cur <= endDate) {
         let end = this.getStartOfNextRange(cur);
         const suggestedEndOfRange = end,
@@ -169,6 +172,8 @@ const makeDateRanges = function(startDate, endDate) {
             startDay,
             endDay,
             days:  endDay - startDay,
+            // this is one more than days because start will match end but it will still 
+            // go one more day
             businessDays: countBusinessDays(startBusinessDay,  endBusinessDay)
         });
         cur = end;
@@ -176,12 +181,14 @@ const makeDateRanges = function(startDate, endDate) {
     return ranges;
 };
 
+// keep moving one day 
 function countBusinessDays(startDate, endDate) {
     var count = 0;
     var currentDate = new Date(startDate);
 
-    // Loop over each day from startDate to endDate
-    while (currentDate <= endDate) {
+    // Loop over each day from startDate to endDate ... allow for 1 hr 
+    // daylight savings difference ...
+    while (endDate >= currentDate ) {
         var dayOfWeek = currentDate.getUTCDay();
 
         // Check if it's a weekday (Monday = 1, ..., Friday = 5)
@@ -191,6 +198,13 @@ function countBusinessDays(startDate, endDate) {
 
         // Move to the next day
         currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+    }
+
+    var dayOfWeek = currentDate.getUTCDay();
+
+    // Check if it's a weekday (Monday = 1, ..., Friday = 5)
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        count++;
     }
 
     return count;
@@ -288,6 +302,15 @@ const ranges = [
         dateRanges: makeDateRanges,
         // dec 5 -> Jan 1st, 19 days
         // jan 1, feb 1, 23
+
+        // 67
+        // Nov 3 -> Feb 04
+        //   Nov - [1,21] 20
+        //   Dec - [21,42] 21
+        //   Jan - [42,65] 23
+        //   Needs 3 more days 
+        //   Feb 5th -  3
+        //         [65, 67] 2 ... should be 3 days wide ...
         getStartOfNextRange(date){
             var year = date.getUTCFullYear();
             var month = date.getUTCMonth();
@@ -370,3 +393,8 @@ export function bestFitRanges(startDate, endDate, maxBuckets){
 
     return range.dateRanges(startUTC, endUTC);
 }
+
+
+// TESTS
+//ranges[2].dateRanges(new Date(1706745600000), new Date(1707091200000))
+//ranges[2].dateRanges(new Date(1698969600000), new Date(1701388800000));
