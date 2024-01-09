@@ -43,5 +43,24 @@ The Statistical AutoScheduler loads a list of epics from Jira containing:
 Then, given the team velocities provided to the app, it:
 
 1. For each epic, randomly selects a "work time" based on the log-normal probability distribution of the epic's estimate and confidence.
+2. Schedules out the epics using the following algorithm:
+    1. Identify the longest critical path based on blockers.
+    2. Schedule those epics in the first space allotted for the epic's team.
+    3. Repeat
+3. Finally, it repeats the scheduling algorithm __5000 times__, arriving at a probability distribution for the work as a whole.
+
+## Use
+
+To learn how to use this in context, read the full [Agile Program Management with Jira Training](https://www.bitovi.com/academy/learn-agile-program-management-with-jira.html).
+
+To use it with its default configuration, you need to create and add the following fields to all epics:
+
+- `Story points median`
+- `Story points confidence` 
+
+Make sure these fields and the following fields are added to the Epic screens too:
+
+- `Start date`
+- `Due date`
 
 
