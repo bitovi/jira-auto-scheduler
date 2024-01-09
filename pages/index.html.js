@@ -21,7 +21,7 @@ module.exports = function (env) {
 			<div class="flex" style="align-items: center">
 				<ul class="flex gap-3 flex-grow items-baseline">
 					<li>
-						<a href="https://github.com/bitovi/jira-timeline-report" 
+						<a href="https://github.com/bitovi/jira-auto-scheduler" 
 							class="text-neutral-800 text-3xl hover:underline font-bitovipoppins font-bold">Statistical AutoScheduler for Jira</a>
 					</li>
 					<li>
