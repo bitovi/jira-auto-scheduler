@@ -60,15 +60,15 @@ The Statistical AutoScheduler loads a list of epics from Jira containing:
 
 Then, given the team velocities provided to the app, it:
 
-1. For each epic, randomly selects a "work time" based on the log-normal probability distribution of the epic's estimate and confidence.
+1. For each epic, randomly selects a "work time" based on the log-normal probability distribution of the epic's estimate and confidence
 2. Schedules out the epics using the following algorithm:
-    1. Identify the longest critical path based on blockers.
-    2. Schedule those epics in the first space allotted for the epic's team.
+    1. Identify the longest critical path based on blockers
+    2. Schedule those epics in the first space allotted for the epic's team
     3. Repeat
-3. Finally, it repeats the scheduling algorithm __5000 times__, arriving at a probability distribution for the work as a whole.
+3. Finally, it repeats the scheduling algorithm __5000 times__, arriving at a probability distribution for the work as a whole
 
 
-For more background, checkout:
+For more background, check out:
 
 - [Why software projects take longer than you think: a statistical model](https://erikbern.com/2019/04/15/why-software-projects-take-longer-than-you-think-a-statistical-model.html)
 - [Statistical Software Estimator](https://bitovi.github.io/statistical-software-estimator/)
