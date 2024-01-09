@@ -13,7 +13,19 @@ The [Statistical AutoScheduler](https://auto-scheduler.bitovi-jira.com/) is used
 - Specify the probability threshold to adjust to your risk tolerances
 - Supports a wide variety of Jira configuration settings
 
-## Why Use 
+## Need help or have questions?
+
+This project is supported by [Bitovi, an Agile Project Management consultancy](https://www.bitovi.com/services/agile-project-management-consulting). You can get help or connect on our:
+
+- [LinkedIn](https://www.linkedin.com/company/bitovi/)
+- [Discord](https://discord.gg/J7ejFsZnJ4)
+- [Twitter](https://twitter.com/bitovi)
+
+Or, attend our next free & public [training](https://www.bitovi.com/events/program-management-webinar).
+
+Or, you can [hire us](https://www.bitovi.com/services/agile-project-management-consulting) for training, consulting, or program management.
+
+## Why 
 
 ![image](https://github.com/bitovi/jira-auto-scheduler/assets/78602/d7d952ac-f6c7-4435-9684-b0995ce3623a)
 
@@ -48,6 +60,12 @@ Then, given the team velocities provided to the app, it:
     2. Schedule those epics in the first space allotted for the epic's team.
     3. Repeat
 3. Finally, it repeats the scheduling algorithm __5000 times__, arriving at a probability distribution for the work as a whole.
+
+
+For more background, checkout:
+
+- [Why software projects take longer than you think: a statistical model](https://erikbern.com/2019/04/15/why-software-projects-take-longer-than-you-think-a-statistical-model.html)
+- [Statistical Software Estimator](https://bitovi.github.io/statistical-software-estimator/)
 
 ## Use
 
