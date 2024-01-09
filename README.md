@@ -43,6 +43,12 @@ Finally, even with improved modeling, a single due date can never be provided.  
 
 ![Jira_Auto_Scheduler](https://github.com/bitovi/jira-auto-scheduler/assets/78602/e15fd818-e08c-43c6-8dbe-0eebab727e60)
 
+Ultimately, using the AutoScheduler provides both:
+
+- More accurate roadmaps
+- And, plans that properly reflect uncertainty
+
+... which helps teams make more informed decisions.
 
 ## How it works
 
