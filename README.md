@@ -77,7 +77,7 @@ For more background, check out:
 
 To learn how to use this in context, read the full [Agile Program Management with Jira Training](https://www.bitovi.com/academy/learn-agile-program-management-with-jira.html).
 
-The following Quick Start video shows how:
+The following [Quick Start Video](https://youtu.be/wNOrmthMnFA) shows how:
 
 - [0:10](https://youtu.be/wNOrmthMnFA?t=10) - Adding the `Story points median` and `Story points confidence` fields.
 - [1:25](https://youtu.be/wNOrmthMnFA?t=85) - Creating the initial epics we will use for the roadmap
