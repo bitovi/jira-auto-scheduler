@@ -89,7 +89,7 @@ The following Quick Start video shows how:
 - [5:36](https://youtu.be/wNOrmthMnFA?t=336) - Saving the plan back to Jira
 
 
-[![Quick Start Statistical Auto Scheduler](https://github.com/bitovi/jira-auto-scheduler/assets/78602/aeab9a66-1f22-4e07-aeb3-69144e4d7e94 'Quick Start Statistical Auto Scheduler')]([https://codecademy.com](https://youtu.be/wNOrmthMnFA))
+[![Quick Start Statistical Auto Scheduler](https://github.com/bitovi/jira-auto-scheduler/assets/78602/aeab9a66-1f22-4e07-aeb3-69144e4d7e94 'Quick Start Statistical Auto Scheduler')](https://youtu.be/wNOrmthMnFA)
 
 
 
