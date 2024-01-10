@@ -77,6 +77,22 @@ For more background, check out:
 
 To learn how to use this in context, read the full [Agile Program Management with Jira Training](https://www.bitovi.com/academy/learn-agile-program-management-with-jira.html).
 
+The following Quick Start video shows how:
+
+- [0:10](https://youtu.be/wNOrmthMnFA?t=10) - Adding the `Story points median` and `Story points confidence` fields.
+- [1:25](https://youtu.be/wNOrmthMnFA?t=85) - Creating the initial epics we will use for the roadmap
+- [1:53](https://youtu.be/wNOrmthMnFA?t=113) - Adding the `Story points median`, `Story points confidence` and `Story point estimate` fields to the Epics screen.
+- [2:43](https://youtu.be/wNOrmthMnFA?t=163) - Adding `Story points median` and `Story points confidence` values to epics.
+- [4:08](https://youtu.be/wNOrmthMnFA?t=248) - Connecting the Statistical Auto Scheduler to your Jira instance.
+- [4:27](https://youtu.be/wNOrmthMnFA?t=267) - Exploring the results.
+- [5:10](https://youtu.be/wNOrmthMnFA?t=310) - Configuring the Statistical Auto Scheduler to write adjusted story points to the `Story point estimate` field.
+- [5:36](https://youtu.be/wNOrmthMnFA?t=336) - Saving the plan back to Jira
+
+
+[![Quick Start Statistical Auto Scheduler](https://github.com/bitovi/jira-auto-scheduler/assets/78602/aeab9a66-1f22-4e07-aeb3-69144e4d7e94 'Quick Start Statistical Auto Scheduler')]([https://codecademy.com](https://youtu.be/wNOrmthMnFA))
+
+
+
 To use it with its default configuration, you need to create and add the following fields to all epics:
 
 - `Story points median`
