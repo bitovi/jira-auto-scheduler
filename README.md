@@ -73,9 +73,8 @@ For more background, check out:
 - [Why software projects take longer than you think: a statistical model](https://erikbern.com/2019/04/15/why-software-projects-take-longer-than-you-think-a-statistical-model.html)
 - [Statistical Software Estimator](https://bitovi.github.io/statistical-software-estimator/)
 
-## Use
 
-To learn how to use this in context, read the full [Agile Program Management with Jira Training](https://www.bitovi.com/academy/learn-agile-program-management-with-jira.html).
+## Quick Start
 
 The following [Quick Start Video](https://youtu.be/wNOrmthMnFA) shows how:
 
@@ -91,7 +90,9 @@ The following [Quick Start Video](https://youtu.be/wNOrmthMnFA) shows how:
 
 [![Quick Start Statistical Auto Scheduler](https://github.com/bitovi/jira-auto-scheduler/assets/78602/aeab9a66-1f22-4e07-aeb3-69144e4d7e94 'Quick Start Statistical Auto Scheduler')](https://youtu.be/wNOrmthMnFA)
 
+## Full Set Up
 
+To learn how to use this in context, read the full [Agile Program Management with Jira Training](https://www.bitovi.com/academy/learn-agile-program-management-with-jira.html).
 
 To use it with its default configuration, you need to create and add the following fields to all epics:
 
@@ -102,5 +103,21 @@ Make sure these fields and the following fields are added to the Epic screens to
 
 - `Start date`
 - `Due date`
+
+## Use
+
+Once set up, you just need to make sure each epic has:
+
+- A "median" story point estimate. By default, it's assumed to be the `Story points median` field.
+- A "confidence" in the estimate.  By default, it's assumed to be the `Story points confidence` field.
+- Blockers on other epics set.
+
+
+
+
+
+
+
+
 
 
