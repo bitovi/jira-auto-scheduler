@@ -56,7 +56,7 @@ class AutoComplete extends StacheElement {
     }
     suggestItems(searchTerm){
         const matches = this.data.filter( item => {
-            return item.toLowerCase().includes(searchTerm) && !this.selected.includes(item)
+            return item.toLowerCase().includes(searchTerm.toLowerCase()) && !this.selected.includes(item)
         })
         this.showingSuggestions = true;
         // this could be made more efficient, but is probably ok
