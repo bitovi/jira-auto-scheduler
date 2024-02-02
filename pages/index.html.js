@@ -14,6 +14,9 @@ module.exports = function (env) {
 			<title>Jira Auto Scheduler</title>
 			<link rel="stylesheet" href="./dist/production.css">
 			<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+			<link rel="icon" 
+				type="image/png" 
+				href="/images/favicon.png">
 	</head>
 	<body class="bg-slate-400">
 	<div class="bg-white px-2 drop-shadow-md hide-on-fullscreen">

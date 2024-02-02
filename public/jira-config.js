@@ -112,7 +112,7 @@ export class Configure extends ObservableObject {
 
     // we need to know this right away
     get issueFields(){
-      return ["Summary", "Issue Type","status","Linked Issues", 
+      return ["Summary", "Issue Type","status","Linked Issues", "Team",
         this.startDateField, this.dueDateField,
         ...this.medianEstimateFields, ...this.confidenceFields, ...this.storyPointField]
     },
@@ -131,7 +131,7 @@ export class Configure extends ObservableObject {
 			"Linked Issues"
 		]),*/
 
-    ...makeLogicAndFunctionDefinition("getTeamKey", {"var": "Project key"}),
+    ...makeLogicAndFunctionDefinition("getTeamKey", {"or":[{"var": "Team.name"},{"var": "Project key"}]}),
 
     ...makeLogicAndFunctionDefinition("getDaysPerSprint", 10),
 
