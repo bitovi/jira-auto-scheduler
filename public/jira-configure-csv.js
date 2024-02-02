@@ -78,6 +78,7 @@ class JiraConfigureCSV extends StacheElement {
       </div>
     </div>
 
+
     <h2 class="text-lg font-bold">Adjusted Story Point Output Field</h2>
     <div class="flex gap-6 flex-wrap pb-4">
       <div class="grow">
