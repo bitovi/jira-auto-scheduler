@@ -57,6 +57,7 @@ The Statistical AutoScheduler loads a list of epics from Jira containing:
 - An estimate in story points.
 - A confidence from 10 to 100%.
 - A list of blockers
+- An optional "team". If no team is provided, the epic's team will be the epic's project name.
 
 Then, given the team velocities provided to the app, it:
 
