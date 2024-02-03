@@ -1,7 +1,7 @@
 import { StacheElement, type, ObservableObject } from "./can.js";
 import {getEstimateDefault} from "./schedule-prepare-issues.js";
 import {toCVSFormatAndAddWorkingBusinessDays} from "./shared/issue-cleanup.js";
-import {saveJSONToUrl} from "./shared/state-storage.js";
+import {saveJSONToUrl, saveJSONToUrlAndToLocalStorage} from "./shared/state-storage.js";
 
 import "./jira-configure-csv.js";
 import "./shared/simple-tooltip.js";
@@ -163,7 +163,7 @@ class JiraAutoScheduler extends StacheElement {
         return dateThreshold;
       }
     },
-    issueJQL: saveJSONToUrl("issueJQL", "issueType = Epic and statusCategory != Done"),
+    issueJQL: saveJSONToUrlAndToLocalStorage("issueJQL", "issueType = Epic and statusCategory != Done"),
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
@@ -262,7 +262,9 @@ class JiraAutoScheduler extends StacheElement {
   };
   // hooks
   async connected() {
-
+    this.listenTo("velocitiesJSON",({value})=>{
+      localStorage.setItem("team-velocities", JSON.stringify(value));
+    })
 
   }
   closeModalAndRefreshIssues(){
