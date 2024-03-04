@@ -17,6 +17,14 @@ module.exports = function (env) {
 			<link rel="icon" 
 				type="image/png" 
 				href="/images/favicon.png">
+
+			<meta property="og:title" content="Statistical Auto-Scheduler for Jira">
+			<meta property="og:type" content="website" />
+			<meta property="og:description" content="A statistical monte-carlo roadmapping tool for Jira.">
+			<meta property="og:image" content="https://repository-images.githubusercontent.com/354628180/fe4dbf27-0409-4cc6-86cc-0a7097983901">
+			<meta property="og:url" content="https://auto-scheduler.bitovi-jira.com/">
+			<meta name="twitter:card" content="summary_large_image">
+				
 	</head>
 	<body class="bg-slate-400">
 	<div class="bg-white px-2 drop-shadow-md hide-on-fullscreen">
@@ -25,7 +33,7 @@ module.exports = function (env) {
 				<ul class="flex gap-3 flex-grow items-baseline">
 					<li>
 						<a href="https://github.com/bitovi/jira-auto-scheduler" 
-							class="text-neutral-800 text-3xl hover:underline font-bitovipoppins font-bold">Statistical AutoScheduler for Jira</a>
+							class="text-neutral-800 text-3xl hover:underline font-bitovipoppins font-bold">Statistical Auto-Scheduler for Jira</a>
 					</li>
 					<li>
 						<a href="https://www.bitovi.com/services/agile-project-management-consulting" 
