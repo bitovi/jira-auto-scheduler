@@ -233,11 +233,11 @@ class MonteCarlo extends StacheElement {
         return this.lastDueDay + 1
     }
     get timeRanges(){
+        // grid number of days is how many columns there are in the actual CSS grid
         const gridDays = this.gridNumberOfDays;
         // add an extra day to include the full range
         const endDate = getUTCEndDateFromStartDateAndBusinessDays(this.startDate, gridDays + 1);
         const ranges = bestFitRanges(this.startDate, endDate, 12);
-        
         return ranges;
     }
     // High level ... we listen to a "computed" run of `scheduleIssues`,

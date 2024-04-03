@@ -54,6 +54,23 @@ export function getBusinessDatesCount(startDate, endDate) {
     return count;
 }
 
+function roundToNearestUTCDate(date) {
+    // Extract the UTC date parts
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const hours = date.getUTCHours();
+    
+    // Create a date representing the start of the UTC day
+    let roundedDate = new Date(Date.UTC(year, month, day));
+    
+    // If the time is 12:00 UTC or later, add one day
+    if (hours >= 12) {
+      roundedDate.setUTCDate(roundedDate.getUTCDate() + 1);
+    }
+    
+    return roundedDate;
+  }
 
 // getEndDateFromStartDateAndBusinessDays( parseDateISOString("2022-01-01"), 2 ) //-> Jan 5
 
@@ -85,7 +102,6 @@ export function getEndDateFromStartDateAndBusinessDays(startDate, businessDays){
 	return curDate;
 }
 
-// 
 export function getUTCEndDateFromStartDateAndBusinessDays(startDate, businessDays){
 	const curDate = new Date(startDate.getTime());
 	const startDay = curDate.getUTCDay();
@@ -146,49 +162,56 @@ export function parseDateISOString(s) {
 // ranges are [,)
 const makeDateRanges = function(startDate, endDate) {
     const ranges = [];
-    // this should be the first day of the range
     let cur = startDate;
-    // this is the 1st calendar day of the next range
-    if(endDate.getTime() === 1707091200000) {
-        //debugger;
-    }
-    while(cur <= endDate) {
-        let end = this.getStartOfNextRange(cur);
-        const suggestedEndOfRange = end,
-            endOfRange = end > endDate ? endDate : suggestedEndOfRange,
-            startDay = countBusinessDays(startDate, cur), // n^2
-            endDay = countBusinessDays(startDate, endOfRange), // n^2
-            startBusinessDay = getFirstBusinessDay(cur),
-            endBusinessDay = getLastBusinessDay(endOfRange);
+    const endBusinessDay = getLastBusinessDay(endDate);
 
-        ranges.push({
-            start: cur,
-            startBusinessDay,
-            prettyStart: this.prettyDate(startBusinessDay),
-            end: endOfRange,
-            endBusinessDay,
-            prettyEnd: this.prettyDate(endBusinessDay),
-            type: this.name,
-            startDay,
-            endDay,
-            days:  endDay - startDay,
-            // this is one more than days because start will match end but it will still 
-            // go one more day
-            businessDays: countBusinessDays(startBusinessDay,  endBusinessDay)
-        });
-        cur = end;
+    while(cur <= endDate) {
+        // there is no promise that this day is on a business day ...
+        let startBusinessDayOfRange = getFirstBusinessDay(cur);
+        let startOfNextRange = this.getStartOfNextRange(cur);
+        let possibleEndBusinessDayOfRange = getPreviousBusinessDay(startOfNextRange);
+
+        const endBusinessDayOfRange = startOfNextRange > endBusinessDay ? endBusinessDay : possibleEndBusinessDayOfRange,
+            startDay = countBusinessDays(startDate, startBusinessDayOfRange), // n^2
+            endDay = countBusinessDays(startDate, endBusinessDayOfRange);
+        
+        // sometimes the start and end would be the same day. 
+        if(endDay - startDay !== 0 ) {
+            ranges.push({
+                get start(){
+                    throw "nope";
+                },
+                get end(){
+                    throw "nope";
+                },
+                startBusinessDay: startBusinessDayOfRange,
+                prettyStart: this.prettyDate(startBusinessDayOfRange),
+
+                endBusinessDay: endBusinessDayOfRange,
+                prettyEnd: this.prettyDate(endBusinessDayOfRange),
+                type: this.name,
+                startDay,
+                endDay,
+                days:  endDay - startDay + 1,
+                businessDays: countBusinessDays(startBusinessDayOfRange,  endBusinessDayOfRange)
+            });
+        }
+        
+        cur = startOfNextRange;
     }
     return ranges;
 };
 
 // keep moving one day 
-function countBusinessDays(startDate, endDate) {
+// is this inclusive or exclusive?
+// [inclusive, inclusive]
+export function countBusinessDays(startDate, endDate) {
     var count = 0;
     var currentDate = new Date(startDate);
 
     // Loop over each day from startDate to endDate ... allow for 1 hr 
     // daylight savings difference ...
-    while (endDate >= currentDate ) {
+    while (endDate > currentDate ) {
         var dayOfWeek = currentDate.getUTCDay();
 
         // Check if it's a weekday (Monday = 1, ..., Friday = 5)
@@ -235,17 +258,14 @@ function getFirstBusinessDay(date){
 
 function getPreviousBusinessDay(date){
     // Create a new date object to avoid modifying the original date
-    var nextDay = new Date(date);
+    var prevDay = new Date(date);
 
-    // Set time to the end of the current day
-    nextDay.setUTCHours(0, 0, 0, 0);
+    prevDay.setDate(prevDay.getDate() - 1);
 
-    // Remove 1 millisecond to move to the start of the previous next day
-    nextDay.setTime(nextDay.getTime() - 1);
-    if(nextDay.getUTCDay() === 0 || nextDay.getUTCDay() === 6) {
-        return getPreviousBusinessDay(nextDay)
+    if(prevDay.getUTCDay() === 0 || prevDay.getUTCDay() === 6) {
+        return getPreviousBusinessDay(prevDay)
     }
-    return nextDay;
+    return prevDay;
 }
 
 function getLastBusinessDay(date){
@@ -256,7 +276,7 @@ function getLastBusinessDay(date){
     }
 }
 
-const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+export const monthDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 const yearDateFormatter = new Intl.DateTimeFormat('en-US', { year: 'numeric', timeZone: 'UTC' });
 
@@ -311,6 +331,9 @@ const ranges = [
         //   Needs 3 more days 
         //   Feb 5th -  3
         //         [65, 67] 2 ... should be 3 days wide ...
+
+        // 67 grid days 3/27
+        // 
         getStartOfNextRange(date){
             var year = date.getUTCFullYear();
             var month = date.getUTCMonth();
