@@ -1,7 +1,7 @@
 import { StacheElement, type, ObservableObject } from "./can.js";
 import {getEstimateDefault} from "./schedule-prepare-issues.js";
 import {toCVSFormatAndAddWorkingBusinessDays} from "./shared/issue-cleanup.js";
-import {saveJSONToUrl, saveJSONToUrlAndToLocalStorage} from "./shared/state-storage.js";
+import {saveJSONToUrl, saveJSONToUrlAndToLocalStorage, booleanParsing} from "./shared/state-storage.js";
 
 import "./jira-configure-csv.js";
 import "./shared/simple-tooltip.js";
@@ -52,8 +52,10 @@ class JiraAutoScheduler extends StacheElement {
         </summary>
         <jira-configure-csv 
           rawIssues:from="this.rawIssues" 
+          rawIssuesPromise:from="this.rawIssuesPromise"
           config:from="this.config"
-          issueJQL:bind="this.issueJQL"/>
+          issueJQL:bind="this.issueJQL"
+          loadChildren:bind="this.loadChildren"/>
 
     </details>
     {{ else }}
@@ -164,6 +166,7 @@ class JiraAutoScheduler extends StacheElement {
       }
     },
     issueJQL: saveJSONToUrlAndToLocalStorage("issueJQL", "issueType = Epic and statusCategory != Done"),
+    loadChildren: saveJSONToUrl("loadChildren", false, Boolean, booleanParsing),
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
@@ -209,8 +212,12 @@ class JiraAutoScheduler extends StacheElement {
         return nativeFetchJSON("./examples/promotions.json");
       } else {
         const serverInfoPromise = this.jiraHelpers.getServerInfo();
+        
+        const loadIssues = this.loadChildren ? 
+          this.jiraHelpers.fetchAllJiraIssuesAndDeepChildrenWithJQLUsingNamedFields :
+          this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields;
 
-        const issuesPromise = this.jiraHelpers.fetchAllJiraIssuesWithJQLUsingNamedFields({
+        const issuesPromise = loadIssues({
             jql: this.issueJQL,//this.jql,
             fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
         });

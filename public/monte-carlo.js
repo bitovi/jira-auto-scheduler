@@ -268,6 +268,7 @@ class MonteCarlo extends StacheElement {
         if(!this.configuration || !this.rawIssues.length) {
             return success(undefined);
         }
+        console.log(this.rawIssues)
         scheduleIssues(this.rawIssues, {
             uncertaintyWeight: null,
             onPlannedIssues: success,
@@ -387,6 +388,11 @@ class MonteCarlo extends StacheElement {
                 disableVelocity: false
             }
         });
+
+        if(lastWork === null) {
+            // there's no work planned. Probably no epics, abort.
+            return;
+        }
         endDateWorkItem.addWork(lastWork);
         baseWorkPlans.unshift({
             teamKey: "Summary",

@@ -60,7 +60,7 @@ export function prepareIssues(issuesSource, {
     // Group issues by type
     const issuesByType = groupByKey(interestingIssues, "Issue Type");
 
-    const interestingEpics = issuesByType.Epic;
+    const interestingEpics = issuesByType.Epic || [];
 
     const issuesByTeam = groupByKey(interestingIssues, getTeamKey);
 
