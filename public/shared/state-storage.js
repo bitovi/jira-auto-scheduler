@@ -13,6 +13,13 @@ export function saveToLocalStorage(key, getDefault) {
   }
 }
 
+export const booleanParsing = {
+  parse: x => {
+    return ({"": true, "true": true, "false": false})[x];
+  },
+  stringify: x => ""+x
+};
+
 const dateMatch = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 export function saveJSONToUrl(key, defaultValue, Type, converter = JSON){

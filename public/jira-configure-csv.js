@@ -30,7 +30,29 @@ class JiraConfigureCSV extends StacheElement {
         <p class="text-base my-1">Specify a <a href="https://www.atlassian.com/software/jira/guides/jql/overview">JQL</a> used to load the epics you 
         want to schedule.</p>
         <p><input value:bind="this.issueJQL" class="w-full text-base form-border"/></p>
-        <p class="text-sm text-right">Loaded {{this.rawIssues.length}} issues.</p>
+        
+        {{# if(this.rawIssuesPromise.isRejected) }}
+          <div class="border-solid-1px-slate-900 border-box block overflow-hidden bg-yellow-500 p-1">
+            <p>There was an error loading from Jira!</p>
+            <p>Error message: {{this.rawIssuesPromise.reason.errorMessages[0]}}</p>
+            <p>Please check your JQL is correct!</p>
+          </div>
+        {{/ if }}
+        <div class="flex justify-between mt-1">
+      
+          <p class="text-xs"><input type='checkbox' 
+            class='self-start align-middle' checked:bind='this.loadChildren'/> <span class="align-middle">Load all children of JQL specified issues</span>
+          </p>
+          
+          {{# if(this.rawIssuesPromise.isResolved) }}
+            <p class="text-xs">Loaded {{this.rawIssues.length}} issues</p>
+          {{/ if }}
+          {{# if(this.rawIssuesPromise.isPending) }}
+            <p class="text-xs text-right">Loading issues ...</p>
+          {{/ if }}
+        </div>
+
+
       </div>
       <div class="lg:w-112 bg-neutral-30 p-1 w-full">
         <p class="my-1 text-sm">
@@ -206,6 +228,7 @@ class JiraConfigureCSV extends StacheElement {
   `;
   static props = {
     rawIssues: type.Any,
+    rawIssuesPromise: type.Any,
     config: type.Any,
     _showTypeInfo: {Type: Boolean, default: false},
 		
