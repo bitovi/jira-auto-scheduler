@@ -1,14 +1,23 @@
 import {prepareIssues} from "./schedule-prepare-issues.js";
 
+// I think we might be able to pass in an array of issue plan orders. 
+// This might keep things much more stable ...
+
 // This is the main function that schedule issues.
 // issues - a raw list of issue objects, no metadata
 // options - a whole bunch of configuration options
 export function scheduleIssues(issues, options){
   const {
-    onPlannedIssueIncrement, onPlannedIssues
+    onPlannedIssueIncrement, 
+    onPlannedIssues,
+
+    // True will plan issues in the same order as when planned if probablisticallySelectIssueTiming is false
+    // This allows a more stable "order" to be provided
+    planIssuesInUncertaintyOrder
   } = {
     onPlannedIssueIncrement: (issue, workByTeams) => {},
     onPlannedIssues: (workByTeams) => {},
+    planIssuesInUncertaintyOrder: false,
     ...options
   }
   // prepares a copy of issues that should be plotted.  Each issue
@@ -19,8 +28,13 @@ export function scheduleIssues(issues, options){
     workByTeams} = prepareIssues(issues, options);
 
 
-  // adds a .blocksWorkDepth
-  preparedIssues.forEach(issue => blocksWorkDepth(issue));
+  // adds a .blocksWorkDepth .. this is used to determine the order issues are scheduled in
+  if(planIssuesInUncertaintyOrder) {
+    preparedIssues.forEach(issue => deterministicBlocksWorkDepth(issue));
+  } else {
+    preparedIssues.forEach(issue => blocksWorkDepth(issue));
+  }
+  
 
   // Sorts by the items that has the most work
   preparedIssues.sort((iA, iB) => iB.blocksWorkDepth - iA.blocksWorkDepth);
@@ -36,6 +50,7 @@ export function scheduleIssues(issues, options){
 }
 
 
+
 function blocksWorkDepth(issue) {
     if(issue.blocksWorkDepth !== undefined) {
         return issue.blocksWorkDepth;
@@ -48,7 +63,20 @@ function blocksWorkDepth(issue) {
         },0)
     }
 }
-
+// I could resuse the function above, but this is easier
+// This makes the planning order deterministic 
+function deterministicBlocksWorkDepth(issue) {
+  if(issue.blocksWorkDepth !== undefined) {
+      return issue.blocksWorkDepth;
+  }
+  if(!issue.blocks || !issue.blocks.length) {
+      return issue.blocksWorkDepth = issue.work.deterministicDaysOfWork;
+  } else {
+      return issue.blocksWorkDepth = issue.work.deterministicDaysOfWork + issue.blocks.reduce( (max, issue)=> {
+          return Math.max(max,  deterministicBlocksWorkDepth(issue) );
+      },0)
+  }
+}
 
 // This function tries to plan an issue.
 // It is recursive. It will plan the issue and then try to plan everything the issue

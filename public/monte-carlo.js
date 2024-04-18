@@ -38,31 +38,38 @@ function average(array) {
 class WorkItem extends ObservableObject {
     static props = {
         work: type.Any,
+
         startDateBottom: 0,
         startDateBottom10: 0, 
-        startDateMedian: 0,
+        startDateAverage: 0,
 
 
         dueDateBottom10: 0,
         dueDateBottom: 0,
-        dueDateMedian: 0,
+        dueDateAverage: 0,
         dueDateTop: 0,
         dueDateTop90: 0,
         dueDateTop95: 0,
+
+        adjustedDaysOfWorkAverage: 0,
+
         uncertaintyWeight: {type: type.Any, default: 90},
         startDateValues: {get default(){ return []}},
         dueDateValues: {get default(){ return []}},
+        adjustedDaysOfWorkValues: {get default(){ return []}},
 
         _holdingStartDates: {get default(){ return []}},
         _holdingDueDates: {get default(){ return []}},
+        _holdingAdjustedDaysOfWork: {get default(){ return []}},
     };
     addWork(work){
         // update new values
-        //if(this.work.issue["Issue key"] === "STORE-2" && work.startDay > 0) {
+        //if(this.work.issue["Issue key"] === "IMP-121") {
         //    debugger;
         //}
         this._holdingStartDates.push(work.startDay);
         this._holdingDueDates.push(work.startDay + work.daysOfWork);
+        this._holdingAdjustedDaysOfWork.push(work.daysOfWork);
         //this.startDateValues.push(work.startDay);
         //this.dueDateValues.push(work.startDay + work.daysOfWork);
     }
@@ -75,9 +82,14 @@ class WorkItem extends ObservableObject {
         this.dueDateValues.push(...this._holdingDueDates);
         this.dueDateValues.sort(compareNumbers);
         this._holdingDueDates = [];
+
+        this.adjustedDaysOfWorkValues.push(...this._holdingAdjustedDaysOfWork);
+        this.adjustedDaysOfWorkValues.sort(compareNumbers);
+        this._holdingAdjustedDaysOfWork = [];
         
-        this.startDateMedian = average(this.startDateValues);
-        this.dueDateMedian = average(this.dueDateValues);
+        this.startDateAverage = average(this.startDateValues);
+        this.dueDateAverage = average(this.dueDateValues);
+        this.adjustedDaysOfWorkAverage = average(this.adjustedDaysOfWorkValues);
 
         const length = this.startDateValues.length;
         if(typeof this.uncertaintyWeight === "number"){
@@ -85,8 +97,8 @@ class WorkItem extends ObservableObject {
             this.dueDateBottom = this.dueDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) / 100 ), length - 1) ];
             this.dueDateTop = this.dueDateValues[Math.min( Math.round(length *this.uncertaintyWeight / 100 ), length - 1) ];
         } else if(this.uncertaintyWeight === "average") {
-            this.startDateBottom = this.startDateMedian;
-            this.dueDateBottom = this.dueDateTop = this.dueDateMedian;
+            this.startDateBottom = this.startDateAverage;
+            this.dueDateBottom = this.dueDateTop = this.dueDateAverage;
         }
 
         this.startDateBottom10 = this.startDateValues[Math.min( Math.round(length * 10 /100), length - 1) ];
@@ -223,7 +235,7 @@ class MonteCarlo extends StacheElement {
 
         firstRunWorkPlans: {
             async(resolve) {
-                this.runOneSimulation(resolve);
+                this.runOneSimulation(resolve, true);
             }
         },
         startDate: type.maybeConvert(Date),
@@ -264,13 +276,16 @@ class MonteCarlo extends StacheElement {
         })
     }
 
-    runOneSimulation(success){
+    runOneSimulation(success, first){
         if(!this.configuration || !this.rawIssues.length) {
             return success(undefined);
         }
-        console.log(this.rawIssues)
+
         scheduleIssues(this.rawIssues, {
-            uncertaintyWeight: null,
+            // hard-coding 80 makes this not have to re-run the simulation on each movement
+            uncertaintyWeight: 80 || this.uncertaintyWeight,
+            planIssuesInUncertaintyOrder: true,
+            probablisticallySelectIssueTiming: true,
             onPlannedIssues: success,
             getVelocity: this.getVelocityForTeam.bind(this),
             onIgnoredIssues: function(ignored, reason){
@@ -283,6 +298,10 @@ class MonteCarlo extends StacheElement {
             getConfidence: this.configuration.getConfidence,
             getParallelWorkLimit: this.getParallelWorkLimit
         })
+        
+
+
+        
     }
     afterFirstSimulation(workPlans){
         if(!workPlans) {
@@ -323,7 +342,7 @@ class MonteCarlo extends StacheElement {
         }
 
         // runs a batch of tests
-        const runBatch = (remainingSimulations, syncRuns = 50) => {
+        const runBatch = (remainingSimulations, syncRuns = 100) => {
             for(let i = 0; i < syncRuns; i++) {
                 this.runOneSimulation(addResults);
             }

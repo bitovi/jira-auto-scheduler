@@ -99,7 +99,7 @@ class SimulationData extends StacheElement {
         const color = column.type === "startDate" ? "bg-blue-500" : "bg-green-500";
         
 
-        TOOLTIP.centeredBelowElement(event.currentTarget, `
+        TOOLTIP.belowElementInScrollingContainer(event.currentTarget, `
             <div class="p-2">
                 <div class="${color} rounded text-white text-center p-1">
                     <h5>${toFixed(probability,1)}% chance</h5>
@@ -136,7 +136,7 @@ class SimulationData extends StacheElement {
             rangeStartChance = rangeEndChance = `${100 - this.work.uncertaintyWeight}% chance`;
         }
 
-        TOOLTIP.centeredBelowElement(event.currentTarget, `
+        TOOLTIP.belowElementInScrollingContainer(event.currentTarget, `
             <div class="p-2">
                 <div class="flex gap-2">
                     <div class="${ dueDatesOnly ? "bg-green-200" : "bg-blue-200"} rounded text-center p-1">
@@ -250,8 +250,8 @@ export function getDatesFromWork(work,startDate){
     let rangeStartDate,
         rangeEndDate;
     if(work.uncertaintyWeight === "average") {
-        rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateMedian);
-        rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateMedian);
+        rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateAverage);
+        rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateAverage);
     } else {
         rangeStartDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateBottom);
         rangeEndDate = getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateTop);
@@ -267,8 +267,8 @@ export function getDatesFromWork(work,startDate){
         dueDate10: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateBottom10),
         dueDate90: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateTop90),
         dueDateBottom: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateBottom),
-        startDateMedian: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateMedian),
-        dueDateMedian: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateMedian)
+        startDateAverage: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateAverage),
+        dueDateAverage: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateAverage)
     }
 }
 
