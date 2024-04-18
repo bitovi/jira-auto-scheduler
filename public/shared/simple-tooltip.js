@@ -50,6 +50,50 @@ class SimpleTooltip extends HTMLElement {
             this.style.display = "";
         }
     }
+    belowElementInScrollingContainer(element, DOM){
+    
+      // find if there's a scrolling container and move ourselves to that 
+      const container = findScrollingContainer(element);
+      this.innerHTML = "";
+      container.appendChild(this);
+      // find the relative position 
+      this.style.top = "-1000px";
+      this.style.left = "-1000px";
+      if(typeof DOM === "string") {
+        this.innerHTML = DOM;
+      } else {
+        this.appendChild(DOM);
+      }
+      
+      this.style.display = "";
+      
+      // where is the container on the page
+      const containerRect = container.getBoundingClientRect(),
+        // where is the element we are positioning next to on the page
+        elementRect = element.getBoundingClientRect(),
+        // how big is the tooltip
+        tooltipRect = this.getBoundingClientRect();
+      
+      const containerStyles = window.getComputedStyle(container)
+      // how much room is there 
+      
+      // where would the tooltip's bottom reach in the viewport 
+      const bottomInWindow = elementRect.bottom + tooltipRect.height;
+      // if the tooltip wouldn't be visible "down"
+      if(bottomInWindow > window.innerHeight) {
+        const viewPortPosition = ( elementRect.top - tooltipRect.height );
+        const posInContainer = viewPortPosition - containerRect.top -  parseFloat( containerStyles.borderTopWidth, 10);
+        const posInContainerAccountingForScrolling = posInContainer + container.scrollTop;
+        this.style.top = ( posInContainerAccountingForScrolling )+"px";
+      } else {
+        const topFromContainer = elementRect.bottom - containerRect.top;
+        this.style.top = topFromContainer +"px";
+      }
+  
+      const leftFromContainer = elementRect.left - containerRect.left;
+      this.style.left = leftFromContainer +"px";
+      
+    }
     centeredBelowElement(element, html) {
       if(arguments.length > 1) {
         this.style.top = "-1000px";
@@ -93,3 +137,17 @@ class SimpleTooltip extends HTMLElement {
   }
   customElements.define("simple-tooltip", SimpleTooltip);
   export default SimpleTooltip;
+
+
+
+  function findScrollingContainer(element){
+    let cur = element.parentElement;
+    while(cur && cur.scrollHeight === cur.clientHeight) {
+      cur = cur.parentElement;
+    }
+    if(!cur) {
+      return document.body
+    } else {
+      return cur;
+    }
+  }

@@ -39,7 +39,12 @@ export function prepareIssues(issuesSource, {
   // Called back when an issue isn't used
   onIgnoredIssues = (issues, reason) => {},
 
+  
   uncertaintyWeight = 100,
+
+  // True will randomly select an issue timing based on the probability distribution
+  // False will always use the same extra timing.  There is no reason to do a montecarlo with this configuration.
+  probablisticallySelectIssueTiming = true,
 
 	getParallelWorkLimit = (teamKey) => {
 		return 1;
@@ -84,7 +89,7 @@ export function prepareIssues(issuesSource, {
       // mutation!
       issue.work = createWork(issue,
         workByTeams,
-        {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint, getParallelWorkLimit});
+        {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint, getParallelWorkLimit, probablisticallySelectIssueTiming});
 
     });
 
@@ -100,8 +105,20 @@ function issueFilterDefault(issue){
     return removeDone(issue) && (issue.Type === "Epic" ? issue["Custom field (Parent Link)"] : true)
 }
 
+function getDaysOfWork(usedEstimate, extraPoints, pointsPerDay){
+  return Math.max( Math.round( (usedEstimate + extraPoints) / pointsPerDay), 1)
+}
+
 function createWork(issue, workByTeams,
-  {getTeamKey, getConfidence, getEstimate, uncertaintyWeight, getDaysPerSprint, getParallelWorkLimit}) {
+  {
+    getTeamKey, 
+    getConfidence, 
+    getEstimate, 
+    uncertaintyWeight, 
+    getDaysPerSprint, 
+    getParallelWorkLimit,
+    probablisticallySelectIssueTiming
+  }) {
     if(issue.work) {
         return issue.work;
     }
@@ -122,12 +139,23 @@ function createWork(issue, workByTeams,
     const usedEstimate = (estimate != undefined ? estimate : team.velocity );
     const usedConfidence = (confidence != undefined ? confidence : 50 );
 
-    const extraPoints = uncertaintyWeight === null ?
+    var estimatedDaysOfWork =  Math.max( Math.round( (usedEstimate) / pointsPerDay), 1);
+
+    const extraPoints = probablisticallySelectIssueTiming ?
       sampleExtraPoints(usedEstimate, usedConfidence):
       estimateExtraPoints(usedEstimate, usedConfidence, uncertaintyWeight);
 
-    var estimatedDaysOfWork =  Math.max( Math.round( (usedEstimate) / pointsPerDay), 1);
-    var daysOfWork = Math.max( Math.round( (usedEstimate + extraPoints) / pointsPerDay), 1);
+    var daysOfWork = getDaysOfWork(usedEstimate, extraPoints, pointsPerDay);
+
+    // We always want deterministic days of work, this makes controling for the order easier
+    let deterministicDaysOfWork;
+    if(probablisticallySelectIssueTiming) {
+      deterministicDaysOfWork =  getDaysOfWork(usedEstimate, 
+        estimateExtraPoints(usedEstimate, usedConfidence, uncertaintyWeight), 
+        pointsPerDay);
+    } else {
+      deterministicDaysOfWork = daysOfWork;
+    }
 
     var work = {
         isDefaultValue: !canEstimate,
@@ -139,6 +167,7 @@ function createWork(issue, workByTeams,
         extraDays: daysOfWork - estimatedDaysOfWork,
         estimatedDaysOfWork,
         daysOfWork: daysOfWork,
+        deterministicDaysOfWork,
         issue: issue,
         team: team,
         isScheduled: false
