@@ -51,7 +51,9 @@ class WorkItem extends ObservableObject {
         dueDateTop90: 0,
         dueDateTop95: 0,
 
-        adjustedDaysOfWorkAverage: 0,
+        adjustedDaysOfWork: 0,
+        
+        startDateWithTimeEnoughToFinish: 0,
 
         uncertaintyWeight: {type: type.Any, default: 90},
         startDateValues: {get default(){ return []}},
@@ -89,16 +91,23 @@ class WorkItem extends ObservableObject {
         
         this.startDateAverage = average(this.startDateValues);
         this.dueDateAverage = average(this.dueDateValues);
-        this.adjustedDaysOfWorkAverage = average(this.adjustedDaysOfWorkValues);
-
+        
+    
         const length = this.startDateValues.length;
         if(typeof this.uncertaintyWeight === "number"){
-            this.startDateBottom = this.startDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) /100), length - 1) ];
-            this.dueDateBottom = this.dueDateValues[Math.min( Math.round(length * (100-this.uncertaintyWeight) / 100 ), length - 1) ];
-            this.dueDateTop = this.dueDateValues[Math.min( Math.round(length *this.uncertaintyWeight / 100 ), length - 1) ];
+            const uncertaintyIndex = Math.min( Math.round(length *this.uncertaintyWeight / 100 ), length - 1),
+                    confidenceIndex = Math.max( length - 1 - uncertaintyIndex, 0 );
+            this.startDateBottom = this.startDateValues[confidenceIndex ];
+            this.dueDateBottom = this.dueDateValues[ confidenceIndex ];
+            this.dueDateTop = this.dueDateValues[ uncertaintyIndex ];
+
+            // There is a much performant way of doing this ... will do it later
+            this.adjustedDaysOfWork = this.adjustedDaysOfWorkValues[uncertaintyIndex];
+            
         } else if(this.uncertaintyWeight === "average") {
             this.startDateBottom = this.startDateAverage;
             this.dueDateBottom = this.dueDateTop = this.dueDateAverage;
+            this.adjustedDaysOfWork = average(this.adjustedDaysOfWorkValues);
         }
 
         this.startDateBottom10 = this.startDateValues[Math.min( Math.round(length * 10 /100), length - 1) ];
@@ -106,7 +115,7 @@ class WorkItem extends ObservableObject {
         this.dueDateTop90 = this.dueDateValues[Math.min( Math.round(length * 90 / 100 ), length - 1) ];
         this.dueDateTop95 = this.dueDateValues[Math.min( Math.round(length * 95 / 100 ), length - 1) ];
 
-        
+        this.startDateWithTimeEnoughToFinish = this.dueDateTop - this.adjustedDaysOfWork;
     }
 
 }
@@ -283,7 +292,7 @@ class MonteCarlo extends StacheElement {
 
         scheduleIssues(this.rawIssues, {
             // hard-coding 80 makes this not have to re-run the simulation on each movement
-            uncertaintyWeight: 80 || this.uncertaintyWeight,
+            uncertaintyWeight: 80,
             planIssuesInUncertaintyOrder: true,
             probablisticallySelectIssueTiming: true,
             onPlannedIssues: success,

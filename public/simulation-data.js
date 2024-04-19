@@ -32,25 +32,22 @@ class SimulationData extends StacheElement {
         on:click="this.toggleShowingExtraData()"
         >
         {{# if(this.work.dueDatesOnly)}}
-            <div 
-                class="absolute bg-gradient-to-r from-green-200 to-green-200 from-45% to-55% h-1 top-2.5 border-box" 
-                style="left: {{this.percent(work.dueDateBottom10)}}; width: {{this.percentWidth(work.dueDateBottom10, work.dueDateTop90)}}"></div>
 
             <div id="{{work.work.issue["Issue key"]}}"
                 on:mouseenter="this.showProbabilitySumary(scope.event)"
                 on:mouseleave="this.hideProbabilityData()"
-                class="work-item cursor-pointer {{ this.rangeBorderClasses() }} relative bg-gradient-to-r from-green-400 to-green-400 from-45% to-55% h-4 border-box rounded" 
+                class="work-item cursor-pointer  relative bg-gradient-to-r from-green-200 to-green-400 from-45% to-55% h-4 border-box  {{ this.rangeBorderClasses() }}" 
                 style="left: {{this.percent(work.dueDateBottom)}}; width: {{this.percentWidth(work.dueDateBottom, work.dueDateTop)}}"></div>
         {{ else }}
         <div 
-            class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-45% to-55% h-1 top-2.5 border-box" 
-            style="left: {{this.percent(work.startDateBottom10)}}; width: {{this.percentWidth(work.startDateBottom10, work.dueDateTop90)}}"></div>
+            class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-85% to-95% h-1 top-2.5 border-box" 
+            style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>
 
         <div id="{{work.work.issue["Issue key"]}}"
             on:mouseenter="this.showProbabilitySumary(scope.event)"
             on:mouseleave="this.hideProbabilityData()"
             class="work-item cursor-pointer {{ this.rangeBorderClasses() }} relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded" 
-            style="left: {{this.percent(work.startDateBottom)}}; width: {{this.percentWidth(work.startDateBottom, work.dueDateTop)}}"></div>
+            style="left: {{this.percent(work.startDateWithTimeEnoughToFinish)}}; width: {{this.percentWidth(work.startDateWithTimeEnoughToFinish, work.dueDateTop)}}"></div>
         {{/ }}
     </div>
     {{# if(this.showingData) }}
@@ -133,73 +130,103 @@ class SimulationData extends StacheElement {
         if(this.work.uncertaintyWeight === "average") {
             rangeStartChance = rangeEndChance = "On average";
         } else {
-            rangeStartChance = rangeEndChance = `${100 - this.work.uncertaintyWeight}% chance`;
+            rangeStartChance = rangeEndChance = `${this.work.uncertaintyWeight}% chance`;
         }
-
-        TOOLTIP.belowElementInScrollingContainer(event.currentTarget, `
-            <div class="p-2">
-                <div class="flex gap-2">
-                    <div class="${ dueDatesOnly ? "bg-green-200" : "bg-blue-200"} rounded text-center p-1">
-                        <h5>10% chance</h5>
+        if(!dueDatesOnly) {
+            TOOLTIP.belowElementInScrollingContainer(event.currentTarget, `
+                <div class="p-2">
+                    <div class="flex gap-2">
+                        <div class="bg-blue-200 rounded text-center p-1">
+                            <h5>${rangeStartChance}</h5>
+                            <p class="text-sm">epic starts on or after</p>
+                            <p>${monthDateFormatter.format(rangeStartDate)}</p>
+                            
+                        </div>
+                        <div class="bg-blue-500 rounded text-white text-center p-1 grow">
+                            <h5>Epic should start</h5>
+                            <p class="text-sm">earlier than</p>
+                            <p>${monthDateFormatter.format(dates.startDateWithTimeEnoughToFinish)}</p>
+                        </div>
+                        <div class="bg-green-500 rounded text-white text-center p-1">
+                            <h5>${rangeEndChance}</h5>
+                            <p class="text-sm">epic ends before</p>
+                            <p>${monthDateFormatter.format(rangeEndDate)}</p>
+                        </div>
+                    </div>
+                    ${dueDatesOnly ? "" :
+                    `<dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid gap-2"
+                        style="grid-template-columns: repeat(4, auto);">
+                        <dt>Median Estimate</dt>
+                        <dd class="${this.work.work.estimate === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.estimate}</dd>
+                        <dt>Confidence</dt>
+                        <dd class="${this.work.work.confidence === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.confidence}</dd>
+                        
                         ${
-                            dueDatesOnly ?
-                            `<p class="text-sm">work ends before</p>
-                            <p>${monthDateFormatter.format(dates.dueDate10)}</p>` :
-                            `<p class="text-sm">epic starts before</p>
-                            <p>${monthDateFormatter.format(startDateBottom10)}</p>`
+                            this.work.work.estimate === null || this.work.work.confidence === null ? 
+                            `
+                            <dt>Default Estimate</dt>
+                            <dd class="text-right">${this.work.work.usedEstimate}</dd>
+                            <dt>Default Confidence</dt>
+                            <dd class="text-right">${this.work.work.usedConfidence}</dd>
+                            ` :
+                            ""
                         }
                         
-                    </div>
-                    <div class="${ dueDatesOnly ? "bg-green-500" : "bg-blue-500"} rounded text-white text-center p-1">
-                        <h5>${rangeStartChance}</h5>
-                        <p class="text-sm"> ${dueDatesOnly ? "work ends before" : "epic starts before"}</p>
-                        <p>${monthDateFormatter.format(dueDatesOnly ? dates.dueDateBottom : rangeStartDate)}</p>
-                    </div>
-                    <div class="bg-green-500 rounded text-white text-center p-1">
-                        <h5>${rangeEndChance}</h5>
-                        <p class="text-sm"> ${dueDatesOnly ? "work ends after" : "epic ends after"}</p>
-                        <p>${monthDateFormatter.format(rangeEndDate)}</p>
-                    </div>
-                    <div class="bg-green-200 rounded text-center p-1">
-                        <h5>10% chance</h5>
-                        <p class="text-sm">${dueDatesOnly ? "work ends after" : "epic ends after"}</p>
-                        <p>${monthDateFormatter.format(dueDateTop90)}</p>
-                    </div>
-                </div>
-                ${dueDatesOnly ? "" :
-                `<dl class="bg-neutral-200 rounded text-white mt-2 p-1 grid gap-2"
-                    style="grid-template-columns: repeat(4, auto);">
-                    <dt>Median Estimate</dt>
-                    <dd class="${this.work.work.estimate === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.estimate}</dd>
-                    <dt>Confidence</dt>
-                    <dd class="${this.work.work.confidence === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.confidence}</dd>
-                    
-                    ${
-                        this.work.work.estimate === null || this.work.work.confidence === null ? 
-                        `
-                        <dt>Default Estimate</dt>
-                        <dd class="text-right">${this.work.work.usedEstimate}</dd>
-                        <dt>Default Confidence</dt>
-                        <dd class="text-right">${this.work.work.usedConfidence}</dd>
-                        ` :
-                        ""
+                        <dt>Median Days of Work</dt>
+                        <dd class="text-right">${this.work.work.estimatedDaysOfWork}</dd>
+                        <dt>Adjusted Days of Work</dt>
+                        <dd class="text-right">${this.work.adjustedDaysOfWork }</dd>
+                    </dl>`
                     }
                     
-                    <dt>Median Days of Work</dt>
-                    <dd class="text-right">${this.work.work.estimatedDaysOfWork}</dd>
-                    <dt>Adjusted Days of Work</dt>
-                    <dd class="text-right">${Math.round(this.work.dueDateTop - this.work.startDateBottom) }</dd>
-                </dl>`
-                }
-                
-            </div>
-        `)
+                </div>
+            `)
+        } else {
+
+            if(this.work.uncertaintyWeight === "average") {
+                TOOLTIP.belowElementInScrollingContainer(event.currentTarget, `
+                    <div class="p-2">
+                        <div class="flex gap-2">
+                            <div class="bg-green-200 rounded text-white text-center p-1">
+                                <h5>On Average</h5>
+                                <p class="text-sm">work ends</p>
+                                <p>${monthDateFormatter.format(dates.dueDateBottom)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `)
+            } else {
+                TOOLTIP.belowElementInScrollingContainer(event.currentTarget, `
+                <div class="p-2">
+                    <div class="flex gap-2">
+                        <div class="bg-green-200 rounded text-white text-center p-1">
+                            <h5>${rangeStartChance}</h5>
+                            <p class="text-sm">work ends after</p>
+                            <p>${monthDateFormatter.format(dates.dueDateBottom)}</p>
+                        </div>
+                        <div class="bg-green-400 rounded text-white text-center p-1">
+                            <h5>${rangeStartChance}</h5>
+                            <p class="text-sm">work ends before</p>
+                            <p>${monthDateFormatter.format(rangeEndDate)}</p>
+                        </div>
+                    </div>
+                </div>
+            `)
+            }
+            
+        }
+
+        
     }
     rangeBorderClasses() {
         // this.work.dueDatesOnly
         // work.dueDateBottom, work.dueDateTop
-        if(this.work.dueDatesOnly && this.work.dueDateBottom === this.work.dueDateTop) {
-            return "border-solid border border-x-4 border-green-400"
+        if(this.work.dueDatesOnly) {
+            if(this.work.dueDateBottom === this.work.dueDateTop) {
+                return "border-solid border border-x-4 border-green-200"
+            } else {
+                return "border-solid border border-[6px] border-white";
+            }
         }
         if(this.work.work.estimate === null || this.work.work.confidence === null) {
             return "border-solid border-2 border-yellow-500";
@@ -268,7 +295,8 @@ export function getDatesFromWork(work,startDate){
         dueDate90: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateTop90),
         dueDateBottom: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateBottom),
         startDateAverage: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateAverage),
-        dueDateAverage: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateAverage)
+        dueDateAverage: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.dueDateAverage),
+        startDateWithTimeEnoughToFinish: getUTCEndDateFromStartDateAndBusinessDays(startDate, work.startDateWithTimeEnoughToFinish)
     }
 }
 
