@@ -149,7 +149,7 @@ class UpdateEpics extends StacheElement {
           return {
             ...workItem,
             updates: {
-              [this.startDateField]: this.jiraDates( workItem.dates.startDate ),
+              [this.startDateField]: this.jiraDates( workItem.dates.startDateWithTimeEnoughToFinish ),
               [this.dueDateField]: this.jiraDates( workItem.dates.dueDate ),
               [this.storyPointField]: this.newStoryPoints(workItem)
             }

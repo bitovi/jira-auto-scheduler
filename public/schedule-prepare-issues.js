@@ -168,12 +168,15 @@ function createWork(issue, workByTeams,
         estimatedDaysOfWork,
         daysOfWork: daysOfWork,
         deterministicDaysOfWork,
+        deterministicExtraDays: deterministicDaysOfWork - estimatedDaysOfWork,
         issue: issue,
         team: team,
-        isScheduled: false
+        isScheduled: false,
+        pointsPerDay
     }
     return work;
 }
+
 
 
 function linkBlocks(issues, issueByKey, getBlockingKeys) {
