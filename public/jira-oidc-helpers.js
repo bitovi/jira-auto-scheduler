@@ -261,12 +261,15 @@ export default function JiraOIDCHelpers({
 			)
 		},
 		fetchAllJiraIssuesWithJQL: async function (params) {
-			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, ...params });
+			const { limit: limit, ...apiParams } = params;
+			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, ...apiParams });
 			const { issues, maxResults, total, startAt } = await firstRequest;
 			const requests = [firstRequest];
-			for (let i = startAt + maxResults; i < total; i += maxResults) {
+			
+			const limitOrTotal = Math.min(total, limit || Infinity);
+			for (let i = startAt + maxResults; i < limitOrTotal; i += maxResults) {
 				requests.push(
-					jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: maxResults, startAt: i, ...params })
+					jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: maxResults, startAt: i, ...apiParams })
 				);
 			}
 			return Promise.all(requests).then(
@@ -356,6 +359,9 @@ export default function JiraOIDCHelpers({
 			})
 		},
 		fetchAllJiraIssuesWithJQLAndFetchAllChangelog: function (params, progress= function(){}) {
+			const { limit: limit, ...apiParams } = params;
+			
+			
 			// a weak map would be better
 			progress.data = progress.data || {
 				issuesRequested: 0,
@@ -371,7 +377,7 @@ export default function JiraOIDCHelpers({
 				return jiraHelpers.fetchRemainingChangelogsForIssues(response.issues, progress)
 			}
 
-			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, expand: ["changelog"], ...params });
+			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, expand: ["changelog"], ...apiParams });
 
 			return firstRequest.then( ({ issues, maxResults, total, startAt }) => {
 				Object.assign(progress.data, {
@@ -382,10 +388,11 @@ export default function JiraOIDCHelpers({
 				progress(progress.data);
 
 				const requests = [firstRequest.then(getRemainingChangeLogsForIssues)];
+				const limitOrTotal = Math.min(total, limit || Infinity);
 
-				for (let i = startAt + maxResults; i < total; i += maxResults) {
+				for (let i = startAt + maxResults; i < requests; i += maxResults) {
 					requests.push(
-						jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: maxResults, startAt: i, ...params })
+						jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: maxResults, startAt: i, ...apiParams })
 							.then(getRemainingChangeLogsForIssues)
 					);
 				}

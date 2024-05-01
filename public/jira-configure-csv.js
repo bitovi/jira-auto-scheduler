@@ -51,6 +51,10 @@ class JiraConfigureCSV extends StacheElement {
             <p class="text-xs text-right">Loading issues ...</p>
           {{/ if }}
         </div>
+        <p class="text-xs"><input type='checkbox' 
+            class='self-start align-middle' checked:bind='this.limitIssues'/> <span class="align-middle">Limit to 200 issues</span>
+        </p>
+          
 
 
       </div>

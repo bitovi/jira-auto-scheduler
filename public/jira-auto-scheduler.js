@@ -55,7 +55,9 @@ class JiraAutoScheduler extends StacheElement {
           rawIssuesPromise:from="this.rawIssuesPromise"
           config:from="this.config"
           issueJQL:bind="this.issueJQL"
-          loadChildren:bind="this.loadChildren"/>
+          loadChildren:bind="this.loadChildren"
+          limitIssues:bind="this.limitIssues"
+          />
 
     </details>
     {{ else }}
@@ -170,6 +172,7 @@ class JiraAutoScheduler extends StacheElement {
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
 		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
+    limitIssues: saveJSONToUrl("loadChildren", true, Boolean, booleanParsing),
     //rawIssues: type.Any,
     workItems: type.Any,
     tooltip: HTMLElement,
@@ -220,6 +223,7 @@ class JiraAutoScheduler extends StacheElement {
         const issuesPromise = loadIssues({
             jql: this.issueJQL,//this.jql,
             fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
+            limit: this.limitIssues ? 200 : Infinity
         });
 
         return Promise.all([
