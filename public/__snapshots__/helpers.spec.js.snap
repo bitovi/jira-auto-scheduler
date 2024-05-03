@@ -1,0 +1,130 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`helpers methods groupByKey should convert array to dictionary of arrays 1`] = `
+{
+  "a": [
+    {
+      "key": "a",
+      "value": {
+        "name": "bob",
+      },
+    },
+    {
+      "key": "a",
+      "value": {
+        "name": "ken",
+      },
+    },
+  ],
+  "b": [
+    {
+      "key": "b",
+      "value": {
+        "name": "stu",
+      },
+    },
+    {
+      "key": "b",
+      "value": {
+        "name": "mak",
+      },
+    },
+  ],
+  "c": [
+    {
+      "key": "c",
+      "value": {
+        "name": "pat",
+      },
+    },
+    {
+      "key": "c",
+      "value": {
+        "name": "cat",
+      },
+    },
+  ],
+}
+`;
+
+exports[`helpers methods makeObjectMapByKey should convert array to dictionary 1`] = `
+{
+  "a": {
+    "key": "a",
+    "value": {
+      "name": "bob",
+    },
+  },
+  "b": {
+    "key": "b",
+    "value": {
+      "name": "ken",
+    },
+  },
+  "c": {
+    "key": "c",
+    "value": {
+      "name": "stu",
+    },
+  },
+  "x": {
+    "key": "x",
+    "value": {
+      "name": "cat",
+    },
+  },
+  "y": {
+    "key": "y",
+    "value": {
+      "name": "pat",
+    },
+  },
+  "z": {
+    "key": "z",
+    "value": {
+      "name": "mak",
+    },
+  },
+}
+`;
+
+exports[`helpers methods makeObjectMapByKey should convert array to dictionary 2`] = `
+{
+  "a": {
+    "key": "a",
+    "value": {
+      "name": "bob",
+    },
+  },
+  "b": {
+    "key": "b",
+    "value": {
+      "name": "ken",
+    },
+  },
+  "c": {
+    "key": "c",
+    "value": {
+      "name": "stu",
+    },
+  },
+  "x": {
+    "key": "x",
+    "value": {
+      "name": "cat",
+    },
+  },
+  "y": {
+    "key": "y",
+    "value": {
+      "name": "pat",
+    },
+  },
+  "z": {
+    "key": "z",
+    "value": {
+      "name": "mak",
+    },
+  },
+}
+`;
