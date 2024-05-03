@@ -6,7 +6,8 @@
   "scripts": {
     "start-local": "node server/server.js",
     "fe:css:build": "npx tailwindcss -i ./public/jira-auto-scheduler.css -o ./public/dist/production.css --watch --minify",
-    "fe:js:build": "rollup -c -w --sourcemap"
+    "fe:js:build": "rollup -c -w --sourcemap",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +20,12 @@
     "oauth": "^0.10.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
     "@rollup/plugin-terser": "^0.4.4",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "live-server": "^1.2.2",
     "rollup": "^4.5.1",
     "rollup-plugin-delete": "^2.0.0",
