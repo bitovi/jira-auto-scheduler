@@ -197,6 +197,14 @@ export default function JiraOIDCHelpers({
 				// location.href = '/error.html';
 			}
 		},
+		fetchAccessibleResources: (passedAccessToken) => {
+			const accessToken = passedAccessToken || jiraHelpers.fetchFromLocalStorage('accessToken');
+			return fetchJSON(`https://api.atlassian.com/oauth/token/accessible-resources`, {
+				headers: {
+					'Authorization': `Bearer ${accessToken}`,
+				}
+			});
+		},
 		fetchJiraSprint: async (sprintId) => {
 			//this fetches all Recent Projects From Jira
 			const scopeIdForJira = jiraHelpers.fetchFromLocalStorage('scopeId');

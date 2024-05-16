@@ -15,6 +15,9 @@
   .form-border {
     @apply border-neutral-200 border;
   }
+  .link {
+    @apply text-blue-600 dark:text-blue-500 hover:underline;
+  }
 }
 
 /** SVG STUFF */
