@@ -223,7 +223,7 @@ class JiraAutoScheduler extends StacheElement {
         const issuesPromise = loadIssues({
             jql: this.issueJQL,//this.jql,
             fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
-            limit: this.limitIssues ? 200 : Infinity
+            limit: this.limitIssues ? 100 : Infinity
         });
 
         return Promise.all([
