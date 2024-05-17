@@ -18,7 +18,7 @@ export default async function main(config) {
 			loginComponent.off("isResolved", listener);
 			mainElement.style.display = "none";
 			const report = new JiraAutoScheduler().initialize({jiraHelpers, loginComponent});
-			document.body.append(report);
+			mainElement.replaceWith(report);
 		}
 	}
 	loginComponent.on("isResolved",listener);

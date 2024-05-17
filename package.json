@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon server/server.js",
     "start-local": "node server/server.js",
     "fe:css:build": "npx tailwindcss -i ./public/jira-auto-scheduler.css -o ./public/dist/production.css --watch --minify",
     "fe:js:build": "rollup -c -w --sourcemap"
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
     "live-server": "^1.2.2",
+    "nodemon": "^3.1.0",
     "rollup": "^4.5.1",
     "rollup-plugin-delete": "^2.0.0",
     "tailwindcss": "^3.3.3"
