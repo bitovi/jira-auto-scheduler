@@ -118,7 +118,7 @@ class JiraAutoScheduler extends StacheElement {
       {{/ if }}
     </div>
       
-    <div class="fullscreen-pt-14 fullscreen-m-0 bg-white pt-1 mx-2">
+    <div class="fullscreen-pt-14 fullscreen-m-0 bg-white pt-1 mx-2 rounded-b-lg pb-2">
       {{# and(this.rawIssuesPromise.isResolved, this.startDate) }}
         <monte-carlo class="block relative"
           configuration:from="this.configuration"

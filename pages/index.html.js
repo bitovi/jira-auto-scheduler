@@ -24,7 +24,6 @@ module.exports = function (env) {
 			<meta property="og:image" content="https://repository-images.githubusercontent.com/354628180/fe4dbf27-0409-4cc6-86cc-0a7097983901">
 			<meta property="og:url" content="https://auto-scheduler.bitovi-jira.com/">
 			<meta name="twitter:card" content="summary_large_image">
-				
 	</head>
 	<body class="bg-slate-400">
 	<div class="bg-white px-2 drop-shadow-md hide-on-fullscreen">
@@ -50,6 +49,31 @@ module.exports = function (env) {
 		</nav>
 	</div>	
 		<div id="mainElement">Loading ... </div>
+
+		<div id="key" class="p-2 rounded-lg bg-white m-2 mb-10">
+			<div class="text-base font-semibold shrink">KEY</div>
+			<div class="flex justify-center">
+				<div class="relative w-1/2">
+					<div class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-85% to-95% h-2 top-3 border-box w-full"></div>
+					<div class="work-item cursor-pointer border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-8 border-box rounded w-1/2" 
+						style="left: 50%"></div>
+					<div class="relative  pt-2">
+						<div class="text-center" style="position: absolute; width: 30%; transform: translateX(-50%);">
+							<div class="w-3 h-3 bg-blue-200 rounded-full inline-block"></div><br/>
+							Earliest development might start within risk parameters
+						</div>
+						<div class="text-center" style="position: absolute; width: 30%; right: 0px; transform: translateX(50%);">
+							<div class="w-3 h-3 bg-green-400 rounded-full inline-block"></div><br/>
+								Latest development must finish to be within risk parameters
+							</div>
+						<div class="text-center" style="position: relative; width: 30%; left: 50%; transform: translateX(-50%);">
+							<div class="w-3 h-3 bg-blue-500 rounded-full inline-block"></div><br/>
+							Latest development must start to be within risk parameters</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
 		<script>
 		
 		</script>
