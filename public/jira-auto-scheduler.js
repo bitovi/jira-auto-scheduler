@@ -242,6 +242,7 @@ class JiraAutoScheduler extends StacheElement {
             issuesPromise, serverInfoPromise
         ]).then(([issues, serverInfo]) => {
             const csv = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+            console.log(csv);
             return csv;
         })
       }

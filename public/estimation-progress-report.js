@@ -96,29 +96,6 @@ class EstimationProgressReport extends StacheElement {
             })
 
             return sorted;
-            
-            // lets make a copy b/c we are going to add parent / child info
-            const issues = this.rawIssues.map( (issue)=> {
-                return {...issue}; 
-            });
-            const parentKeyToChildren = Object.groupBy(issues, issue => issue?.Parent?.key);
-            issues.sort( (a, b)=> {
-                return b["Issue Type"].hierarchyLevel - a["Issue Type"].hierarchyLevel;
-            });
-            for(let issue of issues) {
-                issue.children = issue["Issue key"] in parentKeyToChildren? parentKeyToChildren[issue["Issue key"]] : [];
-            }
-
-            const firstHierarchyLevel = issues[0]["Issue Type"].hierarchyLevel;
-
-            const highestIssues = issues.filter( issue => issue["Issue Type"].hierarchyLevel === firstHierarchyLevel );
-
-            calculatePercentileWhoHasStoryPointsAndConfidence(highestIssues, {getEstimate: this.getEstimate, getConfidence: this.getConfidence});
-
-            return issues;
-        },
-        get reportData(){
-
         }
     };
 
@@ -252,7 +229,7 @@ function updateRollup(rollups, issue) {
 function makeGetParent(issues){
     const issueKeyToIssue = Object.groupBy(issues, issue => issue["Issue key"]);
     return function getParent(issue) {
-        if(issue?.Parent?.key) {
+        if(issue?.Parent?.key && issueKeyToIssue[issue.Parent.key]) {
             return issueKeyToIssue[issue.Parent.key][0]
         } else {
             return;
