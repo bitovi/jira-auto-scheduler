@@ -19,14 +19,13 @@ function toCVSFormat(issues, serverInfo){
 		}).map((link)=>{
 			return link.outwardIssue.key;
 		});
-
+		
 		return {
 			...issue.fields,
 			changelog: issue.changelog,
 			"Project key": issue.key.replace(/-.*/,""),
 			[ISSUE_KEY]: issue.key,
 			url: serverInfo.baseUrl+"/browse/"+issue.key,
-			[ISSUE_TYPE_KEY]: issue.fields[ISSUE_TYPE_KEY].name,
 			[PRODUCT_TARGET_RELEASE_KEY]: issue.fields[PRODUCT_TARGET_RELEASE_KEY]?.[0],
 			[PARENT_LINK_KEY]: issue.fields[PARENT_LINK_KEY]?.data?.key,
 			[STATUS_KEY]: issue.fields[STATUS_KEY]?.name,

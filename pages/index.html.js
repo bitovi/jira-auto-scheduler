@@ -54,8 +54,8 @@ module.exports = function (env) {
 			<div class="text-base font-semibold shrink">KEY</div>
 			<div class="flex justify-center">
 				<div class="relative w-1/2">
-					<div class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-85% to-95% h-2 top-3 border-box w-full"></div>
-					<div class="work-item cursor-pointer border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-8 border-box rounded w-1/2" 
+					<div class="absolute bg-gradient-to-r from-blue-200 to-green-200 from-85% to-95% h-1 top-1.5 border-box w-full"></div>
+					<div class="work-item cursor-pointer border-solid border relative bg-gradient-to-r from-blue-500 to-green-400 from-45% to-55% h-4 border-box rounded w-1/2" 
 						style="left: 50%"></div>
 					<div class="relative  pt-2">
 						<div class="text-center" style="position: absolute; width: 30%; transform: translateX(-50%);">
@@ -78,7 +78,7 @@ module.exports = function (env) {
 		
 		</script>
 		<script type="module">
-			import main from "./dist/main.js";
+			import main from "./main.js";
 			main( ${JSON.stringify(getSafeEnv())} );
 		</script>
 	</body>
