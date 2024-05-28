@@ -63,8 +63,8 @@ export function prepareIssues(issuesSource, {
     const issueByKey = makeObjectMapByKey(interestingIssues, "Issue key");
 
     // Group issues by type
-    const issuesByType = groupByKey(interestingIssues, "Issue Type");
-
+    const issuesByType = Object.groupBy(interestingIssues, issue => issue["Issue Type"].name)
+    
     const interestingEpics = issuesByType.Epic || [];
 
     const issuesByTeam = groupByKey(interestingIssues, getTeamKey);
@@ -183,8 +183,8 @@ function linkBlocks(issues, issueByKey, getBlockingKeys) {
     issues.forEach((issue)=> {
         issue.blocks = (stringToArray( getBlockingKeys(issue) || [])).map( (blockKey)=> {
             const blocked = issueByKey[blockKey];
-            if(blocked && blocked["Issue Type"] !== issue["Issue Type"]) {
-              console.log(issue["Issue Type"], issue.Summary,"is blocking", blocked["Issue Type"], blocked.Summary, ". This is ignored");
+            if(blocked && blocked["Issue Type"].name !== issue["Issue Type"].name) {
+              console.log(issue["Issue Type"].name, issue.Summary,"is blocking", blocked["Issue Type"].name, blocked.Summary, ". This is ignored");
               return undefined;
             }
             return blocked

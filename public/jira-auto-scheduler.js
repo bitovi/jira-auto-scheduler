@@ -7,6 +7,7 @@ import "./jira-configure-csv.js";
 import "./shared/simple-tooltip.js";
 import {Configure} from "./jira-config.js";
 import "./monte-carlo.js";
+import "./estimation-progress-report.js"
 import {nativeFetchJSON} from "./jira-oidc-helpers.js";
 
 const updateEpicsPromise = new Promise((resolve, reject)=>{
@@ -51,8 +52,8 @@ class JiraAutoScheduler extends StacheElement {
           Configure <span class="inline pl-8 text-sm">JQL: <span class="font-mono bg-neutral-40 text-sm">{{ this.issueJQL}}</span></span>
         </summary>
         <jira-configure-csv 
-          rawIssues:from="this.rawIssues" 
-          rawIssuesPromise:from="this.rawIssuesPromise"
+          rawIssues:from="this.csvIssues" 
+          rawIssuesPromise:from="this.csvIssuesPromise"
           config:from="this.config"
           issueJQL:bind="this.issueJQL"
           loadChildren:bind="this.loadChildren"
@@ -69,7 +70,7 @@ class JiraAutoScheduler extends StacheElement {
     {{/ if }}
 
     <div class=" z-10 right-0 flex rounded-t-lg  text-base p-2 gap-6 bg-white mt-2 mx-2 fullscreen-fixed-to-top fullscreen-m-0 fullscreen-round-none">
-      {{# if( this.rawIssues ) }}
+      {{# if( this.csvIssues ) }}
           <div class="flex grow gap-2">
             <label class="text-base py-1">Probability Thresholds:</label>
             <div class="grow relative -top-1">
@@ -119,12 +120,12 @@ class JiraAutoScheduler extends StacheElement {
     </div>
       
     <div class="fullscreen-pt-14 fullscreen-m-0 bg-white pt-1 mx-2 rounded-b-lg pb-2">
-      {{# and(this.rawIssuesPromise.isResolved, this.startDate) }}
+      {{# and(this.csvIssuesPromise.isResolved, this.startDate) }}
         <monte-carlo class="block relative"
           configuration:from="this.configuration"
           getVelocityForTeam:from="this.getVelocityForTeam"
           updateVelocity:from="this.updateVelocity"
-          rawIssues:from="this.rawIssues"
+          rawIssues:from="this.csvIssues"
           getParallelWorkLimit:from="this.getParallelWorkLimit"
           velocities:from="this.velocities"
           addWorkPlanForTeam:from="this.addWorkPlanForTeam"
@@ -135,14 +136,14 @@ class JiraAutoScheduler extends StacheElement {
           allWorkItems:to="this.workItems"
           ></monte-carlo>
       {{/ and }}
-      {{# if(this.rawIssuesPromise.isRejected) }}
+      {{# if(this.csvIssuesPromise.isRejected) }}
         <div class="text-lg bg-yellow-500 p-4">
           <p>There was an error loading from Jira!</p>
-          <p>Error message: {{this.rawIssuesPromise.reason.errorMessages[0]}}</p>
+          <p>Error message: {{this.csvIssuesPromise.reason.errorMessages[0]}}</p>
           <p>Please check your JQL is correct!</p>
         </div>
       {{/ }}
-      {{# if(this.rawIssuesPromise.isPending) }}
+      {{# if(this.csvIssuesPromise.isPending) }}
         <div class="p-4 text-lg text-center">
           <svg class="animate-spin -ml-0.5 -mt-0.5 mr-1 h-e w-4 text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -152,6 +153,17 @@ class JiraAutoScheduler extends StacheElement {
         
       {{/ }}
     </div>
+
+    {{# and(this.csvIssuesPromise.isResolved, this.startDate) }}
+      <div class="p-2 m-2 rounded-lg pb-2 bg-white">
+        <estimation-progress-report 
+          rawIssues:from="this.csvIssues"
+          getEstimate:from="this.configuration.getEstimate"
+          getConfidence:from="this.configuration.getConfidence"
+          getTeamKey:from="this.configuration.getTeamKey">
+        </estimation-progress-report>
+      </div>
+    {{/ }}
   `;
   static props = {
     showSavingModal: false,
@@ -203,7 +215,7 @@ class JiraAutoScheduler extends StacheElement {
         );
       }
     },
-    get rawIssuesPromise(){
+    get csvIssuesPromise(){
       if(!this.config) {
         return Promise.resolve([]);
       }
@@ -229,22 +241,22 @@ class JiraAutoScheduler extends StacheElement {
         return Promise.all([
             issuesPromise, serverInfoPromise
         ]).then(([issues, serverInfo]) => {
-            const raw = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
-            return raw;
+            const csv = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+            return csv;
         })
       }
       
     },
-		rawIssues: {
+		csvIssues: {
 			async(resolve) {
-        if(!this.rawIssuesPromise) {
+        if(!this.csvIssuesPromise) {
           resolve(null)
         } else {
-          this.rawIssuesPromise.then(resolve);
+          this.csvIssuesPromise.then(resolve);
         }
 			}
 		},
-    // raw issues should derive from events, will change later!
+    // csv issues should derive from events, will change later!
     hackToRefreshIssues: type.Any,
     get velocitiesJSON(){
       return this.velocities.serialize();

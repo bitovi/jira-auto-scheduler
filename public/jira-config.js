@@ -112,7 +112,7 @@ export class Configure extends ObservableObject {
 
     // we need to know this right away
     get issueFields(){
-      return ["Summary", "Issue Type","status","Linked Issues", "Team",
+      return ["Summary", "Issue Type","status","Linked Issues", "Team","Parent",
         this.startDateField, this.dueDateField,
         ...this.medianEstimateFields, ...this.confidenceFields, ...this.storyPointField]
     },
