@@ -122,109 +122,124 @@ class WorkItem extends ObservableObject {
 
 class MonteCarlo extends StacheElement {
     static view = `
-        <div class="absolute h-1 bg-orange-400 transition-opacity duration-500 {{# eq(this.simulationPercentComplete, 100) }}opacity-0{{/ eq }}" 
-            style="width: {{this.simulationPercentComplete}}%; top: -7px;"></div>
-        <div class="grid bg-white" 
-            style="grid-template-columns: [what] auto repeat({{this.gridNumberOfDays}}, 1fr); grid-template-rows: auto repeat({{this.workPlans.gridRowSpan}}, auto) auto">
-            <div 
-                class="relative z-5"
-                style="grid-row: 2 / span {{this.workPlans.gridRowSpan}}; grid-column: 2 / span {{this.gridNumberOfDays}}" id="dependencies">
-                <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    x="0" y="0"
-                    class="absolute" width="100%" height="100%" preserveAspectRatio="none">
-                    
-                </svg>
-            </div>
-            <div class="text-xs"
-            style="grid-row: 1 / span 1; grid-column: 1 / span 1"
-            >
-            &nbsp; <!-- gives size to the top row -->
-
-            
-            </div>
-            {{# for( timeRange of this.timeRanges) }}
-                <div
-                    class="border-neutral-30 border-solid border-x px-1 text-xs truncate"
-                    style="grid-row: 1 / span {{plus(this.workPlans.gridRowSpan, 2)}}; grid-column: {{plus(timeRange.startDay, 1)}} / span {{timeRange.days}}"
-                    >{{timeRange.prettyStart}}</div>
+        {{# if(this.warnings.length) }}
+            {{# for(warning of this.warnings)}}
+                <div class="text-lg bg-yellow-500 p-4">
+                    {{warning}}
+                </div>
             {{/ for }}
-            {{# for(workPlan of this.workPlans) }}
-                <div
-                    class="bg-neutral-20 pt-2 pb-1"
-                    style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 1 / span {{ plus(this.gridNumberOfDays,1) }}"></div>
+        {{ else }}
+
+            <div class="absolute h-1 bg-orange-400 transition-opacity duration-500 {{# eq(this.simulationPercentComplete, 100) }}opacity-0{{/ eq }}" 
+                style="width: {{this.simulationPercentComplete}}%; top: -7px;"></div>
+            <div class="grid bg-white" 
+                style="grid-template-columns: [what] auto repeat({{this.gridNumberOfDays}}, 1fr); grid-template-rows: auto repeat({{this.workPlans.gridRowSpan}}, auto) auto">
                 <div 
-                    class="pl-2 pt-2 pb-1 pr-1 flex"
-                    style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column-start: what">
-                    <div class="text-base grow font-semibold">{{workPlan.teamKey}}</div>
-                    {{# not(workPlan.disableVelocity) }}
-                    <div class="flex flex-col justify-around"><button
-                        title="Add a parallel work track for this team."
-                        on:click="this.addWorkPlanForTeam(workPlan.teamKey)" 
-                        class="btn-secondary-sm shrink text-xs font-mono">+</button></div>
-                    {{/ }}
+                    class="relative z-5"
+                    style="grid-row: 2 / span {{this.workPlans.gridRowSpan}}; grid-column: 2 / span {{this.gridNumberOfDays}}" id="dependencies">
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        x="0" y="0"
+                        class="absolute" width="100%" height="100%" preserveAspectRatio="none">
+                        
+                    </svg>
                 </div>
+                <div class="text-xs"
+                style="grid-row: 1 / span 1; grid-column: 1 / span 1"
+                >
+                &nbsp; <!-- gives size to the top row -->
+
                 
-                <div
-                    class="flex flex-row-reverse  pt-2 z-20 pr-2"
-                    style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 2 / span {{this.gridNumberOfDays}}">
-                    {{# not(workPlan.disableVelocity) }}
-                        <div class="text-sm">
-                            Velocity: 
-                            
-                            <input
-                                type="number"
-                                value:from='this.getVelocityForTeam(workPlan.teamKey)'
-                                on:change='this.updateVelocity(workPlan.teamKey, scope.element.valueAsNumber)'
-                                class="form-border w-10 text-sm text-center" />
-                        </div>
-                    {{/ not}}
                 </div>
-                {{# for(track of workPlan.tracks) }}
-
+                {{# for( timeRange of this.timeRanges) }}
                     <div
-                        class="pl-4 flex pt-0.5 pr-1" 
-                        style="grid-row: {{track.gridRowStart}} / span 1; grid-column-start: what">
-                        {{# not(workPlan.disableTracks) }}
-                            <div class="text-xs grow ">Track {{track.name}}</div>
-                            {{# if( this.canRemoveTrack(scope.index, workPlan.tracks.length) ) }}
-                                <button 
-                                    title="Remove a work track for this team."
-                                    on:click="this.removeWorkPlanForTeam(workPlan.teamKey)"
-                                    class="btn-secondary-sm shrink text-xs font-mono">-</button>
-                            {{/ if }}
-                        {{/ not}}
-                    </div>
-
-                    {{# for(work of track.works) }}
-                        <div 
-                            class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2 truncate max-w-sm"
-                            style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
-                            >
-                            {{# if(work.work.issue.url) }}
-                                <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
-                            {{ else }}
-                                <span>{{work.work.issue.Summary}}</span>
-                            {{/ if }}
-                        </div>
-                        <simulation-data
-                            class="relative block" 
-                            style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column: 2 / span {{this.gridNumberOfDays}}"
-                            on:el:mouseenter="this.showDependencies(work)"
-                            on:el:mouseleave="this.hideDependencies(work)"
-                            on:resized="this.insertBlockers()"
-                            id="{{work.work.issue["Issue key"]}}-timeline"
-                            lastDueDay:from="this.lastDueDay"
-                            work:from="work"
-                            startDate:from="this.startDate"
-                            uncertaintyWeight:from="this.uncertaintyWeight"
-                            >
-                        </simulation-data>
-                    {{/ for }}
+                        class="border-neutral-30 border-solid border-x px-1 text-xs truncate"
+                        style="grid-row: 1 / span {{plus(this.workPlans.gridRowSpan, 2)}}; grid-column: {{plus(timeRange.startDay, 1)}} / span {{timeRange.days}}"
+                        >{{timeRange.prettyStart}}</div>
                 {{/ for }}
-            {{/ }}
-        </div>
+                {{# for(workPlan of this.workPlans) }}
+                    <div
+                        class="bg-neutral-20 pt-2 pb-1  sticky top-0"
+                        style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 1 / span {{ plus(this.gridNumberOfDays,1) }}"></div>
+                    <div 
+                        class="pl-2 pt-2 pb-1 pr-1 flex sticky top-0"
+                        style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column-start: what">
+                        <div class="text-base grow font-semibold">{{workPlan.teamKey}}</div>
+                        {{# not(workPlan.disableVelocity) }}
+                        <div class="flex flex-col justify-around"><button
+                            title="Add a parallel work track for this team."
+                            on:click="this.addWorkPlanForTeam(workPlan.teamKey)" 
+                            class="btn-secondary-sm shrink text-xs font-mono">+</button></div>
+                        {{/ }}
+                    </div>
+                    <div
+                        class="pl-2 pt-2 pb-1 pr-1 text-xs" 
+                        style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 2 / span {{this.gridNumberOfDays}}">
+                        
+                    </div>
+                    
+                    <div
+                        class="flex flex-row-reverse  pt-2 z-20 pr-2 gap-2"
+                        style="grid-row: {{workPlan.gridRowStart}} / span 1; grid-column: 2 / span {{this.gridNumberOfDays}}">
+                        {{# not(workPlan.disableVelocity) }}
+                            <div class="text-sm">
+                                Velocity: 
+                                
+                                <input
+                                    type="number"
+                                    value:from='this.getVelocityForTeam(workPlan.teamKey)'
+                                    on:change='this.updateVelocity(workPlan.teamKey, scope.element.valueAsNumber)'
+                                    class="form-border w-10 text-sm text-center" />
+                            </div>
+                            <div class="text-sm border-transparent border">Working Days: {{this.totalWorkingDays(workPlan)}}, </div>
+                        {{/ not}}
+                        
+                    </div>
+                    {{# for(track of workPlan.tracks) }}
 
+                        <div
+                            class="pl-4 flex pt-0.5 pr-1" 
+                            style="grid-row: {{track.gridRowStart}} / span 1; grid-column-start: what">
+                            {{# not(workPlan.disableTracks) }}
+                                <div class="text-xs grow ">Track {{track.name}}</div>
+                                {{# if( this.canRemoveTrack(scope.index, workPlan.tracks.length) ) }}
+                                    <button 
+                                        title="Remove a work track for this team."
+                                        on:click="this.removeWorkPlanForTeam(workPlan.teamKey)"
+                                        class="btn-secondary-sm shrink text-xs font-mono">-</button>
+                                {{/ if }}
+                            {{/ not}}
+                        </div>
+
+                        {{# for(work of track.works) }}
+                            <div 
+                                class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2 truncate max-w-sm"
+                                style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
+                                >
+                                {{# if(work.work.issue.url) }}
+                                    <a href="{{work.work.issue.url}}" target="_blank">{{work.work.issue.Summary}}</a>
+                                {{ else }}
+                                    <span>{{work.work.issue.Summary}}</span>
+                                {{/ if }}
+                            </div>
+                            <simulation-data
+                                class="relative block" 
+                                style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column: 2 / span {{this.gridNumberOfDays}}"
+                                on:el:mouseenter="this.showDependencies(work)"
+                                on:el:mouseleave="this.hideDependencies(work)"
+                                on:resized="this.insertBlockers()"
+                                id="{{work.work.issue["Issue key"]}}-timeline"
+                                lastDueDay:from="this.lastDueDay"
+                                work:from="work"
+                                startDate:from="this.startDate"
+                                uncertaintyWeight:from="this.uncertaintyWeight"
+                                >
+                            </simulation-data>
+                        {{/ for }}
+                    {{/ for }}
+                {{/ }}
+            </div>
+        {{/ if }}
     `;
     static props = {
         configuration: type.Any,
@@ -248,7 +263,8 @@ class MonteCarlo extends StacheElement {
             }
         },
         startDate: type.maybeConvert(Date),
-        endDateWorkItem: null
+        endDateWorkItem: null,
+        warnings: type.maybe( Array )
     };
     get gridNumberOfDays(){
         return this.lastDueDay + 1
@@ -267,6 +283,8 @@ class MonteCarlo extends StacheElement {
         this.listenTo("scheduledAllWork", this.insertBlockers.bind(this))
 
         this.listenTo("firstRunWorkPlans",({value})=>{
+            this.warnings = null;
+            this.removeBlockers();
             this.afterFirstSimulation(value)
         });
         this.afterFirstSimulation(this.firstRunWorkPlans);
@@ -282,9 +300,15 @@ class MonteCarlo extends StacheElement {
             this.endDateWorkItem.updateStats()
             queues.batch.stop();
             this.insertBlockers();
-        })
+        });
     }
-
+    totalWorkingDays(workPlan){
+        return workPlan.tracks.reduce( (acc, track) => {
+            return acc + track.works.reduce( (workAcc, work) => {
+                return workAcc + work.adjustedDaysOfWork;
+            }, 0)
+        },0)
+    }
     runOneSimulation(success, first){
         if(!this.configuration || !this.rawIssues.length) {
             return success(undefined);
@@ -302,9 +326,10 @@ class MonteCarlo extends StacheElement {
             },
             // Overwrite for EB
             getEstimate: this.configuration.getEstimate,
+            getConfidence: this.configuration.getConfidence,
             getTeamKey: this.configuration.getTeamKey,
             getParentKey: this.configuration.getParentKey,
-            getConfidence: this.configuration.getConfidence,
+            
             getParallelWorkLimit: this.getParallelWorkLimit
         })
         
@@ -419,6 +444,7 @@ class MonteCarlo extends StacheElement {
 
         if(lastWork === null) {
             // there's no work planned. Probably no epics, abort.
+            this.warnings = ["There is no work to be simulated. Did you load any epics?"]
             return;
         }
         endDateWorkItem.addWork(lastWork);
@@ -451,9 +477,13 @@ class MonteCarlo extends StacheElement {
             return "pb-2"
         }
     }
-    insertBlockers(){
+    removeBlockers(){
         const svg = this.getElementsByTagName("svg")[0];
         svg.innerHTML = "";
+        return svg;
+    }
+    insertBlockers(){
+        const svg = this.removeBlockers();
         const svgRect = svg.getBoundingClientRect();
         svg.setAttributeNS(null, "viewBox",`0 0 ${svgRect.width} ${svgRect.height}` );
         const svgPoint = getTopLeft(svg);

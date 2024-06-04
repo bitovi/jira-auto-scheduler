@@ -136,7 +136,23 @@ export class Configure extends ObservableObject {
     ...makeLogicAndFunctionDefinition("getDaysPerSprint", 10),
 
     ...makeLogicAndFunctionDefinitionSaveToUrl("getConfidence", function(){
-      return {var: this.confidenceFields[0]}
+      return this.confidenceFields.length === 1 ?
+        {var: this.confidenceFields[0]} :
+        {
+          "reduce": [
+            this.confidenceFields.map( (name)=> { return {var: name}; } ),
+            
+
+            {
+              "if": [
+                { "and": [ { "!": { "var": "accumulator" } }, { "var": "current" } ] },
+                { "var": "current" },
+                { "var": "accumulator" }
+              ]
+            },
+            null
+          ]
+        }
     } ),
     ...makeLogicAndFunctionDefinitionSaveToUrl("getEstimate", function(){
       return {var: this.medianEstimateFields[0]}

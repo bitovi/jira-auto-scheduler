@@ -7,21 +7,24 @@ import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./
 class EstimationProgressReport extends StacheElement {
     static view = `
         <details on:toggle="this.showing = scope.element.open">
-            <summary class="cursor-pointer"><b class="font-bold">Estimation Progress Report</b> - Track what has and needs to be estimated.</summary>
+            <summary class="cursor-pointer"><b class="font-bold">Estimation Progress Report</b> -
+             Track what has and needs to be estimated.
+             
+            </summary>
             <div>
                 {{# if(this.showing) }}
                 <div style="display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px;">
-                    <div>&nbsp;</div>
+                    <div><button class="btn-secondary-sm" on:click="this.downloadCSV()">Download CSV</button></div>
                     <div style="grid-column: 2 / span 2" class="text-center">Epic</div>
                     <div style="grid-column: 4 / span 5" class="text-center">{{this.aboveEpicTypeName}}s</div>
                     <div>&nbsp;</div>
-                    <div class="text-xs text-right">Total</div>
-                    <div class="text-xs text-right">Estimated</div>
-                    <div class="text-xs text-right">Total</div>
-                    <div class="text-xs text-right">Without epics</div>
-                    <div class="text-xs text-right">Only unestimated Epics</div>
-                    <div class="text-xs text-right">Partially estimated</div>
-                    <div class="text-xs text-right">Estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Total</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Total</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Without epics</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Only unestimated Epics</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Partially estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Estimated</div>
                 {{# for(level of this.hierarchyLevelReportingData) }}
                     <h2 style="grid-column: 1 / -1"
                         class="text-base grow font-semibold bg-neutral-20">
@@ -97,8 +100,68 @@ class EstimationProgressReport extends StacheElement {
 
             return sorted;
         }
+        
     };
+    downloadCSV(){
+        const rawData = this.hierarchyLevelReportingData;
+        const rowsData = [];
 
+        const flattenRollups = (rollups) => {
+            const result = {};
+            for(let key in rollups.aboveEpic) {
+                result[this.aboveEpicTypeName+" "+key] = rollups.aboveEpic[key];
+            }
+            for(let key in rollups.epic) {
+                result["epic "+key] = rollups.epic[key];
+            }
+            return result;
+        }
+
+        for(let issueType of rawData) {
+            for(let team of issueType.teams) {
+                rowsData.push({
+                    "IssueType": issueType.type.name,
+                    "RollupType": "Team",
+                    "Team": team.name,
+                    ... flattenRollups(team)
+                })
+            }
+
+            for(let issue of issueType.issues) {
+                let teamName = this.getTeamKey(issue);
+                rowsData.push({
+                    "IssueType": issueType.type.name,
+                    "RollupType": "Issue",
+                    "Team": teamName,
+                    ... flattenRollups(issue.rollups)
+                })
+            }
+
+        }
+
+        function convertToCSV(data) {
+            const headers = Object.keys(data[0]);
+            const rows = data.map(obj => headers.map(header => JSON.stringify(obj[header], replacer)).join(","));
+            return [headers.join(","), ...rows].join("\r\n");
+        }
+
+        function replacer(key, value) {
+            return value === null || value === undefined ? '' : value;
+        }
+        debugger;
+        const csvContent = convertToCSV(rowsData);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        if (link.download !== undefined) { // Feature detection
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "data.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
     log(issue) {
         console.log(issue);
     }
