@@ -175,7 +175,7 @@ class SimulationData extends StacheElement {
                         <dt>Median Days of Work</dt>
                         <dd class="text-right">${this.work.work.estimatedDaysOfWork}</dd>
                         <dt>Adjusted Days of Work</dt>
-                        <dd class="text-right">${this.work.adjustedDaysOfWork }</dd>
+                        <dd class="text-right">${ Math.round( this.work.adjustedDaysOfWork ) }</dd>
                     </dl>`
                     }
                     
