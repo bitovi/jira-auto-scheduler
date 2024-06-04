@@ -303,11 +303,11 @@ class MonteCarlo extends StacheElement {
         });
     }
     totalWorkingDays(workPlan){
-        return workPlan.tracks.reduce( (acc, track) => {
+        return Math.round( workPlan.tracks.reduce( (acc, track) => {
             return acc + track.works.reduce( (workAcc, work) => {
                 return workAcc + work.adjustedDaysOfWork;
             }, 0)
-        },0)
+        },0) )
     }
     runOneSimulation(success, first){
         if(!this.configuration || !this.rawIssues.length) {
