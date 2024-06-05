@@ -1,7 +1,7 @@
 import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./can.js";
 
 
-
+const interactableCellClasses = "text-right hover:text-blue-400 cursor-pointer hover:bg-neutral-40"
 
 
 class EstimationProgressReport extends StacheElement {
@@ -13,12 +13,13 @@ class EstimationProgressReport extends StacheElement {
             </summary>
             <div>
                 {{# if(this.showing) }}
-                <div style="display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px;">
+                <div style="display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px;">
                     <div><button class="btn-secondary-sm" on:click="this.downloadCSV()">Download CSV</button></div>
-                    <div style="grid-column: 2 / span 2" class="text-center">Epic</div>
-                    <div style="grid-column: 4 / span 5" class="text-center">{{this.aboveEpicTypeName}}s</div>
+                    <div style="grid-column: 2 / span 3" class="text-center">Epic</div>
+                    <div style="grid-column: 5 / span 5" class="text-center">{{this.aboveEpicTypeName}}s</div>
                     <div>&nbsp;</div>
                     <div class="text-xs text-right sticky top-0 bg-white">Total</div>
+                    <div class="text-xs text-right sticky top-0 bg-white">Unestimated</div>
                     <div class="text-xs text-right sticky top-0 bg-white">Estimated</div>
                     <div class="text-xs text-right sticky top-0 bg-white">Total</div>
                     <div class="text-xs text-right sticky top-0 bg-white">Without epics</div>
@@ -35,24 +36,26 @@ class EstimationProgressReport extends StacheElement {
                     {{# for(teamRollup of level.teams) }}
                         <div class="pl-5">{{teamRollup.name}}</div>
                         <div class="text-right">{{teamRollup.epic.total}}</div>
-                        <div class="text-right">{{teamRollup.epic.estimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'epic','unestimated')">{{teamRollup.epic.unestimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'epic','estimated')">{{teamRollup.epic.estimated}}</div>
                         <div class="text-right">{{teamRollup.aboveEpic.total}}</div>
-                        <div class="text-right">{{teamRollup.aboveEpic.noEpics}}</div>
-                        <div class="text-right">{{teamRollup.aboveEpic.onlyUnestimated}}</div>
-                        <div class="text-right">{{teamRollup.aboveEpic.someEstimatedEpics}}</div>
-                        <div class="text-right">{{teamRollup.aboveEpic.fullyEstimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','noEpic')">{{teamRollup.aboveEpic.noEpics}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','onlyUnestimated')">{{teamRollup.aboveEpic.onlyUnestimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','someEstimated')">{{teamRollup.aboveEpic.someEstimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','fullyEstimated')">{{teamRollup.aboveEpic.fullyEstimated}}</div>
                     {{/ }}
                     <p class="text-xs pl-3" style="grid-column: 1 / -1">Issue Rollup:</p>
                     {{# for(issue of level.issues) }}
 
                         <div class="pl-5"><a target="_blank" href="{{issue.url}}">{{issue.Summary}}</a></div>
                         <div class="text-right">{{issue.rollups.epic.total}}</div>
-                        <div class="text-right">{{issue.rollups.epic.estimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'epic','unestimated')">{{issue.rollups.epic.unestimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'epic','estimated')">{{issue.rollups.epic.estimated}}</div>
                         <div class="text-right">{{issue.rollups.aboveEpic.total}}</div>
-                        <div class="text-right">{{issue.rollups.aboveEpic.noEpics}}</div>
-                        <div class="text-right">{{issue.rollups.aboveEpic.onlyUnestimated}}</div>
-                        <div class="text-right">{{issue.rollups.aboveEpic.someEstimatedEpics}}</div>
-                        <div class="text-right">{{issue.rollups.aboveEpic.fullyEstimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','noEpic')">{{issue.rollups.aboveEpic.noEpics}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','onlyUnestimated')">{{issue.rollups.aboveEpic.onlyUnestimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','someEstimated')">{{issue.rollups.aboveEpic.someEstimated}}</div>
+                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','fullyEstimated')">{{issue.rollups.aboveEpic.fullyEstimated}}</div>
                     {{/ }}
                     
                 {{/ }}
@@ -60,7 +63,19 @@ class EstimationProgressReport extends StacheElement {
                 </div>
                 {{/ if }}
             </div>
+           
         </details>
+        
+        <dialog on:close="this.modalIssues = null" this:to="this.dialog">
+            <div class="p-4">
+                <h2 class="text-lg pb-4">{{this.modalTitle}}</h2>
+                <ul>
+                    {{# for(issue of this.modalIssues) }}
+                        <li><a target="_blank" href="{{issue.url}}">{{issue.Summary}}</a></li>
+                    {{/ for }}
+                <ul>
+            </div>
+        </dialog>
         
     `;
 
@@ -68,7 +83,10 @@ class EstimationProgressReport extends StacheElement {
         getTeamKey: Function,
         getEstimate: Function,
         getConfidence: Function,
+        modalIssues: type.maybe(Array),
+        dialog: HTMLElement,
         showing: false,
+        modalTitle: String,
 
         get aboveEpicTypeName(){
             const reportingData = this.hierarchyLevelReportingData;
@@ -92,9 +110,21 @@ class EstimationProgressReport extends StacheElement {
             const sorted = Object.values(reportingData).sort( (levelA, levelB)=>{
                 return levelB.hierarchyLevel - levelA.hierarchyLevel
             }).map( (level)=> {
+                // get maxes on everything
+                const allIssuesRollup = {
+                    epicTotalMax: Math.max(...level.issues.map( i => i.rollups.epic.total )),
+                    aboveEpicTotalMax: Math.max(...level.issues.map( i => i.rollups.aboveEpic.total ))
+                }
+                const teams = Object.values(level.teams)
+                const allTeamsRollup = {
+                    epicTotalMax: Math.max(...teams.map( t => t.epic.total )),
+                    aboveEpicTotalMax: Math.max(...teams.map( t => t.aboveEpic.total ))
+                }
                 return {
                     ...level,
-                    teams: Object.values(level.teams)
+                    allIssuesRollup,
+                    teams,
+                    allTeamsRollup
                 }
             })
 
@@ -102,6 +132,32 @@ class EstimationProgressReport extends StacheElement {
         }
         
     };
+    connected(){
+        // make sure the dialog closes correctly
+        this.listenTo(this.dialog, "click",(event)=> {
+            if (event.target === this.dialog) {
+                this.dialog.close();
+            }
+        })
+    }
+    showModal(issue,type, valueName){
+        const rollups =  issue.rollups || issue;
+        const issues = rollups[type][valueName+"Issues"];
+        this.modalTitle = ({
+            epic: {
+                estimated: "Estimated Epics",
+                unestimated: "Unestimated Epics"
+            },
+            aboveEpic: {
+                noEpic: this.aboveEpicTypeName+"s that have no epics",
+                onlyUnestimated: this.aboveEpicTypeName+"s whose epics have no estimates",
+                someEstimated: this.aboveEpicTypeName+"s that are partially estimated",
+                fullyEstimated: this.aboveEpicTypeName+"s that are fully estimated",
+            }
+        })[type][valueName] || "Issues";
+        this.modalIssues = issues.flat(Infinity);
+        this.dialog.showModal();
+    }
     downloadCSV(){
         const rawData = this.hierarchyLevelReportingData;
         const rowsData = [];
@@ -122,6 +178,7 @@ class EstimationProgressReport extends StacheElement {
                 rowsData.push({
                     "IssueType": issueType.type.name,
                     "RollupType": "Team",
+                    "Name": team.name,
                     "Team": team.name,
                     ... flattenRollups(team)
                 })
@@ -132,6 +189,7 @@ class EstimationProgressReport extends StacheElement {
                 rowsData.push({
                     "IssueType": issueType.type.name,
                     "RollupType": "Issue",
+                    "Name": issue.Summary,
                     "Team": teamName,
                     ... flattenRollups(issue.rollups)
                 })
@@ -148,7 +206,7 @@ class EstimationProgressReport extends StacheElement {
         function replacer(key, value) {
             return value === null || value === undefined ? '' : value;
         }
-        debugger;
+
         const csvContent = convertToCSV(rowsData);
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
@@ -227,7 +285,7 @@ function getReportingData(issues, {getConfidence, getEstimate, getTeamKey}){
             continue; // ignore everything below epics
         }
 
-        
+        // Epic
         if(hierarchyLevel === 1) {
             let estimate = getEstimate(issue);
             let confidence = getConfidence(issue);
@@ -236,33 +294,44 @@ function getReportingData(issues, {getConfidence, getEstimate, getTeamKey}){
             issue.rollups.epic.total++;
             if(isEstimated) {
                 issue.rollups.epic.estimated++;
+                issue.rollups.epic.estimatedIssues.push(issue);
+            } else {
+                issue.rollups.epic.unestimated++;
+                issue.rollups.epic.unestimatedIssues.push(issue);
             }
             
             updateTeamAndParentRollups(hierarchyLevels, issue, {getTeamKey, getParent});
         }
+        // Initiative
         else if(hierarchyLevel === 2) {
             // this is an initiative labelling itself
             issue.rollups.aboveEpic.total= 1;
             if(issue.rollups.epic.total === 0) {
                 issue.rollups.aboveEpic.noEpics = 1;
+                issue.rollups.aboveEpic.noEpicIssues.push(issue);
             }
             else if(issue.rollups.epic.total === issue.rollups.epic.estimated) {
                 issue.rollups.aboveEpic.fullyEstimated = 1;
+                issue.rollups.aboveEpic.fullyEstimatedIssues.push(issue);
             } 
             else if(issue.rollups.epic.total > 0 && issue.rollups.epic.estimated === 0) {
                 issue.rollups.aboveEpic.onlyUnestimated = 1;
+                issue.rollups.aboveEpic.onlyUnestimatedIssues.push(issue);
             }
             else {
-                issue.rollups.aboveEpic.someEstimatedEpics = 1;
+                issue.rollups.aboveEpic.someEstimated = 1;
+                issue.rollups.aboveEpic.someEstimatedIssues.push(issue);
             }
 
             updateTeamAndParentRollups(hierarchyLevels, issue, {getTeamKey, getParent});
         }
+        // Theme/Milestone/Outcome/Etc
         else {
             // update the team info ...
             updateTeamAndParentRollups(hierarchyLevels, issue, {getTeamKey, getParent});            
         }
     }
+    
     return hierarchyLevels;
 }
 
@@ -280,13 +349,26 @@ function updateTeamAndParentRollups(hierarchyLevels, issue, {getTeamKey, getPare
 
 function updateRollup(rollups, issue) {
     rollups.epic.total += issue.rollups.epic.total;
+
     rollups.epic.estimated += issue.rollups.epic.estimated;
+    rollups.epic.estimatedIssues.push(issue.rollups.epic.estimatedIssues);
+
+    rollups.epic.unestimated += issue.rollups.epic.unestimated;
+    rollups.epic.unestimatedIssues.push(issue.rollups.epic.unestimatedIssues);
 
     rollups.aboveEpic.total += issue.rollups.aboveEpic.total;
+
     rollups.aboveEpic.noEpics += issue.rollups.aboveEpic.noEpics;
+    rollups.aboveEpic.noEpicIssues.push( issue.rollups.aboveEpic.noEpicIssues );
+
     rollups.aboveEpic.fullyEstimated += issue.rollups.aboveEpic.fullyEstimated;
+    rollups.aboveEpic.fullyEstimatedIssues.push( issue.rollups.aboveEpic.fullyEstimatedIssues );
+
     rollups.aboveEpic.onlyUnestimated += issue.rollups.aboveEpic.onlyUnestimated;
-    rollups.aboveEpic.someEstimatedEpics += issue.rollups.aboveEpic.someEstimatedEpics;
+    rollups.aboveEpic.onlyUnestimatedIssues.push( issue.rollups.aboveEpic.onlyUnestimatedIssues );
+
+    rollups.aboveEpic.someEstimated += issue.rollups.aboveEpic.someEstimated;
+    rollups.aboveEpic.someEstimatedIssues.push( issue.rollups.aboveEpic.someEstimatedIssues );
 }
 
 function makeGetParent(issues){
@@ -305,12 +387,19 @@ function makeBaseRollup(){
         aboveEpic: {
             total: 0,
             noEpics: 0,
+            noEpicIssues: [],
             onlyUnestimated: 0,
-            someEstimatedEpics: 0,
-            fullyEstimated: 0
+            onlyUnestimatedIssues: [],
+            someEstimated: 0,
+            someEstimatedIssues: [],
+            fullyEstimated: 0,
+            fullyEstimatedIssues: []
         },
         epic: {
             estimated: 0,
+            estimatedIssues: [],
+            unestimated: 0,
+            unestimatedIssues: [],
             total: 0
         }
     };
