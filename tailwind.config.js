@@ -9,6 +9,10 @@ module.exports = {
       },
       extend: {
         colors: {
+            notstarted: '#97A0AF', /* N80 - Spooky ghost */
+            complete: '#36B37E',
+            ontrack: '#4C9AFF',
+            behind: '#FFC400',
             blue: {
                 500: '#0747A6',
                 400: '#0052CC', // primary color

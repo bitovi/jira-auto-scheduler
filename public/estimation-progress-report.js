@@ -3,6 +3,7 @@ import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./
 
 const interactableCellClasses = "text-right hover:text-blue-400 cursor-pointer hover:bg-neutral-40"
 
+const interactableClasses = "hover:text-blue-400 cursor-pointer text-right inline-block"
 
 class EstimationProgressReport extends StacheElement {
     static view = `
@@ -13,19 +14,22 @@ class EstimationProgressReport extends StacheElement {
             </summary>
             <div>
                 {{# if(this.showing) }}
-                <div style="display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 4px;">
+                <div style="display: grid; grid-template-columns: auto auto 1fr 1fr auto 1fr 1fr 1fr 1fr; gap: 4px;">
                     <div><button class="btn-secondary-sm" on:click="this.downloadCSV()">Download CSV</button></div>
-                    <div style="grid-column: 2 / span 3" class="text-center">Epic</div>
-                    <div style="grid-column: 5 / span 5" class="text-center">{{this.aboveEpicTypeName}}s</div>
+                    <div style="grid-column: 2 / span 3" class="">Epic</div>
+                    <div style="grid-column: 5 / span 5" class=" pl-8">{{this.aboveEpicTypeName}}s</div>
                     <div>&nbsp;</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Total</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Unestimated</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Estimated</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Total</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Without epics</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Only unestimated Epics</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Partially estimated</div>
-                    <div class="text-xs text-right sticky top-0 bg-white">Estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-white pt-1">Total</div>
+                    <div class="text-xs text-right sticky top-0 bg-complete pt-1 pr-1">Estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-notstarted pt-1 pr-1">Unestimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-white pt-1 pl-8">Total</div>
+                    <div class="text-xs text-right sticky top-0 bg-complete pt-1 pr-1">Estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-ontrack pt-1 pr-1">Partially estimated</div>
+                    <div class="text-xs text-right sticky top-0 bg-behind pt-1 pr-1">Only unestimated Epics</div>
+                    <div class="text-xs text-right sticky top-0 bg-notstarted pt-1 pr-1">Without epics</div>
+                    
+                    
+                    
                 {{# for(level of this.hierarchyLevelReportingData) }}
                     <h2 style="grid-column: 1 / -1"
                         class="text-base grow font-semibold bg-neutral-20">
@@ -36,26 +40,74 @@ class EstimationProgressReport extends StacheElement {
                     {{# for(teamRollup of level.teams) }}
                         <div class="pl-5">{{teamRollup.name}}</div>
                         <div class="text-right">{{teamRollup.epic.total}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'epic','unestimated')">{{teamRollup.epic.unestimated}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'epic','estimated')">{{teamRollup.epic.estimated}}</div>
+                        <div style="grid-column: 3 / span 2" class="flex">
+                            <div  
+                                class="${interactableClasses} bg-complete" 
+                                style="width: {{ this.percent(teamRollup.epic.estimated, level.allTeamsRollup.epicTotalMax )}}"
+                                on:click="this.showModal(teamRollup,'epic','estimated')"><span class="pr-1">{{teamRollup.epic.estimated}}</span></div>
+                            <div 
+                                class="${interactableClasses} bg-notstarted" 
+                                style="width: {{ this.percent(teamRollup.epic.unestimated, level.allTeamsRollup.epicTotalMax )}}"
+                                on:click="this.showModal(teamRollup,'epic','unestimated')"><span class="pr-1">{{teamRollup.epic.unestimated}}</span></div>
+                        </div>
                         <div class="text-right">{{teamRollup.aboveEpic.total}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','noEpic')">{{teamRollup.aboveEpic.noEpics}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','onlyUnestimated')">{{teamRollup.aboveEpic.onlyUnestimated}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','someEstimated')">{{teamRollup.aboveEpic.someEstimated}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(teamRollup,'aboveEpic','fullyEstimated')">{{teamRollup.aboveEpic.fullyEstimated}}</div>
+
+                        <div style="grid-column: 6 / span 4" class="flex">
+                            <div class="${interactableClasses} bg-complete" on:click="this.showModal(teamRollup,'aboveEpic','fullyEstimated')"
+                                style="width: {{ this.percent(teamRollup.aboveEpic.fullyEstimated, level.allTeamsRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(teamRollup.aboveEpic.fullyEstimated)}}</span>
+                            </div>
+                            <div class="${interactableClasses} bg-ontrack" on:click="this.showModal(teamRollup,'aboveEpic','someEstimated')"
+                                style="width: {{ this.percent(teamRollup.aboveEpic.someEstimated, level.allTeamsRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(teamRollup.aboveEpic.someEstimated)}}</span>
+                            </div>
+                            <div class="${interactableClasses} bg-behind" on:click="this.showModal(teamRollup,'aboveEpic','onlyUnestimated')"
+                                style="width: {{ this.percent(teamRollup.aboveEpic.onlyUnestimated, level.allTeamsRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(teamRollup.aboveEpic.onlyUnestimated)}}</span>
+                            </div>
+                            <div class="${interactableClasses} bg-notstarted" on:click="this.showModal(teamRollup,'aboveEpic','noEpic')"
+                                style="width: {{ this.percent(teamRollup.aboveEpic.noEpics, level.allTeamsRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(teamRollup.aboveEpic.noEpics)}}</span>
+                            </div>
+                        </div>
+
                     {{/ }}
                     <p class="text-xs pl-3" style="grid-column: 1 / -1">Issue Rollup:</p>
                     {{# for(issue of level.issues) }}
 
                         <div class="pl-5"><a target="_blank" href="{{issue.url}}">{{issue.Summary}}</a></div>
                         <div class="text-right">{{issue.rollups.epic.total}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'epic','unestimated')">{{issue.rollups.epic.unestimated}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'epic','estimated')">{{issue.rollups.epic.estimated}}</div>
-                        <div class="text-right">{{issue.rollups.aboveEpic.total}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','noEpic')">{{issue.rollups.aboveEpic.noEpics}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','onlyUnestimated')">{{issue.rollups.aboveEpic.onlyUnestimated}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','someEstimated')">{{issue.rollups.aboveEpic.someEstimated}}</div>
-                        <div class="${interactableCellClasses}" on:click="this.showModal(issue,'aboveEpic','fullyEstimated')">{{issue.rollups.aboveEpic.fullyEstimated}}</div>
+                        <div style="grid-column: 3 / span 2" class="flex">
+                            <div class="${interactableClasses} bg-complete" 
+                                style="width: {{ this.percent(issue.rollups.epic.estimated, level.allIssuesRollup.epicTotalMax )}}"
+                                on:click="this.showModal(issue,'epic','estimated')"><span class="pr-1">{{issue.rollups.epic.estimated}}</span></div>
+                            <div 
+                                class="${interactableClasses} bg-notstarted" 
+                                style="width: {{ this.percent(issue.rollups.epic.unestimated, level.allIssuesRollup.epicTotalMax )}}"
+                                on:click="this.showModal(issue,'epic','unestimated')"><span class="pr-1">{{this.emptyIfFalsey(issue.rollups.epic.unestimated)}}</span></div>
+                        </div>
+                        
+                        <div class="text-right pl-6">{{issue.rollups.aboveEpic.total}}</div>
+                        <div style="grid-column: 6 / span 4" class="flex">
+                            <div class="${interactableClasses} bg-complete" on:click="this.showModal(issue,'aboveEpic','fullyEstimated')"
+                                style="width: {{ this.percent(issue.rollups.aboveEpic.fullyEstimated, level.allIssuesRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(issue.rollups.aboveEpic.fullyEstimated)}}</span>
+                            </div>
+                            <div class="${interactableClasses} bg-ontrack" on:click="this.showModal(issue,'aboveEpic','someEstimated')"
+                                style="width: {{ this.percent(issue.rollups.aboveEpic.someEstimated, level.allIssuesRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(issue.rollups.aboveEpic.someEstimated)}}</span>
+                            </div>
+                            <div class="${interactableClasses} bg-behind" on:click="this.showModal(issue,'aboveEpic','onlyUnestimated')"
+                                style="width: {{ this.percent(issue.rollups.aboveEpic.onlyUnestimated, level.allIssuesRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(issue.rollups.aboveEpic.onlyUnestimated)}}</span>
+                            </div>
+                            <div class="${interactableClasses} bg-notstarted" on:click="this.showModal(issue,'aboveEpic','noEpic')"
+                                style="width: {{ this.percent(issue.rollups.aboveEpic.noEpics, level.allIssuesRollup.aboveEpicTotalMax )}}">
+                                <span class="pr-1">{{this.emptyIfFalsey(issue.rollups.aboveEpic.noEpics)}}</span>
+                            </div>
+                        </div>
+
+                        
                     {{/ }}
                     
                 {{/ }}
@@ -73,7 +125,10 @@ class EstimationProgressReport extends StacheElement {
                     {{# for(issue of this.modalIssues) }}
                         <li><a target="_blank" href="{{issue.url}}">{{issue.Summary}}</a></li>
                     {{/ for }}
-                <ul>
+                </ul>
+                <form>
+                <button value="cancel" formmethod="dialog" class="btn-secondary mt-4" autofocus>Close</button>
+                </form>
             </div>
         </dialog>
         
@@ -115,13 +170,14 @@ class EstimationProgressReport extends StacheElement {
                     epicTotalMax: Math.max(...level.issues.map( i => i.rollups.epic.total )),
                     aboveEpicTotalMax: Math.max(...level.issues.map( i => i.rollups.aboveEpic.total ))
                 }
-                const teams = Object.values(level.teams)
+                const teams = Object.values(level.teams).sort(sortTeamsByEpicCountThenStatus)
                 const allTeamsRollup = {
                     epicTotalMax: Math.max(...teams.map( t => t.epic.total )),
                     aboveEpicTotalMax: Math.max(...teams.map( t => t.aboveEpic.total ))
                 }
                 return {
                     ...level,
+                    issues: level.issues.sort(sortIssuesByEpicCountThenStatus),
                     allIssuesRollup,
                     teams,
                     allTeamsRollup
@@ -132,6 +188,19 @@ class EstimationProgressReport extends StacheElement {
         }
         
     };
+    percent(top, bottom){
+        if(!bottom) {
+            return "0%";
+        }
+        return (top * 100 / bottom)+"%"
+    }
+    emptyIfFalsey(value){
+        if(!value) {
+            return ""
+        } else {
+            return value;
+        }
+    }
     connected(){
         // make sure the dialog closes correctly
         this.listenTo(this.dialog, "click",(event)=> {
@@ -230,6 +299,25 @@ class EstimationProgressReport extends StacheElement {
 customElements.define("estimation-progress-report", EstimationProgressReport);
 
 
+function sortIssuesByEpicCountThenStatus(issueA, issueB){
+    return sortTeamsByEpicCountThenStatus(issueA.rollups, issueB.rollups);
+}
+
+function sortTeamsByEpicCountThenStatus(rollupsA, rollupsB){
+    if(rollupsA.epic.total > rollupsB.epic.total) {
+        return -1;
+    }
+    if(rollupsA.epic.total < rollupsB.epic.total) {
+        return 1;
+    }
+    if(rollupsA.epic.estimated > rollupsB.epic.estimated) {
+        return -1;
+    }
+    if(rollupsA.epic.estimated < rollupsB.epic.estimated) {
+        return 1;
+    }
+}
+
 function calculatePercentileWhoHasStoryPointsAndConfidence(issues,{getEstimate, getConfidence}) {
     let totalCount = 0, estimatedCount = 0;
     for(let issue of issues) {
@@ -252,6 +340,7 @@ function calculatePercentileWhoHasStoryPointsAndConfidence(issues,{getEstimate, 
 
     return {totalCount, estimatedCount, percentage: Math.round(100*estimatedCount / totalCount) };
 }
+
 
 
 const EPIC_HIERARCHY_LEVEL = 1;
