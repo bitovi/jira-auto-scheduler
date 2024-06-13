@@ -8,6 +8,7 @@ import "./shared/simple-tooltip.js";
 import {Configure} from "./jira-config.js";
 import "./monte-carlo.js";
 import "./estimation-progress-report.js"
+import "./critical-path-report.js";
 import {nativeFetchJSON} from "./jira-oidc-helpers.js";
 
 const updateEpicsPromise = new Promise((resolve, reject)=>{
@@ -60,7 +61,7 @@ class JiraAutoScheduler extends StacheElement {
           limitIssues:bind="this.limitIssues"
           />
 
-    </details>
+      </details>
     {{ else }}
       <div class=" rounded-lg m-2 drop-shadow-md hide-on-fullscreen bg-yellow-300 p-4">
         The following is a sample plan. Learn more about it in the 
@@ -119,9 +120,9 @@ class JiraAutoScheduler extends StacheElement {
       {{/ if }}
     </div>
       
-    <div class="fullscreen-pt-14 fullscreen-m-0 bg-white pt-1 mx-2 rounded-b-lg pb-2">
+    <div>
       {{# and(this.csvIssuesPromise.isResolved, this.startDate) }}
-        <monte-carlo class="block relative"
+        <monte-carlo class="block relative bg-white pt-1 mx-2 rounded-b-lg pb-2"
           configuration:from="this.configuration"
           getVelocityForTeam:from="this.getVelocityForTeam"
           updateVelocity:from="this.updateVelocity"
@@ -132,19 +133,22 @@ class JiraAutoScheduler extends StacheElement {
           removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
           startDate:from="this.startDate"
           uncertaintyWeight:from="this.uncertaintyWeight"
-
           allWorkItems:to="this.workItems"
           ></monte-carlo>
+
+        {{# if(this.workItems) }}
+          <critical-path-report workItems:from="this.workItems" class="bg-white m-2 rounded-lg p-2 block"/>
+        {{/ if }}
       {{/ and }}
       {{# if(this.csvIssuesPromise.isRejected) }}
-        <div class="text-lg bg-yellow-500 p-4">
+        <div class="text-lg bg-yellow-500 pt-1 mx-2 rounded-b-lg pb-2">
           <p>There was an error loading from Jira!</p>
           <p>Error message: {{this.csvIssuesPromise.reason.errorMessages[0]}}</p>
           <p>Please check your JQL is correct!</p>
         </div>
       {{/ }}
       {{# if(this.csvIssuesPromise.isPending) }}
-        <div class="p-4 text-lg text-center">
+        <div class="pt-1 mx-2 rounded-b-lg pb-2 text-lg text-center bg-white">
           <svg class="animate-spin -ml-0.5 -mt-0.5 mr-1 h-e w-4 text-blue-400 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -154,7 +158,7 @@ class JiraAutoScheduler extends StacheElement {
       {{/ }}
     </div>
 
-    {{# and(this.csvIssuesPromise.isResolved, this.startDate) }}
+    {{# and(this.csvIssuesPromise.isResolved, this.startDate, this.csvIssues.length) }}
       <div class="p-2 m-2 rounded-lg pb-2 bg-white">
         <estimation-progress-report 
           rawIssues:from="this.csvIssues"
