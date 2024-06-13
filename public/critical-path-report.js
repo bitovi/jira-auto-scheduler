@@ -19,7 +19,7 @@ class CriticalPathReport extends StacheElement {
                         <a class="link cursor-pointer"
                             href="{{criticalPath.workItem.work.issue.url}}">{{criticalPath.workItem.work.issue.Summary}}</a>
                     </div>
-                    <div>{{criticalPath.totalDaysInCriticalPath}}</div>
+                    <div>{{this.round(criticalPath.totalDaysInCriticalPath)}}</div>
                     <div>
                         <ul>
                             {{# for(workItem of criticalPath.blockedPath) }}
@@ -29,7 +29,7 @@ class CriticalPathReport extends StacheElement {
                             {{/ }}
                         </ul>
                     </div>
-                    <div>{{criticalPath.totalDaysAcrossAllBlockedWork}}</div>
+                    <div>{{this.round(criticalPath.totalDaysAcrossAllBlockedWork)}}</div>
                     <div>
                         <ul>
                             {{# for(workItem of criticalPath.otherBlockedWork) }}
@@ -49,7 +49,9 @@ class CriticalPathReport extends StacheElement {
         workItems: type.Any,
         showing: false,
     };
-
+    round(number){
+        return Math.round(number);
+    }
     get criticalPaths(){
         console.log(this.workItems)
 
@@ -112,7 +114,7 @@ class CriticalPathReport extends StacheElement {
         // these are the critical blocks of work
         const isolatedCriticalPaths = criticalPaths.filter( cp => cp.include).map( cp => {
             return {...cp, otherBlockedWork: [...cp.otherBlockedWork]}
-        });
+        }).sort((cpA, cpB)=> cpB.totalDaysInCriticalPath - cpA.totalDaysInCriticalPath);
         console.log(isolatedCriticalPaths)
         return isolatedCriticalPaths;
     }
