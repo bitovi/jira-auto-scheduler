@@ -6,6 +6,8 @@ import {bestFitRanges, getUTCEndDateFromStartDateAndBusinessDays} from "./shared
 
 import "./simulation-data.js";
 
+const TIME_BETWEEN_BATCHES = 1;
+
 function compareNumbers(a, b) {
     return a - b;
   }
@@ -252,8 +254,8 @@ class MonteCarlo extends StacheElement {
         workPlans: type.Any,
         lastDueDay: {default: 1},
         allWorkItems: type.Any,
-        totalSimulationsToRun: {default: 5000},
-        totalSyncSimulations: {default: 50},
+        totalSimulationsToRun: {default: 1000},
+        totalSyncSimulations: {default: 25},
         simulationPercentComplete: {default: 0},
         velocities: type.Any,
 
@@ -385,7 +387,7 @@ class MonteCarlo extends StacheElement {
             
             if(remainingSimulations > 0) {
                 this.simulationPercentComplete = (this.totalSimulationsToRun - remainingSimulations) / this.totalSimulationsToRun * 100;
-                setTimeout(()=> runBatch(remainingSimulations, syncRuns), 1)
+                setTimeout(()=> runBatch(remainingSimulations, syncRuns), TIME_BETWEEN_BATCHES)
             } else {
                 this.simulationPercentComplete = 100;
                 allDone();
@@ -463,7 +465,7 @@ class MonteCarlo extends StacheElement {
         this.workPlans = gridifyWorkPlans(baseWorkPlans);
 
         // start running all the other simulations
-        setTimeout(()=> runBatch(this.totalSimulationsToRun, this.totalSyncSimulations), 13);
+        setTimeout(()=> runBatch(this.totalSimulationsToRun, this.totalSyncSimulations), TIME_BETWEEN_BATCHES);
     }
     canRemoveTrack(index, tracksCount) {
         return tracksCount > 1 && index === 0;
