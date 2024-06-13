@@ -7,7 +7,7 @@ class CriticalPathReport extends StacheElement {
             Identify the long poles in your plan.
         </summary>
         {{# if(this.showing) }}
-            <div class="grid" style="grid-template-columns: auto auto auto auto auto;">   
+            <div class="grid gap-2" style="grid-template-columns: auto auto auto auto auto;">   
                 <div>First Epic</div>
                 <div>Days in Critical Path</div>
                 <div>Following Epics in Critical Path</div>
@@ -53,7 +53,6 @@ class CriticalPathReport extends StacheElement {
         return Math.round(number);
     }
     get criticalPaths(){
-        console.log(this.workItems)
 
         const keyToWorkItem = this.workItems;
 
@@ -70,7 +69,6 @@ class CriticalPathReport extends StacheElement {
                 criticalPath.blockedPath.push( blockingWorkItems[0] );
                 excludedKeys.add(blockingWorkItems[0].work.issue["Issue key"]);
                 
-                console.log(blockingWorkItems[0].work.issue["Issue key"], criticalPath.totalDaysAcrossAllBlockedWork, blockingWorkItems[0].adjustedDaysOfWork)
                 criticalPath.totalDaysInCriticalPath += blockingWorkItems[0].adjustedDaysOfWork;
                 criticalPath.totalDaysAcrossAllBlockedWork += blockingWorkItems[0].adjustedDaysOfWork;
 
@@ -85,7 +83,6 @@ class CriticalPathReport extends StacheElement {
             blockedWork.forEach( (workItem)=> {
                 excludedKeys.add(workItem.work.issue["Issue key"]);
                 if(!criticalPath.otherBlockedWork.has(workItem)) {
-                    console.log(workItem.work.issue["Issue key"], criticalPath.totalDaysAcrossAllBlockedWork, workItem.adjustedDaysOfWork)
                     criticalPath.otherBlockedWork.add(workItem);
                     criticalPath.totalDaysAcrossAllBlockedWork += workItem.adjustedDaysOfWork;
                     const blockingWorkItems = workItem.work.issue.blocks.map( (issue)=> {
@@ -115,7 +112,6 @@ class CriticalPathReport extends StacheElement {
         const isolatedCriticalPaths = criticalPaths.filter( cp => cp.include).map( cp => {
             return {...cp, otherBlockedWork: [...cp.otherBlockedWork]}
         }).sort((cpA, cpB)=> cpB.totalDaysInCriticalPath - cpA.totalDaysInCriticalPath);
-        console.log(isolatedCriticalPaths)
         return isolatedCriticalPaths;
     }
 }
