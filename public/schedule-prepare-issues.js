@@ -93,16 +93,23 @@ export function prepareIssues(issuesSource, {
 
     });
 
-    // start building the block tree
-    // adds a `.blocks` and `.blockedBy`
-    linkBlocks(interestingEpics, issueByKey, getBlockingKeys);
+    // start building the block tree of direct locks
+    //directLinkBlocks(interestingIssues, issueByKey, getBlockingKeys);
+
+    // allow a parent to block other parents with children
+    if(window.localStorage.getItem("useIndirectBlocks")) {
+      linkIndirectBlocks(interestingEpics, issueByKey, getBlockingKeys);
+    } else {
+      linkDirectBlocks(interestingEpics, issueByKey, getBlockingKeys);
+    }
+    
     checkForCycles(interestingEpics);
     return {preparedIssues: interestingEpics, issuesByKey: issueByKey, workByTeams};
 }
 
 const removeDone = makeFilterByPropertyNotEqualToOneOfValues("Status", ["Done"]);
 function issueFilterDefault(issue){
-    return removeDone(issue) && (issue.Type === "Epic" ? issue["Custom field (Parent Link)"] : true)
+    return removeDone(issue);
 }
 
 function getDaysOfWork(usedEstimate, extraPoints, pointsPerDay){
@@ -177,26 +184,105 @@ function createWork(issue, workByTeams,
     return work;
 }
 
+function getParentBlocks(issueWithDirectBlocks){
+  let parent;
+    allBlocks = [];
+  while(parent = issue._parent) {
+    const children = getNestedEpics(parent.blocks);
+    allBlocks.push(...children);
+  }
+  return [...new Set(allBlocks)];
+}
+
+function getNestedEpics(blockedIssues){
+  const blockedEpics = [];
+  for( let blockedIssue of blockedIssues) {
+    if(blockedIssue["Issue Type"].name === "Epic") {
+      blockedEpics.push(blockedIssue);
+    }
+    else if(blockedIssue._children) {
+      blockedEpics.push(...getNestedEpics(blockedIssue._children))
+    }
+  }
+  return blockedEpics;
+}
+
+function makeGetDirectBlocks(issueByKey, getBlockingKeys){
+  return function(issue){
+    return (stringToArray( getBlockingKeys(issue) || [])).map( (blockKey)=> {
+      return issueByKey[blockKey];
+    }).filter( x=>  x);
+  }
+}
+
+// hierarchyLevel = 1 for epic
+
+function getIndirectAndDirectBlocks(issue, getDirectBlocks){
+  const allBlocks = [];
+  const directBlocks = getDirectBlocks(issue);
+  const directHierarchyOneBlocks = getHierarchyLevelChildren(directBlocks, 1);
+  
+  allBlocks.push(...directHierarchyOneBlocks);
+
+  let parent = issue;
+  while(parent = parent._parent) {
+    let parentDirectBlocks = getDirectBlocks(parent);
+    const parentDirectHierarchyOneBlocks = getHierarchyLevelChildren(parentDirectBlocks, 1);
+    allBlocks.push(...parentDirectHierarchyOneBlocks);
+  }
+  return allBlocks;
+}
+
+function getHierarchyLevelChildren(issues, level) {
+  const children = [];
+  for( let issue of issues) {
+    if(issue["Issue Type"].hierarchyLevel === level) {
+      children.push(issue);
+    }
+    else if(issue._children && issue["Issue Type"].hierarchyLevel > level) {
+      children.push(...getHierarchyLevelChildren(issue._children, level));
+    }
+  }
+  return children;
+}
 
 
-function linkBlocks(issues, issueByKey, getBlockingKeys) {
-    issues.forEach((issue)=> {
-        issue.blocks = (stringToArray( getBlockingKeys(issue) || [])).map( (blockKey)=> {
-            const blocked = issueByKey[blockKey];
-            if(blocked && blocked["Issue Type"].name !== issue["Issue Type"].name) {
-              console.log(issue["Issue Type"].name, issue.Summary,"is blocking", blocked["Issue Type"].name, blocked.Summary, ". This is ignored");
-              return undefined;
-            }
-            return blocked
-        }).filter( x=>  x);
+function linkDirectBlocks(issues, issueByKey, getBlockingKeys){
+  issues.forEach((issue)=> {
+    const issueBlocks = (stringToArray( getBlockingKeys(issue) || [])).map( (blockKey)=> {
+        const blocked = issueByKey[blockKey];
+        if(blocked && blocked["Issue Type"].name !== issue["Issue Type"].name) {
+          console.log(issue["Issue Type"].name, issue.Summary,"is blocking", blocked["Issue Type"].name, blocked.Summary, ". This is ignored");
+          return undefined;
+        }
+        return blocked
+    }).filter( x=>  x);
 
-        issue.blocks.forEach( (blocker)=> {
-            if(!blocker.blockedBy){
-                blocker.blockedBy = [];
-            }
-            blocker.blockedBy.push(issue);
-        })
+    issue.blocks = issueBlocks;
+
+    issue.blocks.forEach( (blocker)=> {
+        if(!blocker.blockedBy){
+            blocker.blockedBy = [];
+        }
+        blocker.blockedBy.push(issue);
     })
+  });
+
+}
+
+function linkIndirectBlocks(issues, issueByKey, getBlockingKeys) {
+  const getDirectBlocks = makeGetDirectBlocks(issueByKey, getBlockingKeys);
+  issues.forEach((issue)=> {
+    const allBlocks = getIndirectAndDirectBlocks(issue, getDirectBlocks);
+    issue.blocks = allBlocks;
+
+    issue.blocks.forEach( (blocker)=> {
+        if(!blocker.blockedBy){
+            blocker.blockedBy = [];
+        }
+        blocker.blockedBy.push(issue);
+    })
+  });
 }
 
 function checkForCycles(issues) {
@@ -249,14 +335,15 @@ function blocksDepth(issue) {
 
 function associateParentAndChildren(issues, getParentKey, issuesByKey) {
 
-  const issuesForEpics = groupByKey(issues,getParentKey);
+  const issuesByParentKey = groupByKey(issues,getParentKey);
 
-  for(let epicKey in issuesForEpics) {
-    if(epicKey) {
-      const epic = issuesByKey[epicKey];
-      if(epic) {
-        epic._children = issuesForEpics[epicKey];
-        epic._children.forEach( child => child._parent = epic );
+  for(let parentKey in issuesByParentKey) {
+    if(parentKey) {
+      const issue = issuesByKey[parentKey];
+      const children = issuesByParentKey[parentKey];
+      if(issue) {
+        issue._children = children;
+        children.forEach( child => child._parent = issue );
       } else {
         //console.log("Unable to find epic", epicKey, "perhaps it is marked as done but has an issue not done");
       }

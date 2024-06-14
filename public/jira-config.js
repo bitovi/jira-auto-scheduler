@@ -158,7 +158,7 @@ export class Configure extends ObservableObject {
       return {var: this.medianEstimateFields[0]}
     }),
 
-    ...makeLogicAndFunctionDefinition("getParentKey", {"var": "Custom field (Parent Link)"}),
+    ...makeLogicAndFunctionDefinition("getParentKey", {"var": "Parent.key"}),
     ...makeLogicAndFunctionDefinition("getBlockingKeys", {"var": "linkedIssues.blocks"})
   };
 }
