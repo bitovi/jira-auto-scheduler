@@ -1,4 +1,5 @@
 import {prepareIssues} from "./schedule-prepare-issues.js";
+import log from "./debug-log.js";
 
 // I think we might be able to pass in an array of issue plan orders. 
 // This might keep things much more stable ...
@@ -41,6 +42,7 @@ export function scheduleIssues(issues, options){
 
   // starting with the issue that blocks the most work
   preparedIssues.forEach( (issue)=> {
+    log("planning", issue);
     // plan that issue out
     planIssue(issue, workByTeams);
     onPlannedIssueIncrement(issue, workByTeams);

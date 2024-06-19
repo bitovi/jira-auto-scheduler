@@ -196,13 +196,13 @@ class JiraAutoScheduler extends StacheElement {
       let fieldsPromise, savedConfigurationPromise;
       if(this.issueJQL === "promotions example" || this.loginComponent.isLoggedIn === false) {
         fieldsPromise =  nativeFetchJSON("./examples/default-fields.json");
-        savedConfigurationPromise = Promise.resolve({})
       } else {
         fieldsPromise =  this.jiraHelpers.fieldsRequest;
-        savedConfigurationPromise = document.querySelector("velocities-from-issue")?.teamConfigurationPromise;
+        
       }
       
-      
+      savedConfigurationPromise = document.querySelector("velocities-from-issue")?.teamConfigurationPromise;
+
       return Promise.all([fieldsPromise, savedConfigurationPromise]).then(([fields, teamConfiguration])=>{
         return new Configure({fields, teamConfiguration})
       })

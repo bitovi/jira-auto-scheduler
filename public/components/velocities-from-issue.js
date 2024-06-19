@@ -141,8 +141,8 @@ export default class VelocitiesFromIssue extends StacheElement {
             if(this.canQuery) {
                 return TeamConfiguration.getTeamConfiguration(this.jiraHelpers);
             } else {
-                // a promise that never returns
-                return new Promise()
+                
+                return Promise.resolve(new TeamConfiguration({issue: null}))
             }
         }
     };
