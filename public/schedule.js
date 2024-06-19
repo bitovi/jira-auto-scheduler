@@ -42,7 +42,7 @@ export function scheduleIssues(issues, options){
 
   // starting with the issue that blocks the most work
   preparedIssues.forEach( (issue)=> {
-    log("planning", issue);
+    //log("planning", issue);
     // plan that issue out
     planIssue(issue, workByTeams);
     onPlannedIssueIncrement(issue, workByTeams);
