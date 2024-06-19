@@ -268,6 +268,22 @@ export default function JiraOIDCHelpers({
 
 			)
 		},
+		fetchJiraIssuesWithJQLWithNamedFields: async function (params) {
+			const fields = await fieldsRequest;
+			const newParams = {
+				...params,
+				fields: params.fields.map(f => fields.nameMap[f] || f)
+			}
+			const response = await jiraHelpers.fetchJiraIssuesWithJQL(newParams);
+
+
+			return response.issues.map((issue) => {
+				return {
+					...issue,
+					fields: mapIdsToNames(issue.fields, fields)
+				}
+			});
+		},
 		fetchAllJiraIssuesWithJQL: async function (params) {
 			const { limit: limit, ...apiParams } = params;
 			const firstRequest = jiraHelpers.fetchJiraIssuesWithJQL({ maxResults: 100, ...apiParams });

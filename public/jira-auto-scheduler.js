@@ -124,13 +124,12 @@ class JiraAutoScheduler extends StacheElement {
       {{# and(this.csvIssuesPromise.isResolved, this.startDate) }}
         <monte-carlo class="block relative bg-white pt-1 mx-2 rounded-b-lg pb-2"
           configuration:from="this.configuration"
-          getVelocityForTeam:from="this.getVelocityForTeam"
-          updateVelocity:from="this.updateVelocity"
+          getVelocityForTeam:from="this.config.teamConfiguration.getVelocityForTeam"
+          updateVelocity:from="this.config.teamConfiguration.setVelocityForTeam"
           rawIssues:from="this.csvIssues"
-          getParallelWorkLimit:from="this.getParallelWorkLimit"
-          velocities:from="this.velocities"
-          addWorkPlanForTeam:from="this.addWorkPlanForTeam"
-          removeWorkPlanForTeam:from="this.removeWorkPlanForTeam"
+          getParallelWorkLimit:from="this.config.teamConfiguration.getTracksForTeam"
+          addWorkPlanForTeam:from="this.config.teamConfiguration.addTrackForTeam"
+          removeWorkPlanForTeam:from="this.config.teamConfiguration.removeTrackForTeam"
           startDate:from="this.startDate"
           uncertaintyWeight:from="this.uncertaintyWeight"
           allWorkItems:to="this.workItems"
@@ -187,7 +186,6 @@ class JiraAutoScheduler extends StacheElement {
     loadChildren: saveJSONToUrl("loadChildren", false, Boolean, booleanParsing),
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
-		workLimit: saveJSONToUrl("workLimit",{},type.maybeConvert(Object)),
     limitIssues: saveJSONToUrl("loadChildren", true, Boolean, booleanParsing),
     //rawIssues: type.Any,
     workItems: type.Any,
@@ -195,15 +193,18 @@ class JiraAutoScheduler extends StacheElement {
     dialog: HTMLElement,
     loginComponent: HTMLElement,
     get configPromise(){
-      let fieldsPromise;
+      let fieldsPromise, savedConfigurationPromise;
       if(this.issueJQL === "promotions example" || this.loginComponent.isLoggedIn === false) {
         fieldsPromise =  nativeFetchJSON("./examples/default-fields.json");
+        savedConfigurationPromise = Promise.resolve({})
       } else {
-        fieldsPromise =  jiraHelpers.fieldsRequest;
+        fieldsPromise =  this.jiraHelpers.fieldsRequest;
+        savedConfigurationPromise = document.querySelector("velocities-from-issue")?.teamConfigurationPromise;
       }
       
-      return fieldsPromise.then((fields)=>{
-        return new Configure({fields})
+      
+      return Promise.all([fieldsPromise, savedConfigurationPromise]).then(([fields, teamConfiguration])=>{
+        return new Configure({fields, teamConfiguration})
       })
     },
     config: {
@@ -211,14 +212,7 @@ class JiraAutoScheduler extends StacheElement {
         this.configPromise.then(resolve);
       }
     },
-    
-    velocities: {
-      get default(){
-        return new ObservableObject(
-          JSON.parse( localStorage.getItem("team-velocities") ) || {}
-        );
-      }
-    },
+
     get csvIssuesPromise(){
       if(!this.config) {
         return Promise.resolve([]);
@@ -262,9 +256,6 @@ class JiraAutoScheduler extends StacheElement {
 		},
     // csv issues should derive from events, will change later!
     hackToRefreshIssues: type.Any,
-    get velocitiesJSON(){
-      return this.velocities.serialize();
-    },
     /*
     get teams(){
       const workByTeams = this.workByTeam;
@@ -287,44 +278,10 @@ class JiraAutoScheduler extends StacheElement {
 			};
 		}
   };
-  // hooks
-  async connected() {
-    this.listenTo("velocitiesJSON",({value})=>{
-      localStorage.setItem("team-velocities", JSON.stringify(value));
-    })
-
-  }
   closeModalAndRefreshIssues(){
     this.showSavingModal = false;
     this.hackToRefreshIssues = {};
   }
-  getVelocityForTeam(teamKey) {
-    return this.velocities[teamKey] || 21;
-  }
-  updateVelocity(teamKey, value){
-    this.velocities[teamKey] = value;
-  }
-	addWorkPlanForTeam(teamKey){
-		const copy = { ... this.workLimit };
-		copy[teamKey] = teamKey in copy ? copy[teamKey]+1 : 2;
-		this.workLimit = copy;
-	}
-	removeWorkPlanForTeam(teamKey){
-		const copy = { ... this.workLimit };
-		if(copy.workLimit === 2) {
-			delete copy.workLimit;
-		} else if(teamKey in copy) {
-			copy[teamKey]--
-		}
-		this.workLimit = copy;
-	}
-	getParallelWorkLimit(teamKey) {
-		if(teamKey in this.workLimit) {
-			return this.workLimit[teamKey];
-		} else {
-			return 1;
-		}
-	}
   get updateFields(){
     const storyPoints = this.config.storyPointField[0],
       startDate = this.config.startDateField[0],
@@ -363,8 +320,6 @@ customElements.define("jira-auto-scheduler", JiraAutoScheduler);
 
 
 
-const DEFAULT_VELOCITY = 21;
-
 function nowUTC(){
   let now = new Date();
 
@@ -379,31 +334,6 @@ function nowUTC(){
 
 
 
-// VELOCITY STUFF ==========================================================
-function getVelocitiesByProjectId(projectIds) {
-    var map = {};
-    projectIds.forEach((projectId) => {
-        if(localStorage.getItem(projectId+"-velocity")) {
-            map[projectId] = parseInt(localStorage.getItem(projectId+"-velocity"),10);
-        } else {
-            map[projectId] = DEFAULT_VELOCITY;
-        }
-    });
-    return map;
-}
-
-function setupSavingVelocity(input, team) {
-    input.onchange = function(){
-        if( parseInt(this.value, "10") > 0 ) {
-            localStorage.setItem(team.teamKey+"-velocity", parseInt(this.value, "10") );
-            var teams = document.querySelectorAll(".team");
-            process(lastProcessedIssues);
-            for(let teamDiv of teams) {
-                teamDiv.remove();
-            }
-        }
-    }
-}
 
 
 // Overwrite things
@@ -417,27 +347,3 @@ function getShirtSizePoints(value) {
   }
 }
 
-// returning undefiined has meaning. We preserve that.
-function EB_getEstimate(issue){
-
-  var rawValue = getEstimateDefault(issue);
-
-  if( issue["Custom field (T-shirt Size)"] ) {
-    for( let value of issue["Custom field (T-shirt Size)"] ){
-        if(value) {
-          rawValue = getShirtSizePoints(value)
-        }
-    }
-  }
-  let sum;
-  if(issue._children) {
-    sum = issue._children.reduce((sum, child) => {
-      return sum + getEstimateDefault(child) || 0;
-    }, 0);
-    if(sum > 0) {
-      return typeof rawValue === "number" ? rawValue + sum : sum;
-    }
-  }
-  return rawValue || 13;
-
-}

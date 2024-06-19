@@ -257,7 +257,6 @@ class MonteCarlo extends StacheElement {
         totalSimulationsToRun: {default: 1000},
         totalSyncSimulations: {default: 25},
         simulationPercentComplete: {default: 0},
-        velocities: type.Any,
 
         firstRunWorkPlans: {
             async(resolve) {
