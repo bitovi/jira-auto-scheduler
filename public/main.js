@@ -2,6 +2,7 @@ import JiraAutoScheduler from "./jira-auto-scheduler.js";
 import JiraLogin from "./jira-login.js";
 import JiraOIDCHelpers from "./jira-oidc-helpers.js";
 import "./shared/select-cloud.js";
+import "./components/velocities-from-issue.js"
 
 export default async function main(config) {
 	const jiraHelpers = JiraOIDCHelpers(config);
@@ -12,6 +13,10 @@ export default async function main(config) {
 	const selectCloud = document.querySelector("select-cloud")
 	selectCloud.loginComponent = loginComponent;
 	selectCloud.jiraHelpers = jiraHelpers;
+
+	const velocitiesConfiguration = document.querySelector("velocities-from-issue")
+	velocitiesConfiguration.loginComponent = loginComponent;
+	velocitiesConfiguration.jiraHelpers = jiraHelpers;
 
 	const listener = ({value})=>{
 		if(value) {

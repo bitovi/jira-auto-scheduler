@@ -42,6 +42,7 @@ module.exports = function (env) {
 					</li>
 				</ul>
 				<select-cloud></select-cloud>
+				<velocities-from-issue></velocities-from-issue>
 				<div id="login">
 					
 				</div>
