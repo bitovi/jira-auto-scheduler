@@ -1,7 +1,7 @@
 import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./can.js";
 import {scheduleIssues } from "./schedule.js";
 import {bestFitRanges, getUTCEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js"
-
+import log from "./debug-log.js";
 
 
 import "./simulation-data.js";
@@ -378,6 +378,7 @@ class MonteCarlo extends StacheElement {
 
         // runs a batch of tests
         const runBatch = (remainingSimulations, syncRuns = 100) => {
+            log("Running batch", remainingSimulations, syncRuns)
             for(let i = 0; i < syncRuns; i++) {
                 this.runOneSimulation(addResults);
             }
