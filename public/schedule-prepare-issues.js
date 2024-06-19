@@ -116,6 +116,10 @@ function getDaysOfWork(usedEstimate, extraPoints, pointsPerDay){
   return Math.max( Math.round( (usedEstimate + extraPoints) / pointsPerDay), 1)
 }
 
+export function isConfidenceValid(value){
+  return value && value > 0 && value <=100;
+}
+
 function createWork(issue, workByTeams,
   {
     getTeamKey, 
@@ -139,12 +143,12 @@ function createWork(issue, workByTeams,
 			//debugger; Template Void, Refund features beyond Store 1
 		}
 
-    var canEstimate =  confidence !== undefined && estimate !== undefined;
+    var canEstimate =  isConfidenceValid( confidence ) && estimate !== undefined;
 
     var pointsPerDay = team.velocity / getDaysPerSprint(teamKey)  / getParallelWorkLimit(teamKey);
 
     const usedEstimate = (estimate != undefined ? estimate : team.velocity );
-    const usedConfidence = (confidence != undefined ? confidence : 50 );
+    const usedConfidence = ( isConfidenceValid(confidence) ? confidence : 50 );
 
     var estimatedDaysOfWork =  Math.max( Math.round( (usedEstimate) / pointsPerDay), 1);
 

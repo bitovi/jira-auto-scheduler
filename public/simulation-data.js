@@ -1,7 +1,7 @@
 import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./can.js";
 import {bestFitRanges, getUTCEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js"
 import SimpleTooltip from "./shared/simple-tooltip.js";
-
+import { isConfidenceValid } from "./schedule-prepare-issues.js";
 import {estimateExtraPoints} from "./shared/confidence.js";
 
 const TOOLTIP = new SimpleTooltip();
@@ -159,10 +159,10 @@ class SimulationData extends StacheElement {
                         <dt>Median Estimate</dt>
                         <dd class="${this.work.work.estimate === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.estimate}</dd>
                         <dt>Confidence</dt>
-                        <dd class="${this.work.work.confidence === null ? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.confidence}</dd>
+                        <dd class="${ !isConfidenceValid(this.work.work.confidence )? `border-solid border-2 border-yellow-500` : ""} text-right">${this.work.work.confidence}</dd>
                         
                         ${
-                            this.work.work.estimate === null || this.work.work.confidence === null ? 
+                            this.work.work.estimate === null || !isConfidenceValid(this.work.work.confidence) ? 
                             `
                             <dt>Default Estimate</dt>
                             <dd class="text-right">${this.work.work.usedEstimate}</dd>
@@ -228,7 +228,7 @@ class SimulationData extends StacheElement {
                 return "border-solid border border-[6px] border-white";
             }
         }
-        if(this.work.work.estimate === null || this.work.work.confidence === null) {
+        if(this.work.work.estimate === null || !isConfidenceValid( this.work.work.confidence) ) {
             return "border-solid border-2 border-yellow-500";
         } else {
             return "border-solid border";
