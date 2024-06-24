@@ -16,8 +16,11 @@ class CriticalPathReport extends StacheElement {
 
                 {{# for(criticalPath of this.criticalPaths) }}
                     <div>
-                        <a class="link cursor-pointer"
+                        <a class="link cursor-pointer block"
                             href="{{criticalPath.workItem.work.issue.url}}">{{criticalPath.workItem.work.issue.Summary}}</a>
+                        <button class="btn-secondary-sm rounded" on:click="this.toggleHighlight(criticalPath)">
+                            {{this.toggleText(criticalPath)}}
+                        </button>
                     </div>
                     <div>{{this.round(criticalPath.totalDaysInCriticalPath)}}</div>
                     <div>
@@ -51,6 +54,31 @@ class CriticalPathReport extends StacheElement {
     };
     round(number){
         return Math.round(number);
+    }
+    toggleText(criticalPath) {
+        const startingKey = criticalPath.workItem.work.issue["Issue key"];
+
+        if(this.workItemsToHighlight && this.workItemsToHighlight.has(startingKey)) {
+            return "Show all epics"
+        } else {
+            return "Show critical path"
+        }
+    }
+    toggleHighlight(criticalPath) {
+        const startingKey = criticalPath.workItem.work.issue["Issue key"];
+
+        if(this.workItemsToHighlight && this.workItemsToHighlight.has(startingKey)) {
+            this.workItemsToHighlight = null
+        } else {
+            const pathKeys = criticalPath.blockedPath.map( (workItem)=> {
+                return workItem.work.issue["Issue key"];
+            })
+    
+            const otherWorkKeys = criticalPath.otherBlockedWork.map( (workItem)=> {
+                return workItem.work.issue["Issue key"];
+            })
+            this.workItemsToHighlight = new Set([startingKey, ...pathKeys, ...otherWorkKeys]);
+        }
     }
     get criticalPaths(){
 

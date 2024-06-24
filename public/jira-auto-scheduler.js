@@ -133,10 +133,11 @@ class JiraAutoScheduler extends StacheElement {
           startDate:from="this.startDate"
           uncertaintyWeight:from="this.uncertaintyWeight"
           allWorkItems:to="this.workItems"
+          workItemsToHighlight:from="this.workItemsToHighlight"
           ></monte-carlo>
 
         {{# if(this.workItems) }}
-          <critical-path-report workItems:from="this.workItems" class="bg-white m-2 rounded-lg p-2 block"/>
+          <critical-path-report workItems:from="this.workItems" class="bg-white m-2 rounded-lg p-2 block" workItemsToHighlight:to="this.workItemsToHighlight"/>
         {{/ if }}
       {{/ and }}
       {{# if(this.csvIssuesPromise.isRejected) }}
@@ -192,6 +193,7 @@ class JiraAutoScheduler extends StacheElement {
     tooltip: HTMLElement,
     dialog: HTMLElement,
     loginComponent: HTMLElement,
+    workItemsToHighlight: type.Any,
     get configPromise(){
       let fieldsPromise, savedConfigurationPromise;
       if(this.issueJQL === "promotions example" || this.loginComponent.isLoggedIn === false) {
