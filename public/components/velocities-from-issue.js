@@ -120,12 +120,12 @@ export default class VelocitiesFromIssue extends StacheElement {
                         <a class="px-2 py-1" href="{{this.teamConfigurationPromise.value.issue.url}}" target="_blank">
                             Configuration Issue
                         </a>
-                        {{ else }}
+                    {{ else }}
                             <a class="px-2 py-1" href="https://github.com/bitovi/jira-auto-scheduler/blob/main/docs/saved-configuration.md" target="_blank">
                             Create Configuration
                             </a>
-                        {{/ if }}
-                    </span>
+                    {{/ if }}
+
                 {{/ }}
             </div>
         {{/ if}}

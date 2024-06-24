@@ -215,7 +215,9 @@ class MonteCarlo extends StacheElement {
 
                         {{# for(work of track.works) }}
                             <div 
-                                class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} self-center pr-2 truncate max-w-sm"
+                                id="{{work.work.issue["Issue key"]}}-timeline-summary"
+                                class="pl-5 {{this.workIndexDependentStyles(scope.index, track.works.length)}} 
+                                    {{this.highightingClasses(work)}} self-center pr-2 truncate max-w-sm"
                                 style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column-start: what"
                                 >
                                 {{# if(work.work.issue.url) }}
@@ -225,7 +227,7 @@ class MonteCarlo extends StacheElement {
                                 {{/ if }}
                             </div>
                             <simulation-data
-                                class="relative block" 
+                                class="relative block {{this.highightingClasses(work)}}" 
                                 style="grid-row: {{ plus(scope.index, track.gridRowStart, 1) }}; grid-column: 2 / span {{this.gridNumberOfDays}}"
                                 on:el:mouseenter="this.showDependencies(work)"
                                 on:el:mouseleave="this.hideDependencies(work)"
@@ -244,6 +246,7 @@ class MonteCarlo extends StacheElement {
         {{/ if }}
     `;
     static props = {
+        workItemsToHighlight: type.Any,
         configuration: type.Any,
         getVelocityForTeam: Function,
         updateVelocity: Function,
@@ -265,7 +268,9 @@ class MonteCarlo extends StacheElement {
         },
         startDate: type.maybeConvert(Date),
         endDateWorkItem: null,
-        warnings: type.maybe( Array )
+        warnings: type.maybe( Array ),
+        // A timer that we can clear on a restart
+        timer: Number
     };
     get gridNumberOfDays(){
         return this.lastDueDay + 1
@@ -281,11 +286,13 @@ class MonteCarlo extends StacheElement {
     // High level ... we listen to a "computed" run of `scheduleIssues`,
     // When that produces a result, we run the simulation over and over
     connected(){
-        this.listenTo("scheduledAllWork", this.insertBlockers.bind(this))
+        this.listenTo("scheduledAllWork", this.insertBlockers.bind(this));
+        this.listenTo("workItemsToHighlight", this.insertBlockers.bind(this))
 
         this.listenTo("firstRunWorkPlans",({value})=>{
             this.warnings = null;
             this.removeBlockers();
+            clearTimeout(this.timer);
             this.afterFirstSimulation(value)
         });
         this.afterFirstSimulation(this.firstRunWorkPlans);
@@ -302,6 +309,13 @@ class MonteCarlo extends StacheElement {
             queues.batch.stop();
             this.insertBlockers();
         });
+    }
+    highightingClasses(work) {
+        if(this.workItemsToHighlight) {
+            return this.workItemsToHighlight.has( work.work.issue["Issue key"] ) ? "" : "hidden"
+        } else {
+            return "";
+        }
     }
     totalWorkingDays(workPlan){
         return Math.round( workPlan.tracks.reduce( (acc, track) => {
@@ -387,7 +401,7 @@ class MonteCarlo extends StacheElement {
             
             if(remainingSimulations > 0) {
                 this.simulationPercentComplete = (this.totalSimulationsToRun - remainingSimulations) / this.totalSimulationsToRun * 100;
-                setTimeout(()=> runBatch(remainingSimulations, syncRuns), TIME_BETWEEN_BATCHES)
+                this.timer = setTimeout(()=> runBatch(remainingSimulations, syncRuns), TIME_BETWEEN_BATCHES)
             } else {
                 this.simulationPercentComplete = 100;
                 allDone();
@@ -465,7 +479,7 @@ class MonteCarlo extends StacheElement {
         this.workPlans = gridifyWorkPlans(baseWorkPlans);
 
         // start running all the other simulations
-        setTimeout(()=> runBatch(this.totalSimulationsToRun, this.totalSyncSimulations), TIME_BETWEEN_BATCHES);
+        this.timer = setTimeout(()=> runBatch(this.totalSimulationsToRun, this.totalSyncSimulations), TIME_BETWEEN_BATCHES);
     }
     canRemoveTrack(index, tracksCount) {
         return tracksCount > 1 && index === 0;
