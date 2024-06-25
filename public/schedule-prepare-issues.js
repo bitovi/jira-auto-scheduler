@@ -10,6 +10,22 @@ import {
 import {estimateExtraPoints, sampleExtraPoints} from "./shared/confidence.js";
 import {WorkPlans} from "./work-plans.js";
 
+import { defineFeatureFlag } from "./feature-flag.js";
+
+
+const useParentBlockers = defineFeatureFlag("useParentBlockers",`
+
+Turns on an awareness of epic parent's blockers.  
+
+For example, lets say Initiatives contain Epics.
+
+If Initiative A blocks Initaitive B, then every epic in Initiative A will block 
+ever epic in Initiative B.
+
+This creates a lof of dependency blockers in the tool.
+
+`, false)
+
 export function prepareIssues(issuesSource, {
   // Decides what the project key is from an issue
   getTeamKey = getTeamKeyDefault,
@@ -97,7 +113,7 @@ export function prepareIssues(issuesSource, {
     //directLinkBlocks(interestingIssues, issueByKey, getBlockingKeys);
 
     // allow a parent to block other parents with children
-    if(window.localStorage.getItem("useIndirectBlocks")) {
+    if(useParentBlockers()) {
       linkIndirectBlocks(interestingEpics, issueByKey, getBlockingKeys);
     } else {
       linkDirectBlocks(interestingEpics, issueByKey, getBlockingKeys);
