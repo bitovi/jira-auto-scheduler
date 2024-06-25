@@ -15,23 +15,33 @@ class UpdateEpics extends StacheElement {
             <h3 class="text-lg font-semibold">Review changes</h3>
             <div 
                 class="grid gap-x-3 py-4"
-                style="grid-template-columns: repeat(8, auto); ">
-                <div style="grid-row: 1; grid-column: 1 / span 2" class="text-sm"></div>
-                <div style="grid-row: 1; grid-column: 3 / span 2" class="text-sm text-center">Story Points</div>
-                <div style="grid-row: 1; grid-column: 5 / span 2" class="text-sm text-center">Start Date</div>
-                <div style="grid-row: 1; grid-column: 7 / span 2" class="text-sm text-center">Due Date</div>
-                <div style="grid-row: 2; grid-column: 1" class="text-sm">Key</div>
-                <div style="grid-row: 2; grid-column: 2" class="text-sm">Summary</div>
-                <div style="grid-row: 2; grid-column: 3" class="text-sm pl-2">Current</div>
-                <div style="grid-row: 2; grid-column: 4" class="text-sm pr-2">New</div>
-                <div style="grid-row: 2; grid-column: 5" class="text-sm pl-2">Current</div>
-                <div style="grid-row: 2; grid-column: 6" class="text-sm pr-2">New</div>
-                <div style="grid-row: 2; grid-column: 7" class="text-sm pl-2">Current</div>
-                <div style="grid-row: 2; grid-column: 8" class="text-sm">New</div>
+                style="grid-template-columns: repeat(9, auto); ">
+                <div style="grid-row: 1; grid-column: 1 / span 3" class="text-sm"></div>
+                <div style="grid-row: 1; grid-column: 4 / span 2" class="text-sm text-center">Story Points</div>
+                <div style="grid-row: 1; grid-column: 6 / span 2" class="text-sm text-center">Start Date</div>
+                <div style="grid-row: 1; grid-column: 8 / span 2" class="text-sm text-center">Due Date</div>
+                <div style="grid-row: 2; grid-column: 1" class="text-sm">
+                    <input type="checkbox"  
+                        on:change="this.selectAll(scope.element.checked)"
+                        checked:from="this.allWorkItemsSelected()"/>
+                </div>
+                <div style="grid-row: 2; grid-column: 2" class="text-sm">Key</div>
+                <div style="grid-row: 2; grid-column: 3" class="text-sm">Summary</div>
+                <div style="grid-row: 2; grid-column: 4" class="text-sm pl-2">Current</div>
+                <div style="grid-row: 2; grid-column: 5" class="text-sm pr-2">New</div>
+                <div style="grid-row: 2; grid-column: 6" class="text-sm pl-2">Current</div>
+                <div style="grid-row: 2; grid-column: 7" class="text-sm pr-2">New</div>
+                <div style="grid-row: 2; grid-column: 8" class="text-sm pl-2">Current</div>
+                <div style="grid-row: 2; grid-column: 9" class="text-sm">New</div>
                 <div 
                     class="border-solid border-b border-neutral-40"
-                    style="grid-row: 2 / span 1; grid-column: 1 / span 8"></div>
+                    style="grid-row: 2 / span 1; grid-column: 1 / span 9; z-index: -1"></div>
                 {{# for(workItem of this.workItemsWithDates) }}
+                    <div>
+                        <input type="checkbox" 
+                            on:change="this.selectWorkItem(workItem, scope.element.checked)"
+                            checked:from="this.isWorkItemSelected(workItem)"/>
+                    </div>
                     <div>{{workItem.work.issue["Issue key"]}}</div>
                     <div>{{workItem.work.issue.Summary}}</div>
                     <div class="pl-2 text-right">{{ this.oldStoryPoints(workItem) }}</div>
@@ -54,7 +64,7 @@ class UpdateEpics extends StacheElement {
                     </button>
                 {{/ if }}
                 {{# or(this.issueUpdates.isResolved, not(this.issueUpdates)) }}
-                    <button class="btn-primary" on:click="this.save(scope.event)">
+                    <button class="btn-primary" on:click="this.save(scope.event)" disabled:from="not(this.selectedWorkItemsToBeSaved.length)">
                         Save selected changes in Jira
                     </button>
                 {{/ or }}
@@ -71,6 +81,18 @@ class UpdateEpics extends StacheElement {
     `;
     static props = {
         workItems: type.Any,
+        selectedWorkItems: {
+            value({listenTo, resolve, lastSet}){
+                console.log("YES")
+                listenTo(lastSet, (value)=>{
+                    resolve(value);
+                })
+                listenTo("workItems",()=>{
+                    resolve(new Set())
+                });
+                resolve(new Set());
+            }
+        },
         storyPointField: String,
         startDateField: String,
         dueDateField: String,
@@ -113,6 +135,33 @@ class UpdateEpics extends StacheElement {
             }
         })
     }
+    selectAll(checked){
+        this.selectedWorkItems = checked ? new Set( this.workItemsWithDates.map((workItem)=> {
+            return workItem.work.issue["Issue key"];
+        }) ) : new Set()
+    }
+    allWorkItemsSelected(){
+        const selected = this.workItemsWithDates.map( (workItem)=> {
+            return workItem.work.issue["Issue key"];
+        })
+        console.log(selected, this.selectedWorkItems);
+        return selected.every( (key)=> {
+            return this.selectedWorkItems.has( key )
+        })
+    }
+    isWorkItemSelected(workItem){
+        return this.selectedWorkItems.has( workItem.work.issue["Issue key"] )
+    }
+    selectWorkItem(workItem, checked){
+        const key = workItem.work.issue["Issue key"];
+        const newItems = new Set(this.selectedWorkItems);
+        if(checked) {
+            newItems.add(key)
+        } else {
+            newItems.delete(key)
+        }
+        this.selectedWorkItems = newItems;
+    }
     get workItemsWithDates(){
         return Object.values(this.workItems).map( (workItem)=> {
             const clone = workItem.serialize();
@@ -120,7 +169,11 @@ class UpdateEpics extends StacheElement {
             return clone;
         }) 
     }
-    
+    get selectedWorkItemsToBeSaved(){
+        return this.workItemsWithDates.filter( (workItem)=> {
+            return this.selectedWorkItems.has( workItem.work.issue["Issue key"] )
+        });
+    }
     jiraDates(date){
         return jiraDataFormatter.format(date)
     }
@@ -142,10 +195,9 @@ class UpdateEpics extends StacheElement {
     dueDateEqualClassName(workItem) {
         return workItem.work.issue[this.dueDateField] !== this.jiraDates( workItem.dates.dueDate ) ? "bg-yellow-300" : "";
     }
-
     save(event){
         event.preventDefault();
-        const allWork = this.workItemsWithDates.map( workItem => {
+        const allWork = this.selectedWorkItemsToBeSaved.map( workItem => {
           return {
             ...workItem,
             updates: {
