@@ -2,7 +2,7 @@ import { StacheElement, type, ObservableObject, fromAttribute, queues } from "./
 import {scheduleIssues } from "./schedule.js";
 import {bestFitRanges, getUTCEndDateFromStartDateAndBusinessDays} from "./shared/dateUtils.js"
 import log from "./debug-log.js";
-
+import { defineFeatureFlag } from "./feature-flag.js";
 
 import "./simulation-data.js";
 
@@ -121,6 +121,19 @@ class WorkItem extends ObservableObject {
     }
 
 }
+
+const deterministicallySelectIssueTiming = defineFeatureFlag("deterministicallySelectIssueTiming",`
+
+Turns off the montecarlo simulation and runs a single scheduling pass. Epic time will be expanded to account 
+for the probability threshold. Then the scheduling pass will take place. 
+
+
+
+This will make series of epics take longer than they would normally. 
+This will make parallel epics take less time than they should.
+
+`, false)
+
 
 class MonteCarlo extends StacheElement {
     static view = `
@@ -260,6 +273,9 @@ class MonteCarlo extends StacheElement {
         totalSimulationsToRun: {default: 1000},
         totalSyncSimulations: {default: 25},
         simulationPercentComplete: {default: 0},
+        get probablisticallySelectIssueTiming(){
+            return !deterministicallySelectIssueTiming()
+        },
 
         firstRunWorkPlans: {
             async(resolve) {
@@ -331,9 +347,9 @@ class MonteCarlo extends StacheElement {
 
         scheduleIssues(this.rawIssues, {
             // hard-coding 80 makes this not have to re-run the simulation on each movement
-            uncertaintyWeight: 80,
+            uncertaintyWeight: this.probablisticallySelectIssueTiming ? 80 : this.uncertaintyWeight,
             planIssuesInUncertaintyOrder: true,
-            probablisticallySelectIssueTiming: true,
+            probablisticallySelectIssueTiming: this.probablisticallySelectIssueTiming,
             onPlannedIssues: success,
             getVelocity: this.getVelocityForTeam.bind(this),
             onIgnoredIssues: function(ignored, reason){
@@ -479,7 +495,12 @@ class MonteCarlo extends StacheElement {
         this.workPlans = gridifyWorkPlans(baseWorkPlans);
 
         // start running all the other simulations
-        this.timer = setTimeout(()=> runBatch(this.totalSimulationsToRun, this.totalSyncSimulations), TIME_BETWEEN_BATCHES);
+        if(this.probablisticallySelectIssueTiming) {
+            this.timer = setTimeout(()=> runBatch(this.totalSimulationsToRun, this.totalSyncSimulations), TIME_BETWEEN_BATCHES);
+        } else {
+            allDone();
+        }
+        
     }
     canRemoveTrack(index, tracksCount) {
         return tracksCount > 1 && index === 0;
