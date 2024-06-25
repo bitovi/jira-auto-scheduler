@@ -505,9 +505,10 @@ class MonteCarlo extends StacheElement {
         const svgPoint = getTopLeft(svg);
 
         const elementsAndWorkMap = {};
-        [...this.getElementsByClassName("work-item")].forEach( (element) => {
+        [...this.querySelectorAll(".work-item")].forEach( (element) => {
             // the summary isn't part of allWorkItems
-            if(this.allWorkItems[element.id]) {
+            // offset parent makes sure it's visible
+            if(this.allWorkItems[element.id] && element.offsetParent) {
                 elementsAndWorkMap[element.id] = {
                     element,
                     work: this.allWorkItems[element.id]
