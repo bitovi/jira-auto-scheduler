@@ -115,7 +115,9 @@ Once set up, you just need to make sure each epic has:
 
 
 
+## Estimating with Time instead of Story Points
 
+The tool can be used with time-based estimates.  You just need to do a little math to determine the velocity. 
 
 
 
