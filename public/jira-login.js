@@ -49,7 +49,7 @@ export default class JiraLogin extends StacheElement {
     }
     logout(){
         this.isPending = true;
-        localStorage.clear();
+        this.jiraHelpers.clearAuthFromLocalStorage();
         this.isLoggedIn = false;
         this.isResolved = false;
         this.isPending = false;
