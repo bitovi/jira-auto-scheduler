@@ -445,34 +445,7 @@ class MonteCarlo extends StacheElement {
 
         // Here we take the first runs result and create the "amoritized" stats
         // objects for each issue
-        let lastDay = 0,
-            lastWork = null;
-        const baseWorkPlans = Object.values(workPlans).map( ({teamKey, velocity, workPlans}) => {
-            const tracks = workPlans.plans.map( (trackPlan)=> {
-                const track = {works: [], workMap: {}};
-                for( const work of trackPlan.work){
-                    const workItem = new WorkItem({work, uncertaintyWeight: this.uncertaintyWeight, dueDatesOnly: false});
-                    track.workMap[work.issue["Issue key"]] = workItem;
-                    track.works.push(workItem);
-                    workItem.addWork(work);
-                    allWorkItems[work.issue["Issue key"]] = workItem;
-                    const endDay = work.startDay + work.daysOfWork;
-                    if(endDay > lastDay) {
-                        lastDay = endDay;
-                        lastWork = work;
-                    }
-                }
-                return track
-            });
-
-            return {
-                teamKey,
-                velocity,
-                tracks: tracks,
-                disableTracks: false,
-                disableVelocity: false
-            }
-        });
+        const {baseWorkPlans, lastWork} = toBaseWorkPlans(allWorkItems, workPlans, this.uncertaintyWeight)
 
         if(lastWork === null) {
             // there's no work planned. Probably no epics, abort.
@@ -590,6 +563,47 @@ function getCenterLeft(element) {
         x: rect.left,
         y: rect.top + rect.height / 2 
     };
+}
+
+function sortByTeamKey(wpA, wpB){
+    return wpA > wpB ? 1 : -1;
+}
+function onlyPlansWithWork({workPlans}) {
+    return workPlans.plans.some(trackPlan => trackPlan.work.length)
+}
+function toBaseWorkPlans(allWorkItems, workPlans, uncertaintyWeight) {
+    let lastDay = 0,
+        lastWork = null;
+    const sortedAndFilteredPlans = Object.values(workPlans).sort(sortByTeamKey).filter(onlyPlansWithWork);
+
+    const baseWorkPlans = sortedAndFilteredPlans.map( ({teamKey, velocity, workPlans}) => {
+        const tracks = workPlans.plans.map( (trackPlan)=> {
+            const track = {works: [], workMap: {}};
+            for( const work of trackPlan.work){
+                const workItem = new WorkItem({work, uncertaintyWeight: uncertaintyWeight, dueDatesOnly: false});
+                track.workMap[work.issue["Issue key"]] = workItem;
+                track.works.push(workItem);
+                workItem.addWork(work);
+                // we should update this at some point
+                allWorkItems[work.issue["Issue key"]] = workItem;
+                const endDay = work.startDay + work.daysOfWork;
+                if(endDay > lastDay) {
+                    lastDay = endDay;
+                    lastWork = work;
+                }
+            }
+            return track
+        });
+
+        return {
+            teamKey,
+            velocity,
+            tracks: tracks,
+            disableTracks: false,
+            disableVelocity: false
+        };
+    });
+    return {baseWorkPlans, lastWork};
 }
 
 function getTopLeft(element) {
