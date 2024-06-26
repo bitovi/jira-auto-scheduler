@@ -1,4 +1,4 @@
-name: Deploy
+name: Manual destroy
 
 on:
   workflow_dispatch:
@@ -6,9 +6,6 @@ on:
 jobs:
   EC2-Deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
-      url: ${{ steps.deploy.outputs.vm_url }}
     steps:
     - id: deploy
       name: Deploy
