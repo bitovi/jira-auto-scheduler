@@ -65,8 +65,9 @@ class WorkItem extends ObservableObject {
         _holdingStartDates: {get default(){ return []}},
         _holdingDueDates: {get default(){ return []}},
         _holdingAdjustedDaysOfWork: {get default(){ return []}},
+        _holdingTrackNumbers: {get default(){ return []}},
     };
-    addWork(work){
+    addWork(work, trackNumber){
         // update new values
         //if(this.work.issue["Issue key"] === "IMP-121") {
         //    debugger;
@@ -74,6 +75,7 @@ class WorkItem extends ObservableObject {
         this._holdingStartDates.push(work.startDay);
         this._holdingDueDates.push(work.startDay + work.daysOfWork);
         this._holdingAdjustedDaysOfWork.push(work.daysOfWork);
+        this._holdingTrackNumbers.push(trackNumber);
         //this.startDateValues.push(work.startDay);
         //this.dueDateValues.push(work.startDay + work.daysOfWork);
     }
@@ -132,7 +134,18 @@ for the probability threshold. Then the scheduling pass will take place.
 This will make series of epics take longer than they would normally. 
 This will make parallel epics take less time than they should.
 
+`, false);
+
+
+const addEpicToMostCommonTrack = defineFeatureFlag("addEpicToMostCommonTrack",`
+
+Instead of showing the epic in whatever first track it was asssigned to, this will 
+show the epic in its most common track.
+
 `, false)
+
+
+
 
 
 class MonteCarlo extends StacheElement {
@@ -271,7 +284,7 @@ class MonteCarlo extends StacheElement {
         lastDueDay: {default: 1},
         allWorkItems: type.Any,
         totalSimulationsToRun: {default: 1000},
-        totalSyncSimulations: {default: 25},
+        totalSyncSimulations: {default: 50},
         simulationPercentComplete: {default: 0},
         get probablisticallySelectIssueTiming(){
             return !deterministicallySelectIssueTiming()
@@ -403,6 +416,9 @@ class MonteCarlo extends StacheElement {
         }
 
         const allDone = ()=> {
+            if(addEpicToMostCommonTrack()) {
+                this.workPlans = gridifyWorkPlans(baseWorkPlans);
+            }
             this.dispatch({type: "scheduledAllWork"});
         }
 
@@ -428,10 +444,12 @@ class MonteCarlo extends StacheElement {
             let lastDay = 0,
                 lastWork = null;
             for(let prop in teamWork) {
-                const tracks = teamWork[prop].workPlans.plans;
-                for( const track of tracks ) {
+                const tracks = teamWork[prop].workPlans.plans,
+                    tracksLength = tracks.length;
+                for( let i = 0; i < tracksLength; i++ ) {
+                    let track = tracks[i];
                     for( const work of track.work ) {
-                        allWorkItems[work.issue["Issue key"]].addWork(work);
+                        allWorkItems[work.issue["Issue key"]].addWork(work, i);
                         const endDay = work.startDay + work.daysOfWork;
                         if(endDay > lastDay) {
                             lastDay = endDay;
@@ -465,7 +483,9 @@ class MonteCarlo extends StacheElement {
 
         updateAllStats();
         // Save a nice representation for the grid
-        this.workPlans = gridifyWorkPlans(baseWorkPlans);
+        if(!addEpicToMostCommonTrack()) {
+            this.workPlans = gridifyWorkPlans(baseWorkPlans);
+        }
 
         // start running all the other simulations
         if(this.probablisticallySelectIssueTiming) {
@@ -577,13 +597,13 @@ function toBaseWorkPlans(allWorkItems, workPlans, uncertaintyWeight) {
     const sortedAndFilteredPlans = Object.values(workPlans).sort(sortByTeamKey).filter(onlyPlansWithWork);
 
     const baseWorkPlans = sortedAndFilteredPlans.map( ({teamKey, velocity, workPlans}) => {
-        const tracks = workPlans.plans.map( (trackPlan)=> {
+        const tracks = workPlans.plans.map( (trackPlan, trackNumber)=> {
             const track = {works: [], workMap: {}};
             for( const work of trackPlan.work){
                 const workItem = new WorkItem({work, uncertaintyWeight: uncertaintyWeight, dueDatesOnly: false});
                 track.workMap[work.issue["Issue key"]] = workItem;
                 track.works.push(workItem);
-                workItem.addWork(work);
+                workItem.addWork(work, trackNumber);
                 // we should update this at some point
                 allWorkItems[work.issue["Issue key"]] = workItem;
                 const endDay = work.startDay + work.daysOfWork;
@@ -626,6 +646,44 @@ function makeCurveBetweenPoints(start, end, controlDistance = 30) {
     c ${controlDistance} 0, ${end.x - start.x - controlDistance} ${end.y - start.y}, ${end.x - start.x} ${end.y - start.y}`
 }
 
+function countOccurrences(arr) {
+    const countMap = [];
+    
+    for (let num of arr) {
+        countMap[num] = (countMap[num] || 0) + 1;
+    }
+    
+    return countMap;
+}
+function findIndexOfMax(arr) {
+    let maxIndex = 0;
+    let maxValue = arr[0];
+    const length = arr.length
+
+    for (let i = 1; i < length; i++) {
+        if (arr[i] > maxValue) {
+            maxValue = arr[i];
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
+}
+
+function sortByStartDateAverage(workItem1, workItem2){
+    return workItem1.startDateAverage - workItem2.startDateAverage;
+}
+function adjustTracks(tracks){
+    const allWorkItems = tracks.map(track => track.works).flat(1);
+
+    const adjustedTracks = tracks.map( ()=> []);
+    for(const workItem of allWorkItems) {
+        const index = findIndexOfMax( countOccurrences(workItem._holdingTrackNumbers) );
+        adjustedTracks[index].push(workItem);
+    }
+    return adjustedTracks.map( works => {
+        return {works: works.sort(sortByStartDateAverage)};
+    });
+}
 
 // CSS GRID HELPERS
 function gridifyWorkPlans(workPlans){
@@ -634,8 +692,15 @@ function gridifyWorkPlans(workPlans){
         const start =  previousWorkPlan ? previousWorkPlan.gridRowStart + previousWorkPlan.gridRowSpan : 2;
         const span = workPlan.tracks.length + workPlan.tracks.reduce((a, t)=> a+t.works.length,0) + 1;
 
+        let workPlanTracks = workPlan.tracks;
+        // create new track grouping
+        if(workPlanTracks.length > 1) {
+            workPlanTracks = adjustTracks(workPlan.tracks);
+            //debugger;
+        }
+
         let previousTrack;
-        const tracks = workPlan.tracks.map((t, i) => {
+        const tracks = workPlanTracks.map((t, i) => {
             return previousTrack = {
                 ...t,
                 gridRowStart: previousTrack ? previousTrack.gridRowStart + previousTrack.gridRowSpan + 1 : start+ 1,
