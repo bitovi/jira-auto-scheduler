@@ -83,7 +83,6 @@ class UpdateEpics extends StacheElement {
         workItems: type.Any,
         selectedWorkItems: {
             value({listenTo, resolve, lastSet}){
-                console.log("YES")
                 listenTo(lastSet, (value)=>{
                     resolve(value);
                 })
@@ -103,15 +102,24 @@ class UpdateEpics extends StacheElement {
         // {status: waiting|pending|rejected|fulfilled, errorReasons: []}
         issueUpdateOutcome: {
             value({listenTo, resolve}){
-                function updateFromPromise(updatePromises){
+                const updateFromPromise =  (updatePromises) => {
                     if(!updatePromises) {
                         resolve({errorReasons: [], status: "waiting"})
                     } else {
                         resolve({errorReasons: [], status: "pending"})
                         updatePromises.then((outcomes)=>{
-                            const errors = outcomes.filter( outcome => outcome.status === "rejected");
+                            const errors = outcomes.map((outcome, index) => {
+                                return {...outcome, workItem: this.selectedWorkItemsToBeSaved[index]}
+                            }).filter( outcome => outcome.status === "rejected");
+                            debugger;
                             if(errors.length) {
-                                return resolve({errorReasons: getNiceReasonsMessages( errors.map(error => error.reason) ), status: "rejected"})
+                                console.log(this.selectedWorkItemsToBeSaved);
+                                return resolve({
+                                    errorReasons: getNiceReasonsMessages( errors.map(({reason, workItem}) => {
+                                        return {reason, workItem}
+                                    }), this.jiraFields ), 
+                                    status: "rejected"
+                                })
                             } else {
                                 return resolve({errorReasons: [], status: "fulfilled"})
                             }
@@ -134,6 +142,9 @@ class UpdateEpics extends StacheElement {
                 this.dispatch("saved");
             }
         })
+        this.jiraHelpers.fieldsRequest.then((fields)=>{
+            this.jiraFields = fields;
+        })
     }
     selectAll(checked){
         this.selectedWorkItems = checked ? new Set( this.workItemsWithDates.map((workItem)=> {
@@ -144,7 +155,6 @@ class UpdateEpics extends StacheElement {
         const selected = this.workItemsWithDates.map( (workItem)=> {
             return workItem.work.issue["Issue key"];
         })
-        console.log(selected, this.selectedWorkItems);
         return selected.every( (key)=> {
             return this.selectedWorkItems.has( key )
         })
@@ -220,33 +230,26 @@ class UpdateEpics extends StacheElement {
         }
       })
       this.issueUpdates = Promise.allSettled(updates.map( update => update.updatePromise));
-      /*
-      this.issueUpdates
-        .then((values)=> {
-            debugger;
-            console.log("SAVED", values);
 
-            if()
-            this.dispatch("saved");
-        })
-        .catch(e => {
-            debugger;
-            console.log(e)
-        })*/
     }
 }
 
-function getNiceReasonsMessages(reasons){
-    return reasons.map(getNiceReasonsMessage);
+function getNiceReasonsMessages(reasons, jiraFields){
+    return reasons.map(reason => getNiceReasonsMessage(reason, jiraFields));
 }
 
-function getNiceReasonsMessage(reason){
+function getNiceReasonsMessage({reason, workItem}, jiraFields){
     if(Array.isArray( reason.errorMessages) && reason.errorMessages.length) {
         return reason.errorMessages[0]
     } else if(reason.errors ) {
+        console.log(reason.errors);
         const message = Object.values(reason.errors)[0];
         if(message.includes("It is not on the appropriate screen, or unknown")) {
-            return stache.safeString("A field is not on the screen associated with the epic."+
+            const missingKeys = Object.keys(reason.errors);
+            const missingKeyNames = missingKeys.map( key => jiraFields.idMap[key] || key);
+            
+            return stache.safeString(`The fields (${missingKeyNames.join(", ")}) are not on the screen associated with the
+                <a target='_blank' href='${workItem.work.issue.url}'>${workItem.work.issue.Summary}</a> epic.`+
                 " <a target='_blank' href='https://github.com/bitovi/jira-auto-scheduler/wiki/Troubleshooting#a-field-is-not-on-the-appropriate-screen'>Read how to fix it here.</a>")
         } else {
             return message;
