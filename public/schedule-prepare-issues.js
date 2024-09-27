@@ -123,9 +123,15 @@ export function prepareIssues(issuesSource, {
     return {preparedIssues: interestingEpics, issuesByKey: issueByKey, workByTeams};
 }
 
-const removeDone = makeFilterByPropertyNotEqualToOneOfValues("Status", ["Done"]);
+//makeFilterByPropertyNotEqualToOneOfValues("Status", ["Done"])
+
+const removeDoneStatusCategory = function({issue}){
+  return issue?.fields?.Status?.statusCategory?.name !== "Done"
+}
+
+;
 function issueFilterDefault(issue){
-    return removeDone(issue);
+    return removeDoneStatusCategory(issue);
 }
 
 function getDaysOfWork(usedEstimate, extraPoints, pointsPerDay){

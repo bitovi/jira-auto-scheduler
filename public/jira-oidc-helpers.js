@@ -81,7 +81,7 @@ export default function JiraOIDCHelpers({
 	
 			const batchedResponses = issuesToQuery.map( issues => {
 				const keys = issues.map( issue => issue.key);
-				const jql = `parent in (${keys.join(", ")})`;
+				const jql = `parent in (${keys.join(", ")}) ${params.childJQL || ""}`;
 				return rootMethod({
 					...params,
 					jql

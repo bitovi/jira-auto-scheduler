@@ -40,8 +40,15 @@ class JiraConfigureCSV extends StacheElement {
         {{/ if }}
         <div class="flex justify-between mt-1">
       
-          <p class="text-xs"><input type='checkbox' 
-            class='self-start align-middle' checked:bind='this.loadChildren'/> <span class="align-middle">Load all children of JQL specified issues</span>
+          <p class="text-xs">
+            <input type='checkbox' 
+              class='self-start align-middle' checked:bind='this.loadChildren'/> 
+              <span class="align-middle">
+                Load children.
+                {{# if(this.loadChildren) }}
+                        Optional children JQL filters: <input type='text' class="form-border p-1 h-5" value:bind="this.childJQL"/>
+                {{/ if }}
+              </span>
           </p>
           
           {{# if(this.rawIssuesPromise.isResolved) }}

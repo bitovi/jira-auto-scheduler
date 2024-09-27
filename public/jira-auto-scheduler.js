@@ -59,6 +59,8 @@ class JiraAutoScheduler extends StacheElement {
           issueJQL:bind="this.issueJQL"
           loadChildren:bind="this.loadChildren"
           limitIssues:bind="this.limitIssues"
+          childJQL:bind="this.childJQL"
+
           />
 
       </details>
@@ -184,10 +186,11 @@ class JiraAutoScheduler extends StacheElement {
       }
     },
     issueJQL: saveJSONToUrlAndToLocalStorage("issueJQL", "issueType = Epic and statusCategory != Done"),
+    childJQL: saveJSONToUrl("childJQL", "", String, {parse: x => ""+x, stringify: x => ""+x}),
     loadChildren: saveJSONToUrl("loadChildren", false, Boolean, booleanParsing),
     dateThresholds: saveJSONToUrl("weight",55,type.maybeConvert(Number)),
 		startDate: saveJSONToUrl("startDate",nowUTC(),type.maybeConvert(Date)),
-    limitIssues: saveJSONToUrl("loadChildren", true, Boolean, booleanParsing),
+    limitIssues: saveJSONToUrl("limitIssues", true, Boolean, booleanParsing),
     //rawIssues: type.Any,
     workItems: type.Any,
     tooltip: HTMLElement,
@@ -234,6 +237,7 @@ class JiraAutoScheduler extends StacheElement {
 
         const issuesPromise = loadIssues({
             jql: this.issueJQL,//this.jql,
+            childJQL: this.childJQL ? " and "+this.childJQL : "",
             fields: this.config.issueFields, // LABELS_KEY, STATUS_KEY ]
             limit: this.limitIssues ? 100 : Infinity
         });
@@ -242,6 +246,7 @@ class JiraAutoScheduler extends StacheElement {
             issuesPromise, serverInfoPromise
         ]).then(([issues, serverInfo]) => {
             const csv = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+            //console.log(csv);
             return csv;
         })
       }
