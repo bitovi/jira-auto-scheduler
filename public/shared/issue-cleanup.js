@@ -29,7 +29,8 @@ function toCVSFormat(issues, serverInfo){
 			[PRODUCT_TARGET_RELEASE_KEY]: issue.fields[PRODUCT_TARGET_RELEASE_KEY]?.[0],
 			[PARENT_LINK_KEY]: issue.fields[PARENT_LINK_KEY]?.data?.key,
 			[STATUS_KEY]: issue.fields[STATUS_KEY]?.name,
-			linkedIssues: {blocks}
+			linkedIssues: {blocks},
+			issue
 		}
 	})
 }
