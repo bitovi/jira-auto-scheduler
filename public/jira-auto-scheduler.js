@@ -245,7 +245,9 @@ class JiraAutoScheduler extends StacheElement {
         return Promise.all([
             issuesPromise, serverInfoPromise
         ]).then(([issues, serverInfo]) => {
-            const csv = toCVSFormatAndAddWorkingBusinessDays(issues, serverInfo);
+          // just remove done ones 
+          const aliveIssues = issues.filter( i => i.fields.Status.statusCategory.name !== "Done")
+            const csv = toCVSFormatAndAddWorkingBusinessDays(aliveIssues, serverInfo);
             //console.log(csv);
             return csv;
         })
