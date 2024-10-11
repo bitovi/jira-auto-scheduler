@@ -31,7 +31,7 @@ function getLatestDate(tags){
     if(validTags.length === 0) {
         throw new Error("No valid tags")
     } else {
-        return new Date(Math.max(...datesArray.map(date => date.getTime())));
+        return new Date(Math.max(...validTags.map(date => date.getTime())));
     }
 }
 
