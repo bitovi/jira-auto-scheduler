@@ -107,7 +107,6 @@ function validateAdjustedStoryPoints(req, res, next) {
 
 app.post('/adjusted-story-points', validateAdjustedStoryPoints, (req, res) => {
 
-
     const extraStoryPoints = stats.estimateExtraPoints(req.body.storyPointsMedian, req.body.storyPointsConfidence, req.body.riskThreshold || 80)
     const adjustedStoryPoints = req.body.storyPointsMedian + extraStoryPoints;
     // Respond with a status message
@@ -117,7 +116,10 @@ app.post('/adjusted-story-points', validateAdjustedStoryPoints, (req, res) => {
         roundedExtraStoryPoints: Math.round(extraStoryPoints),
         roundedAdjustedStoryPoints: Math.round(adjustedStoryPoints)
     });
-  });
+});
+
+app.post('/tag-to-dates', require("./tag-to-dates.js"))
+
 
 // Start server
 app.listen(port, () => console.log(`Server is listening on port ${port}!`))
