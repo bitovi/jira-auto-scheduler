@@ -1,6 +1,14 @@
 module.exports = function(req, res){
+    
+
     try{
-        const date = getHalfQuarterDate(req.body.tag);
+        let date;
+        if(Array.isArray(req.body.tag)) {
+            date = getLatestDate(req.body.tag)
+        } else {
+            date = getHalfQuarterDate(req.body.tag);
+        }
+        
         res.status(200).json({ 
             isoDate: date.toISOString(),
             isoDay: date.toISOString().split('T')[0]
@@ -11,6 +19,22 @@ module.exports = function(req, res){
 
     
 }
+
+function getLatestDate(tags){
+    const validTags = tags.map( t => {
+        try {
+            return getHalfQuarterDate(t)
+        } catch (e) {
+
+        }
+    }).filter(v => v);
+    if(validTags.length === 0) {
+        throw new Error("No valid tags")
+    } else {
+        return new Date(Math.max(...datesArray.map(date => date.getTime())));
+    }
+}
+
 
 
 function getHalfQuarterDate(input) {
