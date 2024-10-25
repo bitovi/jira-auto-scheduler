@@ -118,7 +118,8 @@ app.post('/adjusted-story-points', validateAdjustedStoryPoints, (req, res) => {
     });
 });
 
-app.post('/tag-to-dates', require("./tag-to-dates.js"))
+app.post('/tag-to-dates', require("./tag-to-dates.js"));
+app.post('/dates-to-half-quarter-dates', require("./dates-to-half-quarter-dates.js"))
 
 
 // Start server
