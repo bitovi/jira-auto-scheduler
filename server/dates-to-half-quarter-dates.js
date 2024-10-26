@@ -21,6 +21,12 @@ function roundToStartOfHalfQuarter(date) {
 
     for (const [month, day] of HALF_QUARTERS) {
         const candidate = new Date(year, month - 1, day); // Months are 0-based
+
+        // If the date is in December but the next half-quarter is in January, look ahead to the next year
+        if (month === 1 && date.getMonth() === 11) {
+            candidate.setFullYear(year + 1); // Move Jan 1 to next year if the date is in December
+        }
+
         const diff = Math.abs(candidate - date);
 
         if (diff < minDifference) {
@@ -33,27 +39,31 @@ function roundToStartOfHalfQuarter(date) {
 }
 
 /**
- * Rounds a date to the end of the current half-quarter.
+ * Rounds a date to the nearest end of a half-quarter.
  * The end of a half-quarter is the day before the next half-quarter starts.
  * @param {Date} date - The input date to round.
- * @returns {Date} - The end date of the current half-quarter.
+ * @returns {Date} - The nearest half-quarter end date.
  */
 function roundToEndOfHalfQuarter(date) {
     const year = date.getFullYear();
+    let nearestEndDate = null;
+    let minDifference = Infinity;
 
     for (let i = 0; i < HALF_QUARTERS.length; i++) {
         const [month, day] = HALF_QUARTERS[i];
-        const candidate = new Date(year, month - 1, day); // Next half-quarter start
+        const nextHalfQuarterStart = new Date(year, month - 1, day); // Start of the next half-quarter
 
-        if (candidate > date) {
-            // Return one day before the next half-quarter starts
-            return new Date(candidate.getTime() - 24 * 60 * 60 * 1000);
+        // End of the current half-quarter is one day before the next start
+        const candidateEnd = new Date(nextHalfQuarterStart.getTime() - 24 * 60 * 60 * 1000); // Subtract 1 day
+        const diff = Math.abs(candidateEnd - date);
+
+        if (diff < minDifference) {
+            minDifference = diff;
+            nearestEndDate = candidateEnd;
         }
     }
 
-    // If no future half-quarter start in the current year, wrap around to Jan 1 of next year
-    const nextYear = new Date(year + 1, 0, 1);
-    return new Date(nextYear.getTime() - 24 * 60 * 60 * 1000); // Dec 31 of the current year
+    return nearestEndDate;
 }
 
 /**
