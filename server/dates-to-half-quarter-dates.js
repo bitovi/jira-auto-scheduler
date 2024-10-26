@@ -53,13 +53,22 @@ function roundToEndOfHalfQuarter(date) {
         const [month, day] = HALF_QUARTERS[i];
         const nextHalfQuarterStart = new Date(year, month - 1, day); // Start of the next half-quarter
 
+        // Ensure the next start boundary considers year overflow (e.g., Dec -> Jan next year)
+        if (month === 1 && date.getMonth() === 11) {
+            nextHalfQuarterStart.setFullYear(year + 1);
+        }
+
         // End of the current half-quarter is one day before the next start
         const candidateEnd = new Date(nextHalfQuarterStart.getTime() - 24 * 60 * 60 * 1000); // Subtract 1 day
-        const diff = Math.abs(candidateEnd - date);
 
-        if (diff < minDifference) {
-            minDifference = diff;
-            nearestEndDate = candidateEnd;
+        // Only consider this candidate if it is after or equal to the input date
+        if (candidateEnd >= date) {
+            const diff = Math.abs(candidateEnd - date);
+
+            if (diff < minDifference) {
+                minDifference = diff;
+                nearestEndDate = candidateEnd;
+            }
         }
     }
 
