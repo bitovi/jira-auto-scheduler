@@ -490,8 +490,9 @@ export default function JiraOIDCHelpers({ JIRA_CLIENT_ID, JIRA_SCOPE, JIRA_CALLB
     if (a?.scope && !b?.scope) {
       return 1;
     }
+
     if (b?.scope && !a?.scope) {
-      return 1;
+      return -1;
     }
 
     return 0;
