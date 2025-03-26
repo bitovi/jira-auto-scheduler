@@ -518,11 +518,6 @@ export default function JiraOIDCHelpers({ JIRA_CLIENT_ID, JIRA_SCOPE, JIRA_CALLB
         nameMap[fieldName] = idToFields[fieldName][0].id;
       }
 
-      fields.forEach((f) => {
-        idMap[f.id] = f.name;
-        nameMap[f.name] = f.id;
-      });
-
       console.log(nameMap);
 
       return {
