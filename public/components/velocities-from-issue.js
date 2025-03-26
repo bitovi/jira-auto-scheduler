@@ -223,7 +223,7 @@ function matchLink(fragment) {
 function isParagraph(frag) {return frag.type === "paragraph"; }
 
 function getTextFromParagraph(p){
-    return p.content.filter( text => text.type === "text").map( text =>  text.text );
+    return p.content ? p.content.filter( text => text.type === "text").map( text =>  text.text ) : [];
 }
 function getTextFromWithinCell(cell) {
     return cell.content.filter(isParagraph)
