@@ -520,15 +520,33 @@ export default function JiraOIDCHelpers({
 		return map;
 	}
 
+	function fieldPriorityOrder(a, b) {
+		if (a?.scope && !b?.scope) {
+			return 1;
+		}
+		if (b?.scope && !a?.scope) {
+			return -1;
+		}
+		
+		return 0;
+	}
+
 	if (jiraHelpers.hasValidAccessToken()) {
 		fieldsRequest = jiraHelpers.fetchJiraFields().then((fields) => {
 			const nameMap = {};
 			const idMap = {};
+			const idToFields = {};
 			fields.forEach((f) => {
 				idMap[f.id] = f.name;
-				nameMap[f.name] = f.id;
+				if (!idToFields[f.name]) {
+					idToFields[f.name] = [];
+				}
+				idToFields[f.name].push(f);
 			});
-			console.log(nameMap);
+			for (let fieldName in idToFields) {
+				idToFields[fieldName].sort(fieldPriorityOrder);
+				nameMap[fieldName] = idToFields[fieldName][0].id;
+			}
 
 			return {
 				list: fields,

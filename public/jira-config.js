@@ -61,6 +61,7 @@ export class Configure extends ObservableObject {
     confidenceFields: saveJSONToUrl(
       "confidenceFields", 
       function(){
+        console.log(this.sortedFieldNames);
         const haveConfidence = this.sortedFieldNames.filter( f => {
           const lowerFieldName = f.toLowerCase();
           return lowerFieldName.includes("confidence")  
