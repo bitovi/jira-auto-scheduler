@@ -206,7 +206,9 @@ class MonteCarlo extends StacheElement {
                                     on:change='this.updateVelocity(workPlan.teamKey, scope.element.valueAsNumber)'
                                     class="form-border w-10 text-sm text-center" />
                             </div>
-                            <div class="text-sm border-transparent border">Working Days: {{this.totalWorkingDays(workPlan)}}, </div>
+                            <div class="text-sm border-transparent border">
+                                Track Working Days: {{this.roundedTotalWorkingDays(workPlan)}}, 
+                                Team Working Days: {{this.roundedTeamWorkingDays(workPlan)}}</div>
                         {{/ not}}
                         
                     </div>
@@ -333,12 +335,18 @@ class MonteCarlo extends StacheElement {
             return "";
         }
     }
-    totalWorkingDays(workPlan){
-        return Math.round( workPlan.tracks.reduce( (acc, track) => {
+    totalWorkingDays(workPlan) {
+        return workPlan.tracks.reduce( (acc, track) => {
             return acc + track.works.reduce( (workAcc, work) => {
                 return workAcc + work.adjustedDaysOfWork;
             }, 0)
-        },0) )
+        },0)
+    }
+    roundedTotalWorkingDays(workPlan){
+        return Math.round( this.totalWorkingDays(workPlan) );
+    }
+    roundedTeamWorkingDays(workPlan){
+        return Math.round( this.totalWorkingDays(workPlan) /  workPlan.tracks.length )
     }
     runOneSimulation(success, first){
         if(!this.configuration || !this.rawIssues.length) {
